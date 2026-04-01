@@ -17,63 +17,119 @@ import requests as http_requests
 from datetime import datetime
 
 
-# ── Auto-evaluation: score every answer with GPT-4o ──────────────────
-EVAL_PROMPT = """You are a strict RAG evaluation judge. Given a user question, the retrieved context, and the generated answer, score the answer on 4 metrics.
+# ── Auto-evaluation: fast local scoring (no LLM calls) ───────────────
+import re
+import math
 
-QUESTION: {question}
 
-RETRIEVED CONTEXT:
-{context}
+def _tokenize(text: str) -> list[str]:
+    """Simple word tokenizer — lowercase, alpha-only, 3+ chars."""
+    return [w for w in re.findall(r'[a-z]{3,}', text.lower())]
 
-GENERATED ANSWER:
-{answer}
 
-Score each metric from 0.0 to 1.0:
+def _cosine_sim(a: list[float], b: list[float]) -> float:
+    """Cosine similarity between two vectors."""
+    dot = sum(x * y for x, y in zip(a, b))
+    na = math.sqrt(sum(x * x for x in a))
+    nb = math.sqrt(sum(x * x for x in b))
+    return dot / (na * nb) if na > 0 and nb > 0 else 0.0
 
-1. **Groundedness**: Is every claim in the answer supported by the retrieved context? (1.0 = fully grounded, 0.0 = completely unsupported)
-2. **Relevancy**: Does the answer directly address the user's question? (1.0 = perfectly relevant, 0.0 = off-topic)
-3. **Completeness**: Does the answer cover all key points from the context that relate to the question? (1.0 = comprehensive, 0.0 = missing everything)
-4. **Hallucination**: Does the answer contain information NOT in the retrieved context? (1.0 = no hallucination, 0.0 = entirely hallucinated)
 
-Return ONLY valid JSON:
-{{"groundedness": 0.0, "relevancy": 0.0, "completeness": 0.0, "hallucination": 0.0}}"""
+def _rouge_l(reference: str, hypothesis: str) -> tuple[float, float]:
+    """ROUGE-L precision and recall using longest common subsequence."""
+    ref_words = _tokenize(reference)
+    hyp_words = _tokenize(hypothesis)
+    if not ref_words or not hyp_words:
+        return 0.0, 0.0
+    # LCS via DP
+    m, n = len(ref_words), len(hyp_words)
+    # Limit to first 500 words each to keep it fast
+    ref_words = ref_words[:500]
+    hyp_words = hyp_words[:500]
+    m, n = len(ref_words), len(hyp_words)
+    prev = [0] * (n + 1)
+    for i in range(1, m + 1):
+        curr = [0] * (n + 1)
+        for j in range(1, n + 1):
+            if ref_words[i - 1] == hyp_words[j - 1]:
+                curr[j] = prev[j - 1] + 1
+            else:
+                curr[j] = max(curr[j - 1], prev[j])
+        prev = curr
+    lcs_len = prev[n]
+    precision = lcs_len / n if n > 0 else 0.0
+    recall = lcs_len / m if m > 0 else 0.0
+    return precision, recall
+
+
+def _keyword_recall(context: str, answer: str) -> float:
+    """What % of important context keywords appear in the answer."""
+    # Extract keywords: words appearing in context but not common stopwords
+    stopwords = {"the", "and", "for", "are", "with", "that", "this", "from", "have", "has",
+                 "been", "was", "were", "will", "can", "which", "their", "they", "also",
+                 "more", "than", "into", "such", "each", "about", "between", "should",
+                 "these", "other", "not", "but", "its", "all", "any", "our", "your"}
+    ctx_words = set(_tokenize(context)) - stopwords
+    ans_words = set(_tokenize(answer))
+    if not ctx_words:
+        return 0.0
+    return len(ctx_words & ans_words) / len(ctx_words)
 
 
 def _evaluate_answer(question: str, context: str, answer: str) -> dict:
-    """Score an answer using GPT-4o as a judge. Returns dict with 4 metrics."""
+    """Fast local evaluation — no LLM calls. Uses embeddings + text overlap."""
     try:
-        import config
-        from openai import AzureOpenAI
-        client = AzureOpenAI(
-            azure_endpoint=config.AZURE_OPENAI_ENDPOINT,
-            api_key=config.AZURE_OPENAI_KEY,
-            api_version=config.AZURE_OPENAI_API_VERSION,
-        )
-        resp = client.chat.completions.create(
-            model=config.AZURE_CHAT_DEPLOYMENT,
-            messages=[{"role": "user", "content": EVAL_PROMPT.format(
-                question=question,
-                context=context[:3000],
-                answer=answer[:2000],
-            )}],
-            temperature=0.0,
-            max_tokens=100,
-        )
-        raw = resp.choices[0].message.content.strip()
-        # Parse JSON from response
-        import re
-        match = re.search(r'\{[^}]+\}', raw)
-        if match:
-            scores = json.loads(match.group())
-            return {
-                "groundedness":  round(float(scores.get("groundedness", 0)), 2),
-                "relevancy":     round(float(scores.get("relevancy", 0)), 2),
-                "completeness":  round(float(scores.get("completeness", 0)), 2),
-                "hallucination": round(float(scores.get("hallucination", 0)), 2),
-            }
+        # Embedding-based scores (uses cached embedder if available)
+        embed_ground = 0.0
+        embed_relev = 0.0
+        try:
+            import config
+            from openai import AzureOpenAI
+            client = AzureOpenAI(
+                azure_endpoint=config.AZURE_OPENAI_ENDPOINT,
+                api_key=config.AZURE_OPENAI_KEY,
+                api_version=config.AZURE_OPENAI_API_VERSION,
+            )
+            resp = client.embeddings.create(
+                model=config.AZURE_EMBED_DEPLOYMENT,
+                input=[answer[:2000], context[:3000], question[:500]],
+            )
+            vec_answer  = resp.data[0].embedding
+            vec_context = resp.data[1].embedding
+            vec_question = resp.data[2].embedding
+            embed_ground = _cosine_sim(vec_answer, vec_context)
+            embed_relev  = _cosine_sim(vec_answer, vec_question)
+        except Exception:
+            pass
+
+        # ROUGE-L: precision = hallucination check, recall = completeness check
+        rouge_precision, rouge_recall = _rouge_l(context, answer)
+
+        # Keyword recall
+        kw_recall = _keyword_recall(context, answer)
+
+        # Combine scores:
+        # Groundedness: embedding similarity between answer and context
+        groundedness = round(embed_ground, 2)
+
+        # Relevancy: embedding similarity between answer and question
+        relevancy = round(embed_relev, 2)
+
+        # Completeness: blend of keyword recall and ROUGE recall
+        completeness = round(0.5 * kw_recall + 0.5 * rouge_recall, 2)
+
+        # Hallucination (inverted: 1.0 = no hallucination):
+        # ROUGE precision = how much of answer is found in context
+        hallucination = round(rouge_precision, 2)
+
+        return {
+            "groundedness":  groundedness,
+            "relevancy":     relevancy,
+            "completeness":  completeness,
+            "hallucination": hallucination,
+        }
     except Exception:
-        pass
-    return {"groundedness": 0, "relevancy": 0, "completeness": 0, "hallucination": 0}
+        return {"groundedness": 0, "relevancy": 0, "completeness": 0, "hallucination": 0}
 
 # ── Persistent query log (GitHub-backed) ──────────────────────────────
 LOG_PATH = Path(__file__).parent.parent / "evaluation" / "results" / "query_log.json"
@@ -774,7 +830,7 @@ if st.session_state.page == "analytics":
         st.markdown("<br>", unsafe_allow_html=True)
 
         # ── KPI Row 2: Quality metrics ───────────────────────
-        st.markdown("**Answer Quality Metrics** (GPT-4o Judge)")
+        st.markdown("**Answer Quality Metrics** (Embedding + ROUGE-L + Keyword Overlap)")
         q1, q2, q3, q4 = st.columns(4)
         for col, val, label, color in [
             (q1, f"{avg_ground:.2f}",  "Groundedness",      "#22C55E"),
