@@ -1,0 +1,2 @@
+gremlinpython>=3.7.0
+openai>=1.40.0

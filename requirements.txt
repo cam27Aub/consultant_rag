@@ -1,0 +1,29 @@
+# Azure SDKs
+openai>=1.40.0
+azure-search-documents==11.4.0
+azure-core>=1.30.2
+
+# Document parsers
+pdfplumber>=0.11.0
+python-pptx>=0.6.23
+python-docx>=1.1.0
+
+# ML / local fallback
+numpy>=1.24.0
+scikit-learn>=1.3.0
+scipy>=1.10.0
+
+# Graph RAG
+gremlinpython>=3.7.0
+
+# Web scraper
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+lxml>=4.9.0
+
+# Vision
+PyMuPDF>=1.24.0
+
+# App
+streamlit>=1.35.0
+python-dotenv>=1.0.0
