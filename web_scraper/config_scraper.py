@@ -1,8 +1,16 @@
 import os
 
+def _secret(key, default=""):
+    """Read from Streamlit secrets first, then environment variables."""
+    try:
+        import streamlit as st
+        return st.secrets.get(key, os.getenv(key, default))
+    except Exception:
+        return os.getenv(key, default)
+
 # Reuse from your existing consultant_rag/config.py
-AZURE_OPENAI_ENDPOINT    = os.getenv("AZURE_OPENAI_ENDPOINT", "")
-AZURE_OPENAI_KEY         = os.getenv("AZURE_OPENAI_KEY", "")
+AZURE_OPENAI_ENDPOINT    = _secret("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_KEY         = _secret("AZURE_OPENAI_KEY")
 AZURE_OPENAI_API_VERSION = "2024-02-01"
 AZURE_CHAT_DEPLOYMENT    = "gpt-4o"
 
