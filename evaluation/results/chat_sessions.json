@@ -41,7 +41,7 @@
   },
   "20260401_171057_b51c6d": {
     "title": "How does Porter's Five Forces compare to PESTEL analysis?",
-    "updated": "2026-04-01T18:56:22",
+    "updated": "2026-04-01T19:05:38",
     "messages": [
       {
         "role": "user",
@@ -81,6 +81,20 @@
       {
         "role": "assistant",
         "content": "The subgraph does not show any direct relationship between *Porter's Five Forces* and the *BCG Growth-Share Matrix*. Each framework is associated with different processes: *Porter's Five Forces* is used in *Industry Analysis*, while the *BCG Growth-Share Matrix* is used in *Corporate Strategy Engagements*. No connection between these frameworks is indicated in the provided subgraph.",
+        "rag_mode": "Graph RAG",
+        "reformulated": false,
+        "used_memory": false
+      },
+      {
+        "role": "user",
+        "content": "How does stakeholder mapping relate to the diagnostic phase of a consulting engagement?",
+        "rag_mode": "",
+        "reformulated": false,
+        "used_memory": false
+      },
+      {
+        "role": "assistant",
+        "content": "Stakeholder Mapping is a component of the Diagnostic Phase, as indicated by the relationship *Diagnostic Phase —[HAS_COMPONENT]→ Stakeholder Mapping*. Additionally, Stakeholder Mapping requires Stakeholder Interviews (*Stakeholder Mapping —[REQUIRES]→ Stakeholder Interviews*), which are also a component of the Diagnostic Phase (*Diagnostic Phase —[HAS_COMPONENT]→ Stakeholder Interviews*). This highlights that Stakeholder Mapping is an integral process within the Diagnostic Phase, contributing to understanding the client’s organizational dynamics.",
         "rag_mode": "Graph RAG",
         "reformulated": false,
         "used_memory": false
