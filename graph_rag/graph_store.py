@@ -134,11 +134,13 @@ class GraphStore:
 
         results = []
         seen = set()
-        for _, r in scored[:top_k]:
+        for match_score, r in scored[:top_k]:
             eid = str(r.get("id", ""))
             if eid not in seen:
                 seen.add(eid)
-                results.append(self._parse_vertex(r))
+                v = self._parse_vertex(r)
+                v["_match_score"] = match_score
+                results.append(v)
         return results
 
     def get_neighbours(self, entity_id, depth=2):

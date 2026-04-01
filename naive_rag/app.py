@@ -904,23 +904,28 @@ if st.session_state.page == "analytics":
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # ── Response Time by Mode (chart) ─────────────────────
-        st.markdown("**Response Time by RAG Mode**")
-        time_data = []
-        for e in log:
-            mode = e.get("mode", "Unknown")
-            if mode in ("Naive RAG", "Graph RAG", "Hybrid RAG"):
-                time_data.append({"Mode": mode, "Response Time (s)": e.get("response_time", 0)})
-        if time_data:
-            df_time = pd.DataFrame(time_data)
-            # Compute per-mode averages for bar chart
-            df_avg_time = df_time.groupby("Mode")["Response Time (s)"].mean().reset_index()
-            df_avg_time.columns = ["Mode", "Avg Response Time (s)"]
-            st.bar_chart(df_avg_time.set_index("Mode"))
+        # ── Response Time per Prompt by Mode (line chart) ─────
+        st.markdown("**Response Time per Prompt by RAG Mode**")
+        mode_series = {}
+        for mode in ["Naive RAG", "Graph RAG", "Hybrid RAG"]:
+            mode_times = [e.get("response_time", 0) for e in log if e.get("mode") == mode]
+            if mode_times:
+                mode_series[mode] = mode_times
+        if mode_series:
+            # Pad shorter lists with None so all columns align
+            max_len = max(len(v) for v in mode_series.values())
+            chart_data = {}
+            for mode, times in mode_series.items():
+                chart_data[mode] = times + [None] * (max_len - len(times))
+            df_chart = pd.DataFrame(chart_data)
+            df_chart.index = df_chart.index + 1  # prompts start at 1
+            df_chart.index.name = "Prompt #"
+            st.line_chart(df_chart, use_container_width=True)
+            st.caption("**Horizontal axis:** Prompt number &nbsp;&nbsp;|&nbsp;&nbsp; **Vertical axis:** Response time (seconds)")
 
-            # Also show box-style summary
+            # Summary table
             st.markdown("<br>", unsafe_allow_html=True)
-            st.markdown("**Response Time Distribution**")
+            st.markdown("**Response Time Summary**")
             time_summary = []
             for mode in ["Naive RAG", "Graph RAG", "Hybrid RAG"]:
                 mode_times = [e.get("response_time", 0) for e in log if e.get("mode") == mode]
@@ -1109,8 +1114,11 @@ if question and question.strip():
                 ]
                 sources_list = list({n.get("source", "") for n in nodes if n.get("source")})
 
-                # Graph RAG: use node count / edges as a confidence proxy
-                if nodes:
+                # Graph RAG: use real entity match scores from graph search
+                match_scores = [n.get("_match_score", 0) for n in nodes if n.get("_match_score", 0) > 0]
+                if match_scores:
+                    avg_score = sum(match_scores) / len(match_scores)
+                elif nodes:
                     avg_score = min(len(nodes) / top_k, 1.0)
 
             # ════════════════════════════════════════════════════════
@@ -1149,10 +1157,11 @@ if question and question.strip():
                     subgraph = retriever.graph.retrieve(effective_q, top_k=top_k)
                     graph_chunks = [
                         {
-                            "source":      n.get("source", ""),
-                            "cleaned_text":"%s: %s" % (n.get("name",""), n.get("description","")),
-                            "page":        n.get("page", 0),
-                            "section":     n.get("name", ""),
+                            "source":       n.get("source", ""),
+                            "cleaned_text": "%s: %s" % (n.get("name",""), n.get("description","")),
+                            "page":         n.get("page", 0),
+                            "section":      n.get("name", ""),
+                            "_match_score": n.get("_match_score", 0),
                         }
                         for n in subgraph.get("nodes", [])
                     ]
@@ -1184,13 +1193,17 @@ if question and question.strip():
                             naive_scores.append(v)
                     except (ValueError, TypeError):
                         pass
-                graph_score = min(len(graph_chunks) / max(top_k, 1), 1.0) if graph_chunks else 0
+                # Graph score: use real match scores if available, else count-proxy
+                g_match = [c.get("_match_score", 0) for c in graph_chunks if c.get("_match_score", 0) > 0]
+                graph_score = sum(g_match) / len(g_match) if g_match else (
+                    min(len(graph_chunks) / max(top_k, 1), 1.0) if graph_chunks else 0
+                )
                 naive_score = sum(naive_scores) / len(naive_scores) if naive_scores else 0
                 # Blend: if both exist average them, otherwise use whichever is available
                 if graph_score > 0 and naive_score > 0:
                     avg_score = (graph_score + naive_score) / 2
                 else:
-                    avg_score = graph_score or naive_score or (0.5 if chunks else 0)
+                    avg_score = graph_score or naive_score or 0
 
             # ════════════════════════════════════════════════════════
             #  WEB RESEARCH

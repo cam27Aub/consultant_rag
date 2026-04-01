@@ -216,10 +216,92 @@ ALL_TESTS = (
 )
 
 
+def _evaluate_answer(question, context, answer):
+    """Fast local evaluation — same as app.py. No LLM calls."""
+    import re as _re
+    import math as _math
+
+    def _tok(text):
+        return [w for w in _re.findall(r'[a-z]{3,}', text.lower())]
+
+    def _cos(a, b):
+        dot = sum(x * y for x, y in zip(a, b))
+        na = _math.sqrt(sum(x * x for x in a))
+        nb = _math.sqrt(sum(x * x for x in b))
+        return dot / (na * nb) if na > 0 and nb > 0 else 0.0
+
+    def _rouge_l(ref, hyp):
+        rw = _tok(ref)[:500]
+        hw = _tok(hyp)[:500]
+        if not rw or not hw:
+            return 0.0, 0.0
+        m, n = len(rw), len(hw)
+        prev = [0] * (n + 1)
+        for i in range(1, m + 1):
+            curr = [0] * (n + 1)
+            for j in range(1, n + 1):
+                if rw[i - 1] == hw[j - 1]:
+                    curr[j] = prev[j - 1] + 1
+                else:
+                    curr[j] = max(curr[j - 1], prev[j])
+            prev = curr
+        lcs = prev[n]
+        return (lcs / n if n else 0.0), (lcs / m if m else 0.0)
+
+    def _kw_recall(ctx, ans):
+        stops = {"the","and","for","are","with","that","this","from","have","has",
+                 "been","was","were","will","can","which","their","they","also",
+                 "more","than","into","such","each","about","between","should",
+                 "these","other","not","but","its","all","any","our","your"}
+        cw = set(_tok(ctx)) - stops
+        aw = set(_tok(ans))
+        return len(cw & aw) / len(cw) if cw else 0.0
+
+    try:
+        import config
+        from openai import AzureOpenAI
+        client = AzureOpenAI(
+            azure_endpoint=config.AZURE_OPENAI_ENDPOINT,
+            api_key=config.AZURE_OPENAI_KEY,
+            api_version=config.AZURE_OPENAI_API_VERSION,
+        )
+        resp = client.embeddings.create(
+            model=config.AZURE_EMBED_DEPLOYMENT,
+            input=[answer[:2000], context[:3000], question[:500]],
+        )
+        va = resp.data[0].embedding
+        vc = resp.data[1].embedding
+        vq = resp.data[2].embedding
+        embed_ground = _cos(va, vc)
+        embed_relev = _cos(va, vq)
+    except Exception:
+        embed_ground = 0.0
+        embed_relev = 0.0
+
+    rp, rr = _rouge_l(context, answer)
+    kw = _kw_recall(context, answer)
+
+    return {
+        "groundedness":  round(embed_ground, 2),
+        "relevancy":     round(embed_relev, 2),
+        "completeness":  round(0.5 * kw + 0.5 * rr, 2),
+        "hallucination": round(rp, 2),
+    }
+
+
 def run_tests():
     import asyncio
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+    # Clear old test entries if --clear flag
+    clear_old = "--clear" in sys.argv
+    if clear_old:
+        print("Clearing old test entries from log...")
+        old_log = _load_log()
+        old_log = [e for e in old_log if not e.get("test_run")]
+        _save_log(old_log)
+        print(f"  Kept {len(old_log)} non-test entries.")
 
     print(f"\n{'='*60}")
     print(f"  ConsultantIQ — 100 Prompt Stress Test")
@@ -240,20 +322,16 @@ def run_tests():
     from hybrid_rag.query_hybrid import HybridRetriever
     hybrid = HybridRetriever()
 
-    retrievers = {
-        "Naive RAG": naive,
-        "Graph RAG": graph,
-        "Hybrid RAG": hybrid,
-    }
-
     log = _load_log()
     success, errors = 0, 0
 
     for i, (question, mode) in enumerate(ALL_TESTS, 1):
-        print(f"[{i:3d}/{len(ALL_TESTS)}] ({mode:10s}) {question[:60]}...", end=" ", flush=True)
+        print(f"[{i:3d}/{len(ALL_TESTS)}] ({mode:10s}) {question[:55]}...", end=" ", flush=True)
 
         t0 = time.time()
         try:
+            context_text = ""
+
             if mode == "Naive RAG":
                 result = naive.ask(question, top_k=5, verbose=False)
                 answer = result["answer"]
@@ -272,6 +350,7 @@ def run_tests():
                         pass
                 avg_score = sum(scores_vals) / len(scores_vals) if scores_vals else 0
                 num_chunks = len(chunks)
+                context_text = "\n".join((c.get("cleaned_text") or c.get("chunk_text") or "") for c in chunks[:5])
 
             elif mode == "Graph RAG":
                 import io, contextlib
@@ -281,8 +360,12 @@ def run_tests():
                 with contextlib.redirect_stdout(buf):
                     answer = graph.ask(question, top_k=5)
                 sources_list = list({n.get("source", "") for n in nodes if n.get("source")})
-                avg_score = min(len(nodes) / 5, 1.0) if nodes else 0
+                match_scores = [n.get("_match_score", 0) for n in nodes if n.get("_match_score", 0) > 0]
+                avg_score = sum(match_scores) / len(match_scores) if match_scores else (
+                    min(len(nodes) / 5, 1.0) if nodes else 0
+                )
                 num_chunks = len(nodes)
+                context_text = "\n".join(f"{n.get('name','')}: {n.get('description','')}" for n in nodes)
 
             elif mode == "Hybrid RAG":
                 import io, contextlib
@@ -297,11 +380,53 @@ def run_tests():
                         continue
                     clean_lines.append(ln)
                 answer = "\n".join(clean_lines).strip()
-                sources_list = []
-                avg_score = 0.5  # default for hybrid
-                num_chunks = 5
+                # Get context from both sources
+                graph_nodes = []
+                try:
+                    sub = hybrid.graph.retrieve(question, top_k=5)
+                    graph_nodes = sub.get("nodes", [])
+                    g_ctx = "\n".join(f"{n.get('name','')}: {n.get('description','')}" for n in graph_nodes)
+                except Exception:
+                    g_ctx = ""
+                naive_chunks_h = []
+                try:
+                    naive_chunks_h = hybrid.naive.retrieve(question, top_k=5) if hybrid.naive else []
+                    if not isinstance(naive_chunks_h, list):
+                        naive_chunks_h = []
+                    n_ctx = "\n".join((c.get("cleaned_text") or c.get("chunk_text") or "") for c in naive_chunks_h[:5])
+                except Exception:
+                    n_ctx = ""
+                context_text = g_ctx + "\n" + n_ctx
+
+                # Sources from both graph nodes and naive chunks
+                g_sources = {n.get("source", "") for n in graph_nodes if n.get("source")}
+                n_sources = {c.get("source", "") for c in naive_chunks_h if c.get("source")}
+                sources_list = list(g_sources | n_sources)
+
+                # Score: blend graph match scores with naive retrieval scores
+                g_match = [n.get("_match_score", 0) for n in graph_nodes if n.get("_match_score", 0) > 0]
+                graph_score = sum(g_match) / len(g_match) if g_match else 0
+                naive_scores_h = []
+                for c in naive_chunks_h:
+                    s = (c.get("@search.reranker_score") or c.get("_score_rrf")
+                         or c.get("_score_vector") or c.get("_score_fulltext") or 0)
+                    try:
+                        v = float(s)
+                        if v > 0:
+                            naive_scores_h.append(v)
+                    except (ValueError, TypeError):
+                        pass
+                naive_score = sum(naive_scores_h) / len(naive_scores_h) if naive_scores_h else 0
+                if graph_score > 0 and naive_score > 0:
+                    avg_score = (graph_score + naive_score) / 2
+                else:
+                    avg_score = graph_score or naive_score or 0
+                num_chunks = len(graph_nodes) + len(naive_chunks_h)
 
             elapsed = time.time() - t0
+
+            # Evaluate
+            eval_scores = _evaluate_answer(question, context_text, answer)
 
             log.append({
                 "question":      question,
@@ -316,10 +441,18 @@ def run_tests():
                 "used_memory":   False,
                 "sources":       sources_list,
                 "test_run":      True,
+                "groundedness":  eval_scores["groundedness"],
+                "relevancy":     eval_scores["relevancy"],
+                "completeness":  eval_scores["completeness"],
+                "hallucination": eval_scores["hallucination"],
             })
 
             success += 1
-            print(f"OK ({elapsed:.1f}s, {len(answer)} chars)")
+            g = eval_scores["groundedness"]
+            r = eval_scores["relevancy"]
+            c = eval_scores["completeness"]
+            h = eval_scores["hallucination"]
+            print(f"OK ({elapsed:.1f}s) G:{g} R:{r} C:{c} H:{h}")
 
         except Exception as e:
             elapsed = time.time() - t0
@@ -340,6 +473,7 @@ def run_tests():
                 "sources":       [],
                 "test_run":      True,
                 "error":         str(e)[:200],
+                "groundedness":  0, "relevancy": 0, "completeness": 0, "hallucination": 0,
             })
 
     # Save all results at once
@@ -352,18 +486,21 @@ def run_tests():
     print(f"{'='*60}")
 
     # Per-mode summary
-    test_entries = [e for e in log if e.get("test_run")]
+    test_entries = [e for e in log if e.get("test_run") and not e.get("error")]
     for mode in ["Naive RAG", "Graph RAG", "Hybrid RAG"]:
-        mode_entries = [e for e in test_entries if e.get("mode") == mode and not e.get("error")]
-        if mode_entries:
-            avg_time = sum(e["response_time"] for e in mode_entries) / len(mode_entries)
-            avg_sc = sum(e["avg_score"] for e in mode_entries) / len(mode_entries)
-            avg_len = sum(e["answer_length"] for e in mode_entries) / len(mode_entries)
-            print(f"\n  {mode}:")
-            print(f"    Queries:        {len(mode_entries)}")
-            print(f"    Avg Time:       {avg_time:.1f}s")
-            print(f"    Avg Score:      {avg_sc:.4f}")
-            print(f"    Avg Answer Len: {avg_len:.0f} chars")
+        me = [e for e in test_entries if e.get("mode") == mode]
+        if me:
+            avg_time = sum(e["response_time"] for e in me) / len(me)
+            avg_g = sum(e.get("groundedness", 0) for e in me) / len(me)
+            avg_r = sum(e.get("relevancy", 0) for e in me) / len(me)
+            avg_c = sum(e.get("completeness", 0) for e in me) / len(me)
+            avg_h = sum(e.get("hallucination", 0) for e in me) / len(me)
+            print(f"\n  {mode} ({len(me)} queries):")
+            print(f"    Avg Time:         {avg_time:.1f}s")
+            print(f"    Groundedness:     {avg_g:.2f}")
+            print(f"    Relevancy:        {avg_r:.2f}")
+            print(f"    Completeness:     {avg_c:.2f}")
+            print(f"    No Hallucination: {avg_h:.2f}")
 
     print(f"\nDone! Check Analytics in the Streamlit app.")
 

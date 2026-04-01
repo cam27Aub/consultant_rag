@@ -110,6 +110,9 @@ class GraphRetriever:
             for n in subgraph["nodes"]:
                 if n["id"] not in seen_ids:
                     seen_ids.add(n["id"])
+                    # Carry forward match score from seed entity
+                    if n["id"] == entity["id"]:
+                        n["_match_score"] = entity.get("_match_score", 0)
                     all_nodes.append(n)
             all_edges.extend(subgraph["edges"])
 
