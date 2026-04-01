@@ -3895,5 +3895,24 @@
     "relevancy": 0.62,
     "completeness": 0.56,
     "hallucination": 0.49
+  },
+  {
+    "question": "What is the relationship between Porter's Five Forces and the BCG Growth-Share Matrix?",
+    "effective_q": "What is the relationship between Porter's Five Forces and the BCG Growth-Share Matrix?",
+    "timestamp": "2026-04-01T18:56:20",
+    "mode": "Graph RAG",
+    "response_time": 17.08,
+    "num_chunks": 14,
+    "avg_score": 5.5,
+    "answer_length": 385,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx"
+    ],
+    "groundedness": 0.48,
+    "relevancy": 0.83,
+    "completeness": 0.43,
+    "hallucination": 0.4
   }
 ]
