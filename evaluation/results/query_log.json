@@ -58,5 +58,20 @@
     "sources": [
       "strategic_frameworks_guide.docx"
     ]
+  },
+  {
+    "question": "data curation",
+    "effective_q": "data curation",
+    "timestamp": "2026-04-01T13:12:30",
+    "mode": "Naive RAG",
+    "response_time": 8.12,
+    "num_chunks": 5,
+    "avg_score": 3.0661,
+    "answer_length": 1690,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "Lecture 2.pdf"
+    ]
   }
 ]
