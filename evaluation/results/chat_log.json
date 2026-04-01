@@ -38,5 +38,19 @@
     "is_followup": false,
     "used_memory": false,
     "response_time": 24.98
+  },
+  {
+    "timestamp": "2026-04-01T18:35:43",
+    "mode": "Graph RAG",
+    "question": "What is the difference between SWOT and Porter's Five Forces?",
+    "effective_q": "What is the difference between SWOT and Porter's Five Forces?",
+    "answer": "The subgraph does not contain any information about SWOT analysis, so I cannot address the comparison or differences between SWOT and Porter's Five Forces. However, the subgraph does provide details about Porter's Five Forces, which is a framework used in *Industry Analysis* to evaluate the attractiveness and profitability of an industry by analyzing five competitive dynamics: *Threat of New Entrants*, *Bargaining Power of Suppliers*, *Bargaining Power of Buyers*, *Threat of Substitutes*, and *Competitive Rivalry*. This framework determines *Industry Attractiveness* and supports processes like *Market Entry Strategy*, *Due Diligence*, and *Corporate Strategy Engagements*. \n\nNo information about SWOT analysis is available in the subgraph.",
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "ML Project Presentation.pptx"
+    ],
+    "is_followup": false,
+    "used_memory": false,
+    "response_time": 17.07
   }
 ]
