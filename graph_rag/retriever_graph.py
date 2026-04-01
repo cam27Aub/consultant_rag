@@ -33,9 +33,9 @@ SUBGRAPH CONTEXT:
 {context}
 
 Rules:
-1. Answer using ONLY the information in the subgraph above. NEVER add outside knowledge or make claims not supported by the entities and relationships shown.
-2. You may draw logical connections between entities that share a common parent framework or are part of the same analytical model, as long as you base it on the entity descriptions provided.
-3. If the subgraph contains partial but relevant information, provide what you can and clearly note which parts of the question could not be fully addressed from the graph.
+1. Answer using ONLY the information in the subgraph above. NEVER add outside knowledge, speculate, or make claims not supported by the entities and relationships shown.
+2. You may draw logical connections between entities that share a common parent framework or are part of the same analytical model, as long as you base it strictly on the entity descriptions provided.
+3. If the subgraph contains partial but relevant information, describe ONLY what the entities and relationships show. Then state which parts of the question could not be addressed from the graph. Do NOT fill in the gaps.
 4. Cite entity names and relationship types where relevant.
 5. Only say you cannot answer if the subgraph contains NO relevant entities at all.
 6. Be concise and professional.
