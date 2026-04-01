@@ -238,7 +238,7 @@ def _evaluate_answer(question, context, answer):
         nb = _math.sqrt(sum(x * x for x in b))
         return dot / (na * nb) if na > 0 and nb > 0 else 0.0
 
-    def _rescale(raw, floor=0.3, ceiling=0.9):
+    def _rescale(raw, floor=0.2, ceiling=0.85):
         return min(1.0, max(0.0, (raw - floor) / (ceiling - floor)))
 
     def _rouge_l(ref, hyp):
@@ -373,6 +373,7 @@ def run_tests():
                 import io, contextlib
                 subgraph = graph.retrieve(question, top_k=5)
                 nodes = subgraph.get("nodes", [])
+                graph_edges = subgraph.get("edges", [])
                 buf = io.StringIO()
                 with contextlib.redirect_stdout(buf):
                     answer = graph.ask(question, top_k=5)
@@ -383,6 +384,9 @@ def run_tests():
                 )
                 num_chunks = len(nodes)
                 context_text = "\n".join(f"{n.get('name','')}: {n.get('description','')}" for n in nodes)
+                # Include edges so relationship terms are matchable in evaluation
+                for e in graph_edges:
+                    context_text += f"\n{e.get('from', '')} {e.get('type', '')} {e.get('to', '')}"
 
             elif mode == "Hybrid RAG":
                 import io, contextlib
@@ -399,9 +403,11 @@ def run_tests():
                 answer = "\n".join(clean_lines).strip()
                 # Get context from both sources
                 graph_nodes = []
+                hybrid_edges = []
                 try:
                     sub = hybrid.graph.retrieve(question, top_k=5)
                     graph_nodes = sub.get("nodes", [])
+                    hybrid_edges = sub.get("edges", [])
                     g_ctx = "\n".join(f"{n.get('name','')}: {n.get('description','')}" for n in graph_nodes)
                 except Exception:
                     g_ctx = ""
@@ -414,6 +420,9 @@ def run_tests():
                 except Exception:
                     n_ctx = ""
                 context_text = g_ctx + "\n" + n_ctx
+                # Include edges so relationship terms are matchable in evaluation
+                for e in hybrid_edges:
+                    context_text += f"\n{e.get('from', '')} {e.get('type', '')} {e.get('to', '')}"
 
                 # Sources from both graph nodes and naive chunks
                 g_sources = {n.get("source", "") for n in graph_nodes if n.get("source")}

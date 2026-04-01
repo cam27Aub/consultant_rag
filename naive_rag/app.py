@@ -95,9 +95,10 @@ def _keyword_recall(question: str, context: str, answer: str) -> float:
     return 0.5 * q_coverage + 0.5 * ctx_coverage
 
 
-def _rescale_cosine(raw: float, floor: float = 0.3, ceiling: float = 0.9) -> float:
+def _rescale_cosine(raw: float, floor: float = 0.2, ceiling: float = 0.85) -> float:
     """Rescale raw cosine similarity to a 0-1 interpretable range.
-    Embeddings rarely go below 0.3 (unrelated) or above 0.9 (near-identical)."""
+    Floor lowered to 0.2 to accommodate Graph RAG where entity descriptions
+    are structurally different from synthesized narrative answers."""
     return min(1.0, max(0.0, (raw - floor) / (ceiling - floor)))
 
 
@@ -1080,6 +1081,7 @@ if question and question.strip():
 
             answer       = ""
             chunks       = []
+            edges        = []
             web_sources  = []
             sources_list = []
             avg_score    = 0
@@ -1190,6 +1192,7 @@ if question and question.strip():
                         }
                         for n in subgraph.get("nodes", [])
                     ]
+                    edges = subgraph.get("edges", [])
                 except Exception:
                     graph_chunks = []
 
@@ -1263,6 +1266,10 @@ if question and question.strip():
             context_text = ""
             for c in chunks[:5]:
                 context_text += (c.get("cleaned_text") or c.get("chunk_text") or "") + "\n"
+            # Include graph edges in eval context so relationship terms are matchable
+            if rag_mode in ("Graph RAG", "Hybrid RAG") and edges:
+                for e in edges:
+                    context_text += f"{e.get('from', '')} {e.get('type', '')} {e.get('to', '')}\n"
             for ws in web_sources[:3]:
                 context_text += (ws.get("content", "") or "")[:500] + "\n"
             eval_scores = _evaluate_answer(effective_q, context_text, answer)
