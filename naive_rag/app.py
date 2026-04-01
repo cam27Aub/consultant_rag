@@ -254,8 +254,11 @@ st.markdown("""
 <style>
   html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
   #MainMenu, footer, header { visibility: hidden; }
-  section[data-testid="stSidebar"] { min-width: 340px !important; max-width: 340px !important; }
+  section[data-testid="stSidebar"][aria-expanded="true"] { min-width: 340px !important; max-width: 340px !important; }
   section[data-testid="stSidebar"] > div { padding: 1.5rem 1rem; }
+  /* Chat history buttons */
+  [data-testid="stSidebar"] button { font-size: 13px !important; text-align: left !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  [data-testid="stSidebar"] [key^="del_"] button { font-size: 14px !important; padding: 4px !important; min-height: 0 !important; }
 
   .top-bar {
     background: #1E3A5F;
