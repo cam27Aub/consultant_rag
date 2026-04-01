@@ -41,7 +41,7 @@
   },
   "20260401_171057_b51c6d": {
     "title": "How does Porter's Five Forces compare to PESTEL analysis?",
-    "updated": "2026-04-01T18:12:52",
+    "updated": "2026-04-01T18:35:44",
     "messages": [
       {
         "role": "user",
@@ -53,6 +53,20 @@
       {
         "role": "assistant",
         "content": "The subgraph does not contain any information about PESTEL analysis or how it compares to Porter's Five Forces. It only provides details about Porter's Five Forces, which is a framework used in *Industry Analysis* to evaluate the profitability and attractiveness of an industry by analyzing five competitive dynamics: *Threat of New Entrants*, *Bargaining Power of Suppliers*, *Bargaining Power of Buyers*, *Threat of Substitutes*, and *Competitive Rivalry*. \n\nI cannot address the comparison to PESTEL analysis based on the provided subgraph.",
+        "rag_mode": "Graph RAG",
+        "reformulated": false,
+        "used_memory": false
+      },
+      {
+        "role": "user",
+        "content": "What is the difference between SWOT and Porter's Five Forces?",
+        "rag_mode": "",
+        "reformulated": false,
+        "used_memory": false
+      },
+      {
+        "role": "assistant",
+        "content": "The subgraph does not contain any information about SWOT analysis, so I cannot address the comparison or differences between SWOT and Porter's Five Forces. However, the subgraph does provide details about Porter's Five Forces, which is a framework used in *Industry Analysis* to evaluate the attractiveness and profitability of an industry by analyzing five competitive dynamics: *Threat of New Entrants*, *Bargaining Power of Suppliers*, *Bargaining Power of Buyers*, *Threat of Substitutes*, and *Competitive Rivalry*. This framework determines *Industry Attractiveness* and supports processes like *Market Entry Strategy*, *Due Diligence*, and *Corporate Strategy Engagements*. \n\nNo information about SWOT analysis is available in the subgraph.",
         "rag_mode": "Graph RAG",
         "reformulated": false,
         "used_memory": false
