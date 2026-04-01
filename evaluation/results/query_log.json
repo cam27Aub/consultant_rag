@@ -43,5 +43,20 @@
     "sources": [
       "strategic_frameworks_guide.docx"
     ]
+  },
+  {
+    "question": "porters five forces",
+    "effective_q": "porters five forces",
+    "timestamp": "2026-04-01T13:10:01",
+    "mode": "Naive RAG",
+    "response_time": 7.63,
+    "num_chunks": 5,
+    "avg_score": 2.4628,
+    "answer_length": 1898,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx"
+    ]
   }
 ]
