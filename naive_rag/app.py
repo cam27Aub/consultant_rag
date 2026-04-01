@@ -531,15 +531,25 @@ with st.sidebar:
         for sid, sdata in sorted_sessions[:15]:
             title = sdata.get("title", "Untitled")
             is_current = (sid == st.session_state.get("session_id", ""))
-            label = f"{'▶ ' if is_current else ''}{title}"
-            if st.button(label, key=f"sess_{sid}", use_container_width=True):
-                if not is_current:
-                    # Save current session first
-                    _save_current_session()
-                    # Load selected session
-                    st.session_state.session_id = sid
-                    st.session_state.messages = sdata.get("messages", [])
-                    st.session_state.page = "chat"
+            col_chat, col_del = st.columns([5, 1])
+            with col_chat:
+                label = f"{'▶ ' if is_current else ''}{title}"
+                if st.button(label, key=f"sess_{sid}", use_container_width=True):
+                    if not is_current:
+                        _save_current_session()
+                        st.session_state.session_id = sid
+                        st.session_state.messages = sdata.get("messages", [])
+                        st.session_state.page = "chat"
+                        st.rerun()
+            with col_del:
+                if st.button("🗑", key=f"del_{sid}"):
+                    sessions = _load_sessions()
+                    sessions.pop(sid, None)
+                    _save_sessions(sessions)
+                    # If deleting current session, start a new one
+                    if is_current:
+                        st.session_state.messages = []
+                        st.session_state.session_id = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:6]
                     st.rerun()
 
     st.markdown("<hr>", unsafe_allow_html=True)
