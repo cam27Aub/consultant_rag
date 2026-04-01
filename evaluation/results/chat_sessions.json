@@ -41,7 +41,7 @@
   },
   "20260401_171057_b51c6d": {
     "title": "How does Porter's Five Forces compare to PESTEL analysis?",
-    "updated": "2026-04-01T18:35:44",
+    "updated": "2026-04-01T18:56:22",
     "messages": [
       {
         "role": "user",
@@ -67,6 +67,20 @@
       {
         "role": "assistant",
         "content": "The subgraph does not contain any information about SWOT analysis, so I cannot address the comparison or differences between SWOT and Porter's Five Forces. However, the subgraph does provide details about Porter's Five Forces, which is a framework used in *Industry Analysis* to evaluate the attractiveness and profitability of an industry by analyzing five competitive dynamics: *Threat of New Entrants*, *Bargaining Power of Suppliers*, *Bargaining Power of Buyers*, *Threat of Substitutes*, and *Competitive Rivalry*. This framework determines *Industry Attractiveness* and supports processes like *Market Entry Strategy*, *Due Diligence*, and *Corporate Strategy Engagements*. \n\nNo information about SWOT analysis is available in the subgraph.",
+        "rag_mode": "Graph RAG",
+        "reformulated": false,
+        "used_memory": false
+      },
+      {
+        "role": "user",
+        "content": "What is the relationship between Porter's Five Forces and the BCG Growth-Share Matrix?",
+        "rag_mode": "",
+        "reformulated": false,
+        "used_memory": false
+      },
+      {
+        "role": "assistant",
+        "content": "The subgraph does not show any direct relationship between *Porter's Five Forces* and the *BCG Growth-Share Matrix*. Each framework is associated with different processes: *Porter's Five Forces* is used in *Industry Analysis*, while the *BCG Growth-Share Matrix* is used in *Corporate Strategy Engagements*. No connection between these frameworks is indicated in the provided subgraph.",
         "rag_mode": "Graph RAG",
         "reformulated": false,
         "used_memory": false
