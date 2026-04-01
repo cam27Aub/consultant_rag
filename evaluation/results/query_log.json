@@ -73,5 +73,1624 @@
     "sources": [
       "Lecture 2.pdf"
     ]
+  },
+  {
+    "question": "What are Porter's Five Forces?",
+    "effective_q": "What are Porter's Five Forces?",
+    "timestamp": "2026-04-01T17:09:40",
+    "mode": "Naive RAG",
+    "response_time": 8.2,
+    "num_chunks": 5,
+    "avg_score": 2.5924,
+    "answer_length": 1612,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "Explain the BCG Growth-Share Matrix quadrants.",
+    "effective_q": "Explain the BCG Growth-Share Matrix quadrants.",
+    "timestamp": "2026-04-01T17:09:47",
+    "mode": "Naive RAG",
+    "response_time": 7.0,
+    "num_chunks": 5,
+    "avg_score": 2.4471,
+    "answer_length": 1927,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "Topic_9_LogisticRegression.pptx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What is the MECE principle?",
+    "effective_q": "What is the MECE principle?",
+    "timestamp": "2026-04-01T17:09:52",
+    "mode": "Naive RAG",
+    "response_time": 4.57,
+    "num_chunks": 5,
+    "avg_score": 2.303,
+    "answer_length": 608,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "Lecture 1.pdf",
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx",
+      "Topic_9_LogisticRegression.pptx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What are the primary activities in Porter's Value Chain?",
+    "effective_q": "What are the primary activities in Porter's Value Chain?",
+    "timestamp": "2026-04-01T17:09:55",
+    "mode": "Naive RAG",
+    "response_time": 3.67,
+    "num_chunks": 5,
+    "avg_score": 2.2263,
+    "answer_length": 712,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What are the support activities in the Value Chain?",
+    "effective_q": "What are the support activities in the Value Chain?",
+    "timestamp": "2026-04-01T17:09:59",
+    "mode": "Naive RAG",
+    "response_time": 4.17,
+    "num_chunks": 5,
+    "avg_score": 2.2883,
+    "answer_length": 595,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx",
+      "Lecture 2.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How do you apply Porter's Five Forces to an industry?",
+    "effective_q": "How do you apply Porter's Five Forces to an industry?",
+    "timestamp": "2026-04-01T17:10:07",
+    "mode": "Naive RAG",
+    "response_time": 7.68,
+    "num_chunks": 5,
+    "avg_score": 2.4104,
+    "answer_length": 1980,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What is competitive rivalry in Porter's framework?",
+    "effective_q": "What is competitive rivalry in Porter's framework?",
+    "timestamp": "2026-04-01T17:10:11",
+    "mode": "Naive RAG",
+    "response_time": 4.25,
+    "num_chunks": 5,
+    "avg_score": 2.088,
+    "answer_length": 478,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "Topic_9_LogisticRegression.pptx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "Define threat of new entrants.",
+    "effective_q": "Define threat of new entrants.",
+    "timestamp": "2026-04-01T17:10:16",
+    "mode": "Naive RAG",
+    "response_time": 4.72,
+    "num_chunks": 5,
+    "avg_score": 1.7245,
+    "answer_length": 358,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx",
+      "Topic_9_LogisticRegression.pptx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How does bargaining power of buyers affect pricing?",
+    "effective_q": "How does bargaining power of buyers affect pricing?",
+    "timestamp": "2026-04-01T17:10:22",
+    "mode": "Naive RAG",
+    "response_time": 5.58,
+    "num_chunks": 5,
+    "avg_score": 1.9872,
+    "answer_length": 824,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "Topic_9_LogisticRegression.pptx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What characterizes a 'Star' in the BCG Matrix?",
+    "effective_q": "What characterizes a 'Star' in the BCG Matrix?",
+    "timestamp": "2026-04-01T17:10:26",
+    "mode": "Naive RAG",
+    "response_time": 3.83,
+    "num_chunks": 5,
+    "avg_score": 2.0318,
+    "answer_length": 528,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "Lecture 1.pdf",
+      "strategic_frameworks_guide.docx",
+      "Topic_9_LogisticRegression.pptx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "When should a company divest a 'Dog' business unit?",
+    "effective_q": "When should a company divest a 'Dog' business unit?",
+    "timestamp": "2026-04-01T17:10:30",
+    "mode": "Naive RAG",
+    "response_time": 4.12,
+    "num_chunks": 5,
+    "avg_score": 1.7685,
+    "answer_length": 430,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How does the MECE principle help with issue trees?",
+    "effective_q": "How does the MECE principle help with issue trees?",
+    "timestamp": "2026-04-01T17:10:34",
+    "mode": "Naive RAG",
+    "response_time": 4.05,
+    "num_chunks": 5,
+    "avg_score": 2.2963,
+    "answer_length": 644,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx",
+      "Topic_9_LogisticRegression.pptx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What are the four pillars of digital transformation?",
+    "effective_q": "What are the four pillars of digital transformation?",
+    "timestamp": "2026-04-01T17:10:40",
+    "mode": "Naive RAG",
+    "response_time": 6.18,
+    "num_chunks": 5,
+    "avg_score": 2.6704,
+    "answer_length": 998,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "Why do digital transformation programs fail?",
+    "effective_q": "Why do digital transformation programs fail?",
+    "timestamp": "2026-04-01T17:10:46",
+    "mode": "Naive RAG",
+    "response_time": 6.18,
+    "num_chunks": 5,
+    "avg_score": 2.2846,
+    "answer_length": 1031,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "strategic_frameworks_guide.docx",
+      "Lecture 1.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How should a digital transformation roadmap be designed?",
+    "effective_q": "How should a digital transformation roadmap be designed?",
+    "timestamp": "2026-04-01T17:10:56",
+    "mode": "Naive RAG",
+    "response_time": 9.55,
+    "num_chunks": 5,
+    "avg_score": 2.6515,
+    "answer_length": 1515,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What percentage of digital transformations fail?",
+    "effective_q": "What percentage of digital transformations fail?",
+    "timestamp": "2026-04-01T17:11:05",
+    "mode": "Naive RAG",
+    "response_time": 9.19,
+    "num_chunks": 5,
+    "avg_score": 2.0134,
+    "answer_length": 233,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "Lecture 1.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What role does executive sponsorship play in digital transformation?",
+    "effective_q": "What role does executive sponsorship play in digital transformation?",
+    "timestamp": "2026-04-01T17:11:18",
+    "mode": "Naive RAG",
+    "response_time": 12.99,
+    "num_chunks": 5,
+    "avg_score": 1.9949,
+    "answer_length": 1295,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How much budget should be allocated to change management?",
+    "effective_q": "How much budget should be allocated to change management?",
+    "timestamp": "2026-04-01T17:11:21",
+    "mode": "Naive RAG",
+    "response_time": 3.36,
+    "num_chunks": 5,
+    "avg_score": 1.9542,
+    "answer_length": 227,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "strategic_frameworks_guide.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What is the role of quick wins in a transformation roadmap?",
+    "effective_q": "What is the role of quick wins in a transformation roadmap?",
+    "timestamp": "2026-04-01T17:11:25",
+    "mode": "Naive RAG",
+    "response_time": 4.23,
+    "num_chunks": 5,
+    "avg_score": 2.0345,
+    "answer_length": 881,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "strategic_frameworks_guide.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How many initiatives should a transformation portfolio include?",
+    "effective_q": "How many initiatives should a transformation portfolio include?",
+    "timestamp": "2026-04-01T17:11:28",
+    "mode": "Naive RAG",
+    "response_time": 2.53,
+    "num_chunks": 5,
+    "avg_score": 2.1162,
+    "answer_length": 303,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What is EBITDA and why is it useful?",
+    "effective_q": "What is EBITDA and why is it useful?",
+    "timestamp": "2026-04-01T17:11:33",
+    "mode": "Naive RAG",
+    "response_time": 5.36,
+    "num_chunks": 5,
+    "avg_score": 2.1633,
+    "answer_length": 1223,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What are the three valuation methodologies in consulting?",
+    "effective_q": "What are the three valuation methodologies in consulting?",
+    "timestamp": "2026-04-01T17:11:39",
+    "mode": "Naive RAG",
+    "response_time": 5.24,
+    "num_chunks": 5,
+    "avg_score": 2.2616,
+    "answer_length": 1276,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What is Discounted Cash Flow analysis?",
+    "effective_q": "What is Discounted Cash Flow analysis?",
+    "timestamp": "2026-04-01T17:11:43",
+    "mode": "Naive RAG",
+    "response_time": 4.17,
+    "num_chunks": 5,
+    "avg_score": 2.071,
+    "answer_length": 1033,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "Explain comparable company analysis.",
+    "effective_q": "Explain comparable company analysis.",
+    "timestamp": "2026-04-01T17:11:47",
+    "mode": "Naive RAG",
+    "response_time": 4.47,
+    "num_chunks": 5,
+    "avg_score": 2.2109,
+    "answer_length": 854,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What are precedent transactions?",
+    "effective_q": "What are precedent transactions?",
+    "timestamp": "2026-04-01T17:11:51",
+    "mode": "Naive RAG",
+    "response_time": 3.41,
+    "num_chunks": 5,
+    "avg_score": 1.7327,
+    "answer_length": 439,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "Lecture 2.pdf",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What financial modeling best practices should consultants follow?",
+    "effective_q": "What financial modeling best practices should consultants follow?",
+    "timestamp": "2026-04-01T17:11:59",
+    "mode": "Naive RAG",
+    "response_time": 8.05,
+    "num_chunks": 5,
+    "avg_score": 2.5987,
+    "answer_length": 1721,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "Why should inputs be separated from calculations in a model?",
+    "effective_q": "Why should inputs be separated from calculations in a model?",
+    "timestamp": "2026-04-01T17:12:04",
+    "mode": "Naive RAG",
+    "response_time": 4.9,
+    "num_chunks": 5,
+    "avg_score": 1.9348,
+    "answer_length": 695,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "Topic_9_LogisticRegression.pptx",
+      "client_engagement_best_practices.docx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What color coding conventions are used in financial models?",
+    "effective_q": "What color coding conventions are used in financial models?",
+    "timestamp": "2026-04-01T17:12:07",
+    "mode": "Naive RAG",
+    "response_time": 3.48,
+    "num_chunks": 5,
+    "avg_score": 1.7434,
+    "answer_length": 340,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "Lecture 1.pdf",
+      "client_engagement_best_practices.docx",
+      "Lecture 2.pdf",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What scenarios should a financial model include?",
+    "effective_q": "What scenarios should a financial model include?",
+    "timestamp": "2026-04-01T17:12:11",
+    "mode": "Naive RAG",
+    "response_time": 3.84,
+    "num_chunks": 5,
+    "avg_score": 2.3437,
+    "answer_length": 769,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What is the pyramid principle in consulting?",
+    "effective_q": "What is the pyramid principle in consulting?",
+    "timestamp": "2026-04-01T17:12:14",
+    "mode": "Naive RAG",
+    "response_time": 2.74,
+    "num_chunks": 5,
+    "avg_score": 2.2118,
+    "answer_length": 411,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "Who developed the pyramid principle?",
+    "effective_q": "Who developed the pyramid principle?",
+    "timestamp": "2026-04-01T17:12:16",
+    "mode": "Naive RAG",
+    "response_time": 2.37,
+    "num_chunks": 5,
+    "avg_score": 1.9212,
+    "answer_length": 174,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "Lecture 1.pdf",
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How should stakeholders be managed during an engagement?",
+    "effective_q": "How should stakeholders be managed during an engagement?",
+    "timestamp": "2026-04-01T17:12:30",
+    "mode": "Naive RAG",
+    "response_time": 13.63,
+    "num_chunks": 5,
+    "avg_score": 2.2551,
+    "answer_length": 1320,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What types of stakeholders exist in a consulting engagement?",
+    "effective_q": "What types of stakeholders exist in a consulting engagement?",
+    "timestamp": "2026-04-01T17:12:36",
+    "mode": "Naive RAG",
+    "response_time": 5.92,
+    "num_chunks": 5,
+    "avg_score": 2.4056,
+    "answer_length": 1246,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How should you handle potential blockers in a project?",
+    "effective_q": "How should you handle potential blockers in a project?",
+    "timestamp": "2026-04-01T17:12:40",
+    "mode": "Naive RAG",
+    "response_time": 4.14,
+    "num_chunks": 5,
+    "avg_score": 1.9367,
+    "answer_length": 721,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How does Porter's Five Forces relate to competitive strategy?",
+    "effective_q": "How does Porter's Five Forces relate to competitive strategy?",
+    "timestamp": "2026-04-01T17:13:06",
+    "mode": "Graph RAG",
+    "response_time": 25.8,
+    "num_chunks": 22,
+    "avg_score": 1.0,
+    "answer_length": 964,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What is the relationship between BCG Matrix and portfolio management?",
+    "effective_q": "What is the relationship between BCG Matrix and portfolio management?",
+    "timestamp": "2026-04-01T17:13:12",
+    "mode": "Graph RAG",
+    "response_time": 6.86,
+    "num_chunks": 9,
+    "avg_score": 1.0,
+    "answer_length": 84,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How are MECE and issue trees connected?",
+    "effective_q": "How are MECE and issue trees connected?",
+    "timestamp": "2026-04-01T17:13:19",
+    "mode": "Graph RAG",
+    "response_time": 6.99,
+    "num_chunks": 10,
+    "avg_score": 1.0,
+    "answer_length": 84,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx",
+      "ML Project Presentation.pptx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What connects digital transformation to customer experience?",
+    "effective_q": "What connects digital transformation to customer experience?",
+    "timestamp": "2026-04-01T17:13:29",
+    "mode": "Graph RAG",
+    "response_time": 9.48,
+    "num_chunks": 10,
+    "avg_score": 1.0,
+    "answer_length": 462,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "strategic_frameworks_guide.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How does EBITDA relate to company valuation?",
+    "effective_q": "How does EBITDA relate to company valuation?",
+    "timestamp": "2026-04-01T17:13:38",
+    "mode": "Graph RAG",
+    "response_time": 9.47,
+    "num_chunks": 5,
+    "avg_score": 1.0,
+    "answer_length": 891,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What is the link between DCF analysis and cash flow forecasting?",
+    "effective_q": "What is the link between DCF analysis and cash flow forecasting?",
+    "timestamp": "2026-04-01T17:13:47",
+    "mode": "Graph RAG",
+    "response_time": 8.4,
+    "num_chunks": 13,
+    "avg_score": 1.0,
+    "answer_length": 84,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "ML Project Presentation.pptx",
+      "client_engagement_best_practices.docx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How does the pyramid principle connect to McKinsey?",
+    "effective_q": "How does the pyramid principle connect to McKinsey?",
+    "timestamp": "2026-04-01T17:13:59",
+    "mode": "Graph RAG",
+    "response_time": 11.9,
+    "num_chunks": 13,
+    "avg_score": 1.0,
+    "answer_length": 512,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What entities are involved in stakeholder management?",
+    "effective_q": "What entities are involved in stakeholder management?",
+    "timestamp": "2026-04-01T17:14:09",
+    "mode": "Graph RAG",
+    "response_time": 10.72,
+    "num_chunks": 7,
+    "avg_score": 1.0,
+    "answer_length": 943,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How do the four pillars of digital transformation interact?",
+    "effective_q": "How do the four pillars of digital transformation interact?",
+    "timestamp": "2026-04-01T17:14:22",
+    "mode": "Graph RAG",
+    "response_time": 12.92,
+    "num_chunks": 15,
+    "avg_score": 1.0,
+    "answer_length": 513,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "strategic_frameworks_guide.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What is the relationship between operational efficiency and technology?",
+    "effective_q": "What is the relationship between operational efficiency and technology?",
+    "timestamp": "2026-04-01T17:14:31",
+    "mode": "Graph RAG",
+    "response_time": 9.14,
+    "num_chunks": 10,
+    "avg_score": 1.0,
+    "answer_length": 447,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "strategic_frameworks_guide.docx",
+      "Lecture 1.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How does change management relate to digital transformation success?",
+    "effective_q": "How does change management relate to digital transformation success?",
+    "timestamp": "2026-04-01T17:14:43",
+    "mode": "Graph RAG",
+    "response_time": 11.36,
+    "num_chunks": 11,
+    "avg_score": 1.0,
+    "answer_length": 1132,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "strategic_frameworks_guide.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What connects competitive rivalry to market share?",
+    "effective_q": "What connects competitive rivalry to market share?",
+    "timestamp": "2026-04-01T17:14:50",
+    "mode": "Graph RAG",
+    "response_time": 7.41,
+    "num_chunks": 7,
+    "avg_score": 1.0,
+    "answer_length": 361,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How do support activities in the value chain enable primary activities?",
+    "effective_q": "How do support activities in the value chain enable primary activities?",
+    "timestamp": "2026-04-01T17:14:58",
+    "mode": "Graph RAG",
+    "response_time": 7.53,
+    "num_chunks": 7,
+    "avg_score": 1.0,
+    "answer_length": 84,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "Lecture 2.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What is the relationship between governance and program success?",
+    "effective_q": "What is the relationship between governance and program success?",
+    "timestamp": "2026-04-01T17:15:10",
+    "mode": "Graph RAG",
+    "response_time": 12.63,
+    "num_chunks": 9,
+    "avg_score": 1.0,
+    "answer_length": 1233,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "client_engagement_best_practices.docx",
+      "Lecture 2.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How does bargaining power relate to supply chain management?",
+    "effective_q": "How does bargaining power relate to supply chain management?",
+    "timestamp": "2026-04-01T17:15:18",
+    "mode": "Graph RAG",
+    "response_time": 7.52,
+    "num_chunks": 8,
+    "avg_score": 1.0,
+    "answer_length": 84,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What frameworks are used for industry analysis?",
+    "effective_q": "What frameworks are used for industry analysis?",
+    "timestamp": "2026-04-01T17:15:35",
+    "mode": "Graph RAG",
+    "response_time": 16.59,
+    "num_chunks": 22,
+    "avg_score": 1.0,
+    "answer_length": 802,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "Lecture 1.pdf",
+      "strategic_frameworks_guide.docx",
+      "ML Project Presentation.pptx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How does business model innovation connect to digital strategy?",
+    "effective_q": "How does business model innovation connect to digital strategy?",
+    "timestamp": "2026-04-01T17:15:47",
+    "mode": "Graph RAG",
+    "response_time": 12.43,
+    "num_chunks": 8,
+    "avg_score": 1.0,
+    "answer_length": 558,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What metrics are used to measure consulting engagement success?",
+    "effective_q": "What metrics are used to measure consulting engagement success?",
+    "timestamp": "2026-04-01T17:15:59",
+    "mode": "Graph RAG",
+    "response_time": 12.35,
+    "num_chunks": 13,
+    "avg_score": 1.0,
+    "answer_length": 432,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "client_engagement_best_practices.docx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How do financial metrics relate to strategic decision-making?",
+    "effective_q": "How do financial metrics relate to strategic decision-making?",
+    "timestamp": "2026-04-01T17:16:15",
+    "mode": "Graph RAG",
+    "response_time": 15.95,
+    "num_chunks": 13,
+    "avg_score": 1.0,
+    "answer_length": 1356,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "client_engagement_best_practices.docx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What connects client engagement to project delivery?",
+    "effective_q": "What connects client engagement to project delivery?",
+    "timestamp": "2026-04-01T17:16:23",
+    "mode": "Graph RAG",
+    "response_time": 7.68,
+    "num_chunks": 11,
+    "avg_score": 1.0,
+    "answer_length": 118,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How does data analytics support business transformation?",
+    "effective_q": "How does data analytics support business transformation?",
+    "timestamp": "2026-04-01T17:16:40",
+    "mode": "Graph RAG",
+    "response_time": 17.2,
+    "num_chunks": 12,
+    "avg_score": 1.0,
+    "answer_length": 784,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "client_engagement_best_practices.docx",
+      "Lecture 2.pdf",
+      "Lecture 1.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What is the relationship between talent gaps and transformation failure?",
+    "effective_q": "What is the relationship between talent gaps and transformation failure?",
+    "timestamp": "2026-04-01T17:16:50",
+    "mode": "Graph RAG",
+    "response_time": 9.57,
+    "num_chunks": 11,
+    "avg_score": 1.0,
+    "answer_length": 179,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How do trading multiples compare to DCF in valuation?",
+    "effective_q": "How do trading multiples compare to DCF in valuation?",
+    "timestamp": "2026-04-01T17:17:03",
+    "mode": "Graph RAG",
+    "response_time": 13.7,
+    "num_chunks": 12,
+    "avg_score": 1.0,
+    "answer_length": 1180,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "Lecture 1.pdf",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What connects executive sponsorship to change management?",
+    "effective_q": "What connects executive sponsorship to change management?",
+    "timestamp": "2026-04-01T17:17:11",
+    "mode": "Graph RAG",
+    "response_time": 7.17,
+    "num_chunks": 8,
+    "avg_score": 1.0,
+    "answer_length": 84,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How does scenario analysis relate to financial modeling?",
+    "effective_q": "How does scenario analysis relate to financial modeling?",
+    "timestamp": "2026-04-01T17:17:27",
+    "mode": "Graph RAG",
+    "response_time": 16.56,
+    "num_chunks": 20,
+    "avg_score": 1.0,
+    "answer_length": 833,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "client_engagement_best_practices.docx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What entities are part of the value chain framework?",
+    "effective_q": "What entities are part of the value chain framework?",
+    "timestamp": "2026-04-01T17:17:38",
+    "mode": "Graph RAG",
+    "response_time": 10.54,
+    "num_chunks": 12,
+    "avg_score": 1.0,
+    "answer_length": 879,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "Lecture 2.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How do exit barriers affect competitive rivalry?",
+    "effective_q": "How do exit barriers affect competitive rivalry?",
+    "timestamp": "2026-04-01T17:17:43",
+    "mode": "Graph RAG",
+    "response_time": 5.67,
+    "num_chunks": 6,
+    "avg_score": 1.0,
+    "answer_length": 84,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "strategic_frameworks_guide.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What links switching costs to buyer bargaining power?",
+    "effective_q": "What links switching costs to buyer bargaining power?",
+    "timestamp": "2026-04-01T17:17:49",
+    "mode": "Graph RAG",
+    "response_time": 5.97,
+    "num_chunks": 7,
+    "avg_score": 1.0,
+    "answer_length": 84,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "digital_transformation_playbook.pdf",
+      "strategic_frameworks_guide.docx",
+      "Employee Attrition project (analysis).pptx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How does product differentiation relate to competitive advantage?",
+    "effective_q": "How does product differentiation relate to competitive advantage?",
+    "timestamp": "2026-04-01T17:17:59",
+    "mode": "Graph RAG",
+    "response_time": 9.94,
+    "num_chunks": 13,
+    "avg_score": 1.0,
+    "answer_length": 746,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "Employee Attrition project (analysis).pptx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What connects inbound logistics to operations in the value chain?",
+    "effective_q": "What connects inbound logistics to operations in the value chain?",
+    "timestamp": "2026-04-01T17:18:12",
+    "mode": "Graph RAG",
+    "response_time": 12.87,
+    "num_chunks": 13,
+    "avg_score": 1.0,
+    "answer_length": 285,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "Lecture 2.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How are consulting frameworks interconnected?",
+    "effective_q": "How are consulting frameworks interconnected?",
+    "timestamp": "2026-04-01T17:18:21",
+    "mode": "Graph RAG",
+    "response_time": 9.29,
+    "num_chunks": 14,
+    "avg_score": 1.0,
+    "answer_length": 84,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "What is the relationship between risk assessment and financial analysis?",
+    "effective_q": "What is the relationship between risk assessment and financial analysis?",
+    "timestamp": "2026-04-01T17:18:33",
+    "mode": "Graph RAG",
+    "response_time": 11.78,
+    "num_chunks": 17,
+    "avg_score": 1.0,
+    "answer_length": 403,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "ML Project Presentation.pptx",
+      "client_engagement_best_practices.docx",
+      "financial_analysis_toolkit.pdf"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "How does market growth rate relate to the BCG Matrix?",
+    "effective_q": "How does market growth rate relate to the BCG Matrix?",
+    "timestamp": "2026-04-01T17:18:41",
+    "mode": "Graph RAG",
+    "response_time": 7.84,
+    "num_chunks": 6,
+    "avg_score": 1.0,
+    "answer_length": 608,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "client_engagement_best_practices.docx"
+    ],
+    "test_run": true
+  },
+  {
+    "question": "Compare Porter's Five Forces with the BCG Matrix for strategic planning.",
+    "effective_q": "Compare Porter's Five Forces with the BCG Matrix for strategic planning.",
+    "timestamp": "2026-04-01T17:19:14",
+    "mode": "Hybrid RAG",
+    "response_time": 32.48,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2430,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How can digital transformation principles be applied using consulting frameworks?",
+    "effective_q": "How can digital transformation principles be applied using consulting frameworks?",
+    "timestamp": "2026-04-01T17:19:37",
+    "mode": "Hybrid RAG",
+    "response_time": 23.9,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 3316,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "Explain the complete process of industry analysis using available frameworks.",
+    "effective_q": "Explain the complete process of industry analysis using available frameworks.",
+    "timestamp": "2026-04-01T17:19:55",
+    "mode": "Hybrid RAG",
+    "response_time": 17.12,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2827,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "What financial tools and strategic frameworks should be used together for M&A analysis?",
+    "effective_q": "What financial tools and strategic frameworks should be used together for M&A analysis?",
+    "timestamp": "2026-04-01T17:20:14",
+    "mode": "Hybrid RAG",
+    "response_time": 19.43,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2521,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How do the pyramid principle and stakeholder management work together in client engagements?",
+    "effective_q": "How do the pyramid principle and stakeholder management work together in client engagements?",
+    "timestamp": "2026-04-01T17:20:30",
+    "mode": "Hybrid RAG",
+    "response_time": 15.82,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2025,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "Compare DCF analysis with comparable company analysis for valuation.",
+    "effective_q": "Compare DCF analysis with comparable company analysis for valuation.",
+    "timestamp": "2026-04-01T17:20:52",
+    "mode": "Hybrid RAG",
+    "response_time": 22.06,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2451,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How should a consultant approach a digital transformation engagement from start to finish?",
+    "effective_q": "How should a consultant approach a digital transformation engagement from start to finish?",
+    "timestamp": "2026-04-01T17:21:09",
+    "mode": "Hybrid RAG",
+    "response_time": 17.06,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2741,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "What are all the frameworks available for competitive analysis and how do they differ?",
+    "effective_q": "What are all the frameworks available for competitive analysis and how do they differ?",
+    "timestamp": "2026-04-01T17:21:24",
+    "mode": "Hybrid RAG",
+    "response_time": 14.91,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2616,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How can financial modeling best practices support strategic decision-making?",
+    "effective_q": "How can financial modeling best practices support strategic decision-making?",
+    "timestamp": "2026-04-01T17:21:38",
+    "mode": "Hybrid RAG",
+    "response_time": 14.51,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2114,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "Explain the relationship between change management and digital transformation success with specific examples.",
+    "effective_q": "Explain the relationship between change management and digital transformation success with specific examples.",
+    "timestamp": "2026-04-01T17:21:54",
+    "mode": "Hybrid RAG",
+    "response_time": 15.95,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2446,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "What is the complete stakeholder management process and how does it relate to the pyramid principle?",
+    "effective_q": "What is the complete stakeholder management process and how does it relate to the pyramid principle?",
+    "timestamp": "2026-04-01T17:22:12",
+    "mode": "Hybrid RAG",
+    "response_time": 17.76,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2823,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How should value chain analysis inform digital transformation strategy?",
+    "effective_q": "How should value chain analysis inform digital transformation strategy?",
+    "timestamp": "2026-04-01T17:22:21",
+    "mode": "Hybrid RAG",
+    "response_time": 9.16,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 1532,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "Compare all three valuation methodologies and when to use each.",
+    "effective_q": "Compare all three valuation methodologies and when to use each.",
+    "timestamp": "2026-04-01T17:22:35",
+    "mode": "Hybrid RAG",
+    "response_time": 14.19,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 1929,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "What are the key success factors for consulting engagements across all document sources?",
+    "effective_q": "What are the key success factors for consulting engagements across all document sources?",
+    "timestamp": "2026-04-01T17:22:51",
+    "mode": "Hybrid RAG",
+    "response_time": 15.14,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2404,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How do strategic frameworks help in assessing market attractiveness?",
+    "effective_q": "How do strategic frameworks help in assessing market attractiveness?",
+    "timestamp": "2026-04-01T17:23:03",
+    "mode": "Hybrid RAG",
+    "response_time": 12.66,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 1337,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "Explain how EBITDA analysis can be used alongside strategic frameworks for business evaluation.",
+    "effective_q": "Explain how EBITDA analysis can be used alongside strategic frameworks for business evaluation.",
+    "timestamp": "2026-04-01T17:23:16",
+    "mode": "Hybrid RAG",
+    "response_time": 12.59,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2415,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "What is the role of governance in both digital transformation and financial modeling?",
+    "effective_q": "What is the role of governance in both digital transformation and financial modeling?",
+    "timestamp": "2026-04-01T17:23:25",
+    "mode": "Hybrid RAG",
+    "response_time": 8.92,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 56,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How can the MECE principle be applied to structure a digital transformation assessment?",
+    "effective_q": "How can the MECE principle be applied to structure a digital transformation assessment?",
+    "timestamp": "2026-04-01T17:23:40",
+    "mode": "Hybrid RAG",
+    "response_time": 15.46,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2235,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "What are the common themes across strategic frameworks and financial analysis tools?",
+    "effective_q": "What are the common themes across strategic frameworks and financial analysis tools?",
+    "timestamp": "2026-04-01T17:23:59",
+    "mode": "Hybrid RAG",
+    "response_time": 18.48,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2641,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How should a consultant structure a competitive analysis presentation?",
+    "effective_q": "How should a consultant structure a competitive analysis presentation?",
+    "timestamp": "2026-04-01T17:24:15",
+    "mode": "Hybrid RAG",
+    "response_time": 16.53,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 1729,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "Compare the failure factors of digital transformation with stakeholder management challenges.",
+    "effective_q": "Compare the failure factors of digital transformation with stakeholder management challenges.",
+    "timestamp": "2026-04-01T17:24:38",
+    "mode": "Hybrid RAG",
+    "response_time": 22.48,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2117,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "What is the comprehensive approach to evaluating a company's competitive position?",
+    "effective_q": "What is the comprehensive approach to evaluating a company's competitive position?",
+    "timestamp": "2026-04-01T17:24:53",
+    "mode": "Hybrid RAG",
+    "response_time": 15.12,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 1319,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How do quick wins in digital transformation relate to the BCG Matrix's prioritization?",
+    "effective_q": "How do quick wins in digital transformation relate to the BCG Matrix's prioritization?",
+    "timestamp": "2026-04-01T17:24:57",
+    "mode": "Hybrid RAG",
+    "response_time": 4.39,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 58,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "Explain how all four documents' concepts connect to form a consulting toolkit.",
+    "effective_q": "Explain how all four documents' concepts connect to form a consulting toolkit.",
+    "timestamp": "2026-04-01T17:25:22",
+    "mode": "Hybrid RAG",
+    "response_time": 24.82,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 4123,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "What analytical frameworks help in understanding industry dynamics?",
+    "effective_q": "What analytical frameworks help in understanding industry dynamics?",
+    "timestamp": "2026-04-01T17:25:30",
+    "mode": "Hybrid RAG",
+    "response_time": 7.96,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 496,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How should scenario analysis in financial models align with strategic planning?",
+    "effective_q": "How should scenario analysis in financial models align with strategic planning?",
+    "timestamp": "2026-04-01T17:25:47",
+    "mode": "Hybrid RAG",
+    "response_time": 16.97,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 1882,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "What is the relationship between market forces and digital disruption?",
+    "effective_q": "What is the relationship between market forces and digital disruption?",
+    "timestamp": "2026-04-01T17:25:57",
+    "mode": "Hybrid RAG",
+    "response_time": 9.7,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 1115,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How can value chain analysis be used to identify digital transformation opportunities?",
+    "effective_q": "How can value chain analysis be used to identify digital transformation opportunities?",
+    "timestamp": "2026-04-01T17:26:07",
+    "mode": "Hybrid RAG",
+    "response_time": 9.76,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 1283,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "Compare the role of data analytics across strategic, financial, and transformation contexts.",
+    "effective_q": "Compare the role of data analytics across strategic, financial, and transformation contexts.",
+    "timestamp": "2026-04-01T17:26:20",
+    "mode": "Hybrid RAG",
+    "response_time": 13.71,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 2443,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "What best practices from all sources apply to a new market entry analysis?",
+    "effective_q": "What best practices from all sources apply to a new market entry analysis?",
+    "timestamp": "2026-04-01T17:26:31",
+    "mode": "Hybrid RAG",
+    "response_time": 11.02,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 1657,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How does the pyramid principle help present financial analysis findings?",
+    "effective_q": "How does the pyramid principle help present financial analysis findings?",
+    "timestamp": "2026-04-01T17:26:45",
+    "mode": "Hybrid RAG",
+    "response_time": 13.61,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 1520,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "What is the integrated approach to assessing business unit performance?",
+    "effective_q": "What is the integrated approach to assessing business unit performance?",
+    "timestamp": "2026-04-01T17:26:48",
+    "mode": "Hybrid RAG",
+    "response_time": 2.83,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 58,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
+  },
+  {
+    "question": "How do consulting frameworks address uncertainty in strategic planning?",
+    "effective_q": "How do consulting frameworks address uncertainty in strategic planning?",
+    "timestamp": "2026-04-01T17:26:52",
+    "mode": "Hybrid RAG",
+    "response_time": 3.81,
+    "num_chunks": 5,
+    "avg_score": 0.5,
+    "answer_length": 56,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [],
+    "test_run": true
   }
 ]
