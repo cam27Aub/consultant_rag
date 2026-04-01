@@ -52,5 +52,18 @@
     "is_followup": false,
     "used_memory": false,
     "response_time": 17.07
+  },
+  {
+    "timestamp": "2026-04-01T18:56:21",
+    "mode": "Graph RAG",
+    "question": "What is the relationship between Porter's Five Forces and the BCG Growth-Share Matrix?",
+    "effective_q": "What is the relationship between Porter's Five Forces and the BCG Growth-Share Matrix?",
+    "answer": "The subgraph does not show any direct relationship between *Porter's Five Forces* and the *BCG Growth-Share Matrix*. Each framework is associated with different processes: *Porter's Five Forces* is used in *Industry Analysis*, while the *BCG Growth-Share Matrix* is used in *Corporate Strategy Engagements*. No connection between these frameworks is indicated in the provided subgraph.",
+    "sources": [
+      "strategic_frameworks_guide.docx"
+    ],
+    "is_followup": false,
+    "used_memory": false,
+    "response_time": 17.08
   }
 ]
