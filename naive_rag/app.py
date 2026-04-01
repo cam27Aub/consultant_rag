@@ -253,7 +253,9 @@ st.set_page_config(
 st.markdown("""
 <style>
   html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
-  #MainMenu, footer, header { visibility: hidden; }
+  #MainMenu, footer { visibility: hidden; }
+  /* Keep sidebar toggle button visible */
+  [data-testid="stSidebarCollapsedControl"] { visibility: visible !important; z-index: 999; }
   section[data-testid="stSidebar"] > div { padding: 1.5rem 1rem; }
 
   .top-bar {
