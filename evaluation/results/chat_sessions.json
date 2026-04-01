@@ -1,0 +1,22 @@
+{
+  "20260401_130905_56f1f8": {
+    "title": "porters five forces",
+    "updated": "2026-04-01T13:10:04",
+    "messages": [
+      {
+        "role": "user",
+        "content": "porters five forces",
+        "rag_mode": "",
+        "reformulated": false,
+        "used_memory": false
+      },
+      {
+        "role": "assistant",
+        "content": "Porter's Five Forces framework is a tool for analyzing the competitive dynamics of an industry to assess its attractiveness and profitability. The five forces are:\n\n1. **Threat of New Entrants**:\n   - Definition: The ease with which new competitors can enter the market and erode margins for incumbents.\n   - Key Indicators: Capital requirements, regulatory barriers, brand loyalty, economies of scale, access to distribution.\n\n2. **Bargaining Power of Suppliers**:\n   - Definition: The leverage suppliers have over firms in the industry through pricing, quality, or availability of inputs.\n   - Key Indicators: Number of suppliers, switching costs, differentiation of inputs, forward integration threat.\n\n3. **Bargaining Power of Buyers**:\n   - Definition: The influence customers exert on pricing and terms, particularly when they are concentrated or price-sensitive.\n   - Key Indicators: Buyer concentration, product standardization, price sensitivity, backward integration threat.\n\n4. **Threat of Substitutes**:\n   - Definition: The risk that alternative products or services reduce demand for the industry's offerings.\n   - Key Indicators: Relative price-performance of substitutes, switching costs, buyer propensity to substitute.\n\n5. **Competitive Rivalry**:\n   - Definition: The intensity of competition among existing firms, which can compress margins and drive innovation or destructive price wars.\n   - Key Indicators: Number and balance of competitors, industry growth rate, fixed costs, product differentiation, exit barriers.\n\nWhen applying this framework, consultants rate each force (e.g., Low/Medium/High) and assess the overall industry attractiveness based on the combined strength of these forces. Industries with strong forces are generally less attractive due to lower profitability potential. [Source: strategic_frameworks_guide.docx, Section: The Five Forces, Page/Slide: 3]",
+        "rag_mode": "Naive RAG",
+        "reformulated": false,
+        "used_memory": false
+      }
+    ]
+  }
+}
