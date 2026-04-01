@@ -28,5 +28,20 @@
     "sources": [
       "Lecture 2.pdf"
     ]
+  },
+  {
+    "question": "tell me about porters five forces",
+    "effective_q": "tell me about porters five forces",
+    "timestamp": "2026-04-01T13:00:48",
+    "mode": "Hybrid RAG",
+    "response_time": 36.27,
+    "num_chunks": 5,
+    "avg_score": 1.701,
+    "answer_length": 2089,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx"
+    ]
   }
 ]
