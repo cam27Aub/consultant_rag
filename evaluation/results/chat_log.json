@@ -11,5 +11,18 @@
     "is_followup": false,
     "used_memory": false,
     "response_time": 7.63
+  },
+  {
+    "timestamp": "2026-04-01T13:12:31",
+    "mode": "Naive RAG",
+    "question": "data curation",
+    "effective_q": "data curation",
+    "answer": "Data curation is the process of organizing, maintaining, and preserving datasets to ensure their accessibility, usability, and quality for analysis. It aims to generate FAIR (Findable, Accessible, Interoperable, and Reusable) and analyzable data. \n\n### Core Objectives:\n- Preserve data integrity.\n- Facilitate accurate data-driven decision-making.\n- Ensure long-term accessibility and compliance.\n\n### Key Steps in Data Curation:\n1. **Selection**: Identify relevant datasets and evaluate their quality and credibility.\n2. **Cleaning**: Handle missing data, resolve inconsistencies, and normalize data.\n3. **Organization**: Apply schema definitions and use standard naming conventions.\n4. **Enrichment**: Add metadata and integrate data with external sources.\n5. **Preservation**: Store data in durable formats and ensure compliance with archival standards.\n\n### Benefits:\n- Improves data quality by organizing, describing, cleaning, and preserving datasets.\n- Prevents \"data swamps\" by ensuring proper storage and segregation.\n- Facilitates long-term accessibility and usability for analysts.\n- Enhances the reliability and machine-readability of datasets for AI/ML applications.\n\n### Comparison with Related Concepts:\n- **Data Management**: Broader in scope, addressing all data-related aspects, including governance, security, and lifecycle management.\n- **Data Cleaning**: A subset of data curation focused on identifying and resolving inconsistencies and quality issues in datasets.\n\n[Sources: Lecture 2.pdf, Section: Data curation: Definition, Page/Slide 7; Section: Data curation: Steps, Page/Slide 9; Section: Data curation: Why?, Page/Slide 8; Section: Data curation, Page/Slide 10]",
+    "sources": [
+      "Lecture 2.pdf"
+    ],
+    "is_followup": false,
+    "used_memory": false,
+    "response_time": 8.12
   }
 ]
