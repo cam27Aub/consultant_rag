@@ -100,6 +100,14 @@ class GraphStore:
         Fetch all vertices and score them against query terms in Python.
         Cosmos DB does not support the containing() Gremlin predicate.
         Uses in-memory cache to avoid re-fetching on every query.
+
+        Scoring priorities:
+        - Full multi-word phrase match in name  → highest (10)
+        - Full phrase match in description      → good (3)
+        - ALL words of a multi-word term found  → good (6 name / 2 desc)
+        - Single-word match alone               → low (1 name / 0.5 desc)
+        This prevents "Buyer Behavior" from strongly matching entities
+        that only contain "Behavior" without "Buyer".
         """
         try:
             if self._vertex_cache is None:
@@ -115,17 +123,33 @@ class GraphStore:
             score = 0
             for term in query_terms:
                 t = term.lower()
-                # full phrase match
+                words = [w for w in t.split() if len(w) > 2]
+
+                # Full phrase match — strongest signal
                 if t in name:
-                    score += 4
+                    score += 10
                 elif t in desc:
-                    score += 1
-                # word-level match
-                for word in t.split():
-                    if len(word) > 3:
-                        if word in name:
-                            score += 2
-                        elif word in desc:
+                    score += 3
+                elif len(words) > 1:
+                    # Multi-word term: check how many words match
+                    name_hits = sum(1 for w in words if w in name)
+                    desc_hits = sum(1 for w in words if w in desc)
+                    if name_hits == len(words):
+                        # All words present in name — strong match
+                        score += 6
+                    elif name_hits > 0:
+                        # Partial word match in name — weak, scaled down
+                        score += name_hits * 0.5
+                    if desc_hits == len(words):
+                        score += 2
+                    elif desc_hits > 0 and name_hits == 0:
+                        score += desc_hits * 0.3
+                else:
+                    # Single-word term
+                    if len(t) > 3:
+                        if t in name:
+                            score += 3
+                        elif t in desc:
                             score += 1
             if score > 0:
                 scored.append((score, r))

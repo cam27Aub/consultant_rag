@@ -15,7 +15,14 @@ from graph_rag.graph_store import GraphStore
 from graph_rag import config_graph as config
 
 EXTRACT_TERMS_PROMPT = """Extract the key entity names from this question that would appear as nodes in a knowledge graph about management consulting.
-Return a JSON array of strings only. Example: ["Porter's Five Forces", "EBITDA", "McKinsey"]
+
+Guidelines:
+- Use the full canonical name of each concept (e.g. "Porter's Five Forces" not just "Five Forces")
+- Include specific framework names, metrics, and business concepts
+- Keep multi-word terms together as one string (e.g. "Bargaining Power of Buyers" not ["Bargaining", "Power", "Buyers"])
+- Extract 2-5 terms maximum
+
+Return a JSON array of strings only. Example: ["Porter's Five Forces", "EBITDA", "BCG Growth-Share Matrix"]
 Question: {question}"""
 
 ANSWER_PROMPT = """You are ConsultantIQ Graph, a knowledge assistant that answers questions using a knowledge graph extracted from consulting documents.
@@ -26,11 +33,12 @@ SUBGRAPH CONTEXT:
 {context}
 
 Rules:
-1. Answer using ONLY the information in the subgraph above.
-2. Explain how the entities and relationships connect to answer the question.
-3. Cite entity names and relationship types where relevant.
-4. If the graph does not contain enough information, say: "The knowledge graph does not contain sufficient information to answer this question."
-5. Be concise and professional.
+1. Answer using ONLY the information in the subgraph above. NEVER add outside knowledge or make claims not supported by the entities and relationships shown.
+2. You may draw logical connections between entities that share a common parent framework or are part of the same analytical model, as long as you base it on the entity descriptions provided.
+3. If the subgraph contains partial but relevant information, provide what you can and clearly note which parts of the question could not be fully addressed from the graph.
+4. Cite entity names and relationship types where relevant.
+5. Only say you cannot answer if the subgraph contains NO relevant entities at all.
+6. Be concise and professional.
 
 QUESTION: {question}
 """
