@@ -16,6 +16,65 @@ import base64
 import requests as http_requests
 from datetime import datetime
 
+
+# ── Auto-evaluation: score every answer with GPT-4o ──────────────────
+EVAL_PROMPT = """You are a strict RAG evaluation judge. Given a user question, the retrieved context, and the generated answer, score the answer on 4 metrics.
+
+QUESTION: {question}
+
+RETRIEVED CONTEXT:
+{context}
+
+GENERATED ANSWER:
+{answer}
+
+Score each metric from 0.0 to 1.0:
+
+1. **Groundedness**: Is every claim in the answer supported by the retrieved context? (1.0 = fully grounded, 0.0 = completely unsupported)
+2. **Relevancy**: Does the answer directly address the user's question? (1.0 = perfectly relevant, 0.0 = off-topic)
+3. **Completeness**: Does the answer cover all key points from the context that relate to the question? (1.0 = comprehensive, 0.0 = missing everything)
+4. **Hallucination**: Does the answer contain information NOT in the retrieved context? (1.0 = no hallucination, 0.0 = entirely hallucinated)
+
+Return ONLY valid JSON:
+{{"groundedness": 0.0, "relevancy": 0.0, "completeness": 0.0, "hallucination": 0.0}}"""
+
+
+def _evaluate_answer(question: str, context: str, answer: str) -> dict:
+    """Score an answer using GPT-4o as a judge. Returns dict with 4 metrics."""
+    try:
+        import config
+        from openai import AzureOpenAI
+        client = AzureOpenAI(
+            azure_endpoint=config.AZURE_OPENAI_ENDPOINT,
+            api_key=config.AZURE_OPENAI_KEY,
+            api_version=config.AZURE_OPENAI_API_VERSION,
+        )
+        resp = client.chat.completions.create(
+            model=config.AZURE_CHAT_DEPLOYMENT,
+            messages=[{"role": "user", "content": EVAL_PROMPT.format(
+                question=question,
+                context=context[:3000],
+                answer=answer[:2000],
+            )}],
+            temperature=0.0,
+            max_tokens=100,
+        )
+        raw = resp.choices[0].message.content.strip()
+        # Parse JSON from response
+        import re
+        match = re.search(r'\{[^}]+\}', raw)
+        if match:
+            scores = json.loads(match.group())
+            return {
+                "groundedness":  round(float(scores.get("groundedness", 0)), 2),
+                "relevancy":     round(float(scores.get("relevancy", 0)), 2),
+                "completeness":  round(float(scores.get("completeness", 0)), 2),
+                "hallucination": round(float(scores.get("hallucination", 0)), 2),
+            }
+    except Exception:
+        pass
+    return {"groundedness": 0, "relevancy": 0, "completeness": 0, "hallucination": 0}
+
 # ── Persistent query log (GitHub-backed) ──────────────────────────────
 LOG_PATH = Path(__file__).parent.parent / "evaluation" / "results" / "query_log.json"
 
@@ -678,22 +737,32 @@ if st.session_state.page == "analytics":
     if not log:
         st.info("No queries logged yet. Ask some questions first!")
     else:
+        import pandas as pd
+        from collections import Counter
+
         total_queries  = len(log)
         avg_time       = sum(e.get("response_time", 0) for e in log) / total_queries
         scores         = [e.get("avg_score", 0) for e in log if e.get("avg_score")]
         avg_score      = sum(scores) / len(scores) if scores else 0
-        chunks_counts  = [e.get("num_chunks", 0) for e in log]
-        avg_chunks     = sum(chunks_counts) / len(chunks_counts) if chunks_counts else 0
-        answer_lens    = [e.get("answer_length", 0) for e in log]
-        avg_answer_len = sum(answer_lens) / len(answer_lens) if answer_lens else 0
 
-        c1, c2, c3, c4, c5 = st.columns(5)
+        # Evaluation averages
+        ground_vals = [e.get("groundedness", 0) for e in log if e.get("groundedness")]
+        relev_vals  = [e.get("relevancy", 0) for e in log if e.get("relevancy")]
+        compl_vals  = [e.get("completeness", 0) for e in log if e.get("completeness")]
+        halluc_vals = [e.get("hallucination", 0) for e in log if e.get("hallucination")]
+        avg_ground  = sum(ground_vals) / len(ground_vals) if ground_vals else 0
+        avg_relev   = sum(relev_vals) / len(relev_vals) if relev_vals else 0
+        avg_compl   = sum(compl_vals) / len(compl_vals) if compl_vals else 0
+        avg_halluc  = sum(halluc_vals) / len(halluc_vals) if halluc_vals else 0
+
+        # ── KPI Row 1: System metrics ────────────────────────
+        st.markdown("**System Metrics**")
+        c1, c2, c3, c4 = st.columns(4)
         for col, val, label in [
             (c1, str(total_queries),       "Total Queries"),
             (c2, f"{avg_time:.1f}s",       "Avg Response Time"),
             (c3, f"{avg_score:.4f}",       "Avg Retrieval Score"),
-            (c4, f"{avg_chunks:.1f}",      "Avg Chunks / Query"),
-            (c5, f"{avg_answer_len:.0f}",  "Avg Answer Length (chars)"),
+            (c4, f"{len(set(e.get('mode','') for e in log))}", "Modes Used"),
         ]:
             col.markdown(
                 f'<div class="analytics-card">'
@@ -704,11 +773,61 @@ if st.session_state.page == "analytics":
 
         st.markdown("<br>", unsafe_allow_html=True)
 
+        # ── KPI Row 2: Quality metrics ───────────────────────
+        st.markdown("**Answer Quality Metrics** (GPT-4o Judge)")
+        q1, q2, q3, q4 = st.columns(4)
+        for col, val, label, color in [
+            (q1, f"{avg_ground:.2f}",  "Groundedness",      "#22C55E"),
+            (q2, f"{avg_relev:.2f}",   "Relevancy",         "#3B82F6"),
+            (q3, f"{avg_compl:.2f}",   "Completeness",      "#F59E0B"),
+            (q4, f"{avg_halluc:.2f}",  "No Hallucination",  "#EF4444"),
+        ]:
+            col.markdown(
+                f'<div class="analytics-card">'
+                f'<div class="value" style="color:{color}">{val}</div>'
+                f'<div class="label">{label}</div></div>',
+                unsafe_allow_html=True,
+            )
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # ── Per-mode quality breakdown ────────────────────────
+        st.markdown("**Quality Scores by RAG Mode**")
+        mode_metrics = {}
+        for e in log:
+            mode = e.get("mode", "Unknown")
+            if mode not in mode_metrics:
+                mode_metrics[mode] = {"ground": [], "relev": [], "compl": [], "halluc": [], "time": []}
+            if e.get("groundedness"):
+                mode_metrics[mode]["ground"].append(e["groundedness"])
+            if e.get("relevancy"):
+                mode_metrics[mode]["relev"].append(e["relevancy"])
+            if e.get("completeness"):
+                mode_metrics[mode]["compl"].append(e["completeness"])
+            if e.get("hallucination"):
+                mode_metrics[mode]["halluc"].append(e["hallucination"])
+            mode_metrics[mode]["time"].append(e.get("response_time", 0))
+
+        quality_rows = []
+        for mode, m in mode_metrics.items():
+            quality_rows.append({
+                "Mode": mode,
+                "Queries": len(m["time"]),
+                "Avg Time (s)": round(sum(m["time"]) / len(m["time"]), 1) if m["time"] else 0,
+                "Groundedness": round(sum(m["ground"]) / len(m["ground"]), 2) if m["ground"] else "—",
+                "Relevancy": round(sum(m["relev"]) / len(m["relev"]), 2) if m["relev"] else "—",
+                "Completeness": round(sum(m["compl"]) / len(m["compl"]), 2) if m["compl"] else "—",
+                "No Hallucination": round(sum(m["halluc"]) / len(m["halluc"]), 2) if m["halluc"] else "—",
+            })
+        st.dataframe(pd.DataFrame(quality_rows), use_container_width=True, hide_index=True)
+
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # ── Two columns: Mode distribution + Sources ──────────
         left, right = st.columns(2)
 
         with left:
             st.markdown("**RAG Mode Distribution**")
-            from collections import Counter
             mode_counts = Counter(e.get("mode", "unknown") for e in log)
             for mode_name, count in mode_counts.most_common():
                 pct = count / total_queries
@@ -729,30 +848,52 @@ if st.session_state.page == "analytics":
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        st.markdown("**Daily Query Volume**")
-        day_counts = Counter()
+        # ── Response Time by Mode (chart) ─────────────────────
+        st.markdown("**Response Time by RAG Mode**")
+        time_data = []
         for e in log:
-            ts = e.get("timestamp", "")
-            if ts:
-                day_counts[ts[:10]] += 1
-        if day_counts:
-            import pandas as pd
-            df_days = pd.DataFrame(sorted(day_counts.items()), columns=["Date", "Queries"])
-            st.bar_chart(df_days.set_index("Date"))
+            mode = e.get("mode", "Unknown")
+            if mode in ("Naive RAG", "Graph RAG", "Hybrid RAG"):
+                time_data.append({"Mode": mode, "Response Time (s)": e.get("response_time", 0)})
+        if time_data:
+            df_time = pd.DataFrame(time_data)
+            # Compute per-mode averages for bar chart
+            df_avg_time = df_time.groupby("Mode")["Response Time (s)"].mean().reset_index()
+            df_avg_time.columns = ["Mode", "Avg Response Time (s)"]
+            st.bar_chart(df_avg_time.set_index("Mode"))
+
+            # Also show box-style summary
+            st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown("**Response Time Distribution**")
+            time_summary = []
+            for mode in ["Naive RAG", "Graph RAG", "Hybrid RAG"]:
+                mode_times = [e.get("response_time", 0) for e in log if e.get("mode") == mode]
+                if mode_times:
+                    time_summary.append({
+                        "Mode": mode,
+                        "Min (s)": round(min(mode_times), 1),
+                        "Avg (s)": round(sum(mode_times) / len(mode_times), 1),
+                        "Max (s)": round(max(mode_times), 1),
+                        "Queries": len(mode_times),
+                    })
+            if time_summary:
+                st.dataframe(pd.DataFrame(time_summary), use_container_width=True, hide_index=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
 
+        # ── Recent Queries with evaluation scores ─────────────
         st.markdown("**Recent Queries**")
-        import pandas as pd
         rows = []
         for e in reversed(log[-50:]):
             rows.append({
-                "Question":      e.get("question", "")[:80],
-                "Timestamp":     e.get("timestamp", ""),
-                "Mode":          e.get("mode", ""),
-                "Time (s)":      round(e.get("response_time", 0), 2),
-                "Avg Score":     round(e.get("avg_score", 0), 4),
-                "Reformulated":  "Yes" if e.get("reformulated") else "",
+                "Question":        e.get("question", "")[:60],
+                "Mode":            e.get("mode", ""),
+                "Time (s)":        round(e.get("response_time", 0), 1),
+                "Groundedness":    e.get("groundedness", "—"),
+                "Relevancy":       e.get("relevancy", "—"),
+                "Completeness":    e.get("completeness", "—"),
+                "Hallucination":   e.get("hallucination", "—"),
+                "Timestamp":       e.get("timestamp", ""),
             })
         st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
 
@@ -1024,6 +1165,14 @@ if question and question.strip():
 
             elapsed = time.time() - t0
 
+            # ── Auto-evaluate answer quality ──────────────────
+            context_text = ""
+            for c in chunks[:5]:
+                context_text += (c.get("cleaned_text") or c.get("chunk_text") or "") + "\n"
+            for ws in web_sources[:3]:
+                context_text += (ws.get("content", "") or "")[:500] + "\n"
+            eval_scores = _evaluate_answer(effective_q, context_text, answer)
+
             # ── Log entry ──────────────────────────────────────
             _append_log({
                 "question":      question,
@@ -1037,6 +1186,10 @@ if question and question.strip():
                 "reformulated":  is_followup,
                 "used_memory":   used_memory,
                 "sources":       sources_list,
+                "groundedness":  eval_scores["groundedness"],
+                "relevancy":     eval_scores["relevancy"],
+                "completeness":  eval_scores["completeness"],
+                "hallucination": eval_scores["hallucination"],
             })
 
             # ── Chat log entry ────────────────────────────────
