@@ -3914,5 +3914,24 @@
     "relevancy": 0.83,
     "completeness": 0.43,
     "hallucination": 0.4
+  },
+  {
+    "question": "How does stakeholder mapping relate to the diagnostic phase of a consulting engagement?",
+    "effective_q": "How does stakeholder mapping relate to the diagnostic phase of a consulting engagement?",
+    "timestamp": "2026-04-01T19:05:36",
+    "mode": "Graph RAG",
+    "response_time": 17.16,
+    "num_chunks": 13,
+    "avg_score": 10.45,
+    "answer_length": 552,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "client_engagement_best_practices.docx"
+    ],
+    "groundedness": 0.56,
+    "relevancy": 0.76,
+    "completeness": 0.34,
+    "hallucination": 0.45
   }
 ]
