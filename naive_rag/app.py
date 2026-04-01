@@ -12,13 +12,51 @@ import time
 import tempfile
 import io
 import contextlib
+import base64
+import requests as http_requests
 from datetime import datetime
 
-# ── Persistent query log ──────────────────────────────────────────────
+# ── Persistent query log (GitHub-backed) ──────────────────────────────
 LOG_PATH = Path(__file__).parent.parent / "evaluation" / "results" / "query_log.json"
+
+_GITHUB_API = "https://api.github.com"
+
+
+def _gh_token():
+    try:
+        return st.secrets.get("GITHUB_TOKEN", os.getenv("GITHUB_TOKEN", ""))
+    except Exception:
+        return os.getenv("GITHUB_TOKEN", "")
+
+
+def _gh_repo():
+    try:
+        return st.secrets.get("GITHUB_REPO", os.getenv("GITHUB_REPO", ""))
+    except Exception:
+        return os.getenv("GITHUB_REPO", "")
+
+
+def _gh_headers():
+    return {
+        "Authorization": f"token {_gh_token()}",
+        "Accept": "application/vnd.github.v3+json",
+    }
 
 
 def _load_log() -> list[dict]:
+    """Load query log from GitHub repo, fallback to local file."""
+    token, repo = _gh_token(), _gh_repo()
+    if token and repo:
+        try:
+            url = f"{_GITHUB_API}/repos/{repo}/contents/evaluation/results/query_log.json"
+            r = http_requests.get(url, headers=_gh_headers(), timeout=10)
+            if r.status_code == 200:
+                content = base64.b64decode(r.json()["content"]).decode("utf-8")
+                return json.loads(content)
+            return []
+        except Exception:
+            return []
+    # Fallback: local file
     if LOG_PATH.exists():
         try:
             return json.loads(LOG_PATH.read_text(encoding="utf-8"))
@@ -28,8 +66,31 @@ def _load_log() -> list[dict]:
 
 
 def _save_log(log: list[dict]):
+    """Save query log to GitHub repo, fallback to local file."""
+    content_str = json.dumps(log, indent=2, ensure_ascii=False)
+    token, repo = _gh_token(), _gh_repo()
+    if token and repo:
+        try:
+            url = f"{_GITHUB_API}/repos/{repo}/contents/evaluation/results/query_log.json"
+            # Get current file SHA (needed for update)
+            r = http_requests.get(url, headers=_gh_headers(), timeout=10)
+            sha = r.json().get("sha", "") if r.status_code == 200 else ""
+
+            payload = {
+                "message": "Update query log",
+                "content": base64.b64encode(content_str.encode("utf-8")).decode("utf-8"),
+                "branch": "master",
+            }
+            if sha:
+                payload["sha"] = sha
+
+            http_requests.put(url, headers=_gh_headers(), json=payload, timeout=10)
+            return
+        except Exception:
+            pass
+    # Fallback: local file
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    LOG_PATH.write_text(json.dumps(log, indent=2, ensure_ascii=False), encoding="utf-8")
+    LOG_PATH.write_text(content_str, encoding="utf-8")
 
 
 def _append_log(entry: dict):

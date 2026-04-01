@@ -25,6 +25,7 @@ class GraphStore:
             password=config.GREMLIN_KEY,
             message_serializer=serializer.GraphSONSerializersV2d0(),
         )
+        self._vertex_cache = None  # cached vertices for fast search
         print("  Connected to Azure Cosmos DB (Gremlin)")
 
     def _connect(self):
@@ -90,13 +91,20 @@ class GraphStore:
         except Exception:
             print("  No existing nodes for '%s'" % source)
 
+    def clear_cache(self):
+        """Clear the vertex cache (call after ingesting new documents)."""
+        self._vertex_cache = None
+
     def search_entities(self, query_terms, top_k=5):
         """
         Fetch all vertices and score them against query terms in Python.
         Cosmos DB does not support the containing() Gremlin predicate.
+        Uses in-memory cache to avoid re-fetching on every query.
         """
         try:
-            all_vertices = self._run("g.V().valueMap(true).limit(2000)")
+            if self._vertex_cache is None:
+                self._vertex_cache = self._run("g.V().valueMap(true).limit(2000)")
+            all_vertices = self._vertex_cache
         except Exception:
             return []
 

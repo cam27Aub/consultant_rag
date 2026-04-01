@@ -17,6 +17,7 @@ if sys.platform == "win32":
 import sys
 import io
 import contextlib
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -101,15 +102,17 @@ class HybridRetriever:
         print("\n" + "=" * 60)
         print("%s" % question)
 
-        # Step 1 — Graph RAG retrieval
-        subgraph = self.graph.retrieve(question, top_k=5)
+        # Step 1 & 2 — Graph + Naive retrieval in PARALLEL
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            graph_future = pool.submit(self.graph.retrieve, question, 5)
+            naive_future = pool.submit(self._get_naive_context, question)
+            subgraph = graph_future.result()
+            doc_context = naive_future.result()
+
         node_count = len(subgraph.get("nodes", []))
         graph_context = self.graph._build_context(subgraph)
 
         print("── Graph: %d nodes, %d edges" % (node_count, len(subgraph.get("edges", []))))
-
-        # Step 2 — Naive RAG retrieval
-        doc_context = self._get_naive_context(question)
         has_doc = bool(doc_context.strip())
         print("── Naive RAG: %s" % ("passages retrieved" if has_doc else "no results"))
 
