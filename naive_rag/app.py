@@ -160,6 +160,89 @@ def _append_chat(entry: dict):
     _save_chat_log(log)
 
 
+# ── Conversation sessions (ChatGPT-style) ────────────────────────────
+SESSIONS_FILE = "evaluation/results/chat_sessions.json"
+
+
+def _load_sessions() -> dict:
+    """Load all chat sessions from GitHub. Returns {session_id: {title, messages, updated}}."""
+    token, repo = _gh_token(), _gh_repo()
+    if token and repo:
+        try:
+            url = f"{_GITHUB_API}/repos/{repo}/contents/{SESSIONS_FILE}"
+            r = http_requests.get(url, headers=_gh_headers(), timeout=10)
+            if r.status_code == 200:
+                content = base64.b64decode(r.json()["content"]).decode("utf-8")
+                return json.loads(content)
+            return {}
+        except Exception:
+            return {}
+    local = Path(__file__).parent.parent / SESSIONS_FILE
+    if local.exists():
+        try:
+            return json.loads(local.read_text(encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
+
+
+def _save_sessions(sessions: dict):
+    """Save all chat sessions to GitHub."""
+    content_str = json.dumps(sessions, indent=2, ensure_ascii=False)
+    token, repo = _gh_token(), _gh_repo()
+    if token and repo:
+        try:
+            url = f"{_GITHUB_API}/repos/{repo}/contents/{SESSIONS_FILE}"
+            r = http_requests.get(url, headers=_gh_headers(), timeout=10)
+            sha = r.json().get("sha", "") if r.status_code == 200 else ""
+            payload = {
+                "message": "Update chat sessions",
+                "content": base64.b64encode(content_str.encode("utf-8")).decode("utf-8"),
+                "branch": "master",
+            }
+            if sha:
+                payload["sha"] = sha
+            http_requests.put(url, headers=_gh_headers(), json=payload, timeout=10)
+            return
+        except Exception:
+            pass
+    local = Path(__file__).parent.parent / SESSIONS_FILE
+    local.parent.mkdir(parents=True, exist_ok=True)
+    local.write_text(content_str, encoding="utf-8")
+
+
+def _save_current_session():
+    """Save the current session's messages to persistent storage."""
+    if not st.session_state.messages:
+        return
+    sid = st.session_state.get("session_id", "")
+    if not sid:
+        return
+    sessions = _load_sessions()
+    # Title = first user message (truncated)
+    first_q = ""
+    for m in st.session_state.messages:
+        if m["role"] == "user":
+            first_q = m["content"][:60]
+            break
+    # Store only serializable fields
+    stored_msgs = []
+    for m in st.session_state.messages:
+        stored_msgs.append({
+            "role":        m["role"],
+            "content":     m["content"],
+            "rag_mode":    m.get("rag_mode", ""),
+            "reformulated": m.get("reformulated", False),
+            "used_memory": m.get("used_memory", False),
+        })
+    sessions[sid] = {
+        "title":   first_q or "Untitled",
+        "updated": datetime.now().isoformat(timespec="seconds"),
+        "messages": stored_msgs,
+    }
+    _save_sessions(sessions)
+
+
 # ── Page config ────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="ConsultantIQ",
@@ -394,9 +477,12 @@ def load_web_agent():
 
 
 # ── Session state ──────────────────────────────────────────────────────
-if "messages"   not in st.session_state: st.session_state.messages   = []
-if "ingest_log" not in st.session_state: st.session_state.ingest_log = []
-if "page"       not in st.session_state: st.session_state.page       = "chat"
+if "messages"    not in st.session_state: st.session_state.messages    = []
+if "ingest_log"  not in st.session_state: st.session_state.ingest_log  = []
+if "page"        not in st.session_state: st.session_state.page        = "chat"
+if "session_id"  not in st.session_state:
+    import uuid
+    st.session_state.session_id = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:6]
 
 
 # ── Top bar ────────────────────────────────────────────────────────────
@@ -413,7 +499,7 @@ with st.sidebar:
 
     # Navigation
     st.markdown('<div class="sidebar-label">Navigation</div>', unsafe_allow_html=True)
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     with col1:
         if st.button("Chat", use_container_width=True):
             st.session_state.page = "chat"
@@ -422,10 +508,39 @@ with st.sidebar:
         if st.button("Analytics", use_container_width=True):
             st.session_state.page = "analytics"
             st.rerun()
-    with col3:
-        if st.button("Chat Log", use_container_width=True):
-            st.session_state.page = "chatlog"
-            st.rerun()
+
+    st.markdown("<hr>", unsafe_allow_html=True)
+
+    # ── Chat History (ChatGPT-style) ──────────────────────────
+    st.markdown('<div class="sidebar-label">Chat History</div>', unsafe_allow_html=True)
+    import uuid
+
+    if st.button("+ New Chat", use_container_width=True):
+        # Save current session before starting new one
+        _save_current_session()
+        st.session_state.messages = []
+        st.session_state.session_id = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:6]
+        st.session_state.page = "chat"
+        st.rerun()
+
+    # Load past sessions
+    past_sessions = _load_sessions()
+    if past_sessions:
+        # Sort by updated time, newest first
+        sorted_sessions = sorted(past_sessions.items(), key=lambda x: x[1].get("updated", ""), reverse=True)
+        for sid, sdata in sorted_sessions[:15]:
+            title = sdata.get("title", "Untitled")
+            is_current = (sid == st.session_state.get("session_id", ""))
+            label = f"{'▶ ' if is_current else ''}{title}"
+            if st.button(label, key=f"sess_{sid}", use_container_width=True):
+                if not is_current:
+                    # Save current session first
+                    _save_current_session()
+                    # Load selected session
+                    st.session_state.session_id = sid
+                    st.session_state.messages = sdata.get("messages", [])
+                    st.session_state.page = "chat"
+                    st.rerun()
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -509,7 +624,9 @@ with st.sidebar:
 
     st.markdown("<hr>", unsafe_allow_html=True)
     if st.button("Clear conversation"):
+        _save_current_session()
         st.session_state.messages = []
+        st.session_state.session_id = datetime.now().strftime("%Y%m%d_%H%M%S") + "_" + uuid.uuid4().hex[:6]
         st.rerun()
 
     # Status
@@ -627,69 +744,6 @@ if st.session_state.page == "analytics":
                 "Reformulated":  "Yes" if e.get("reformulated") else "",
             })
         st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
-
-    st.stop()
-
-
-# ══════════════════════════════════════════════════════════════════════
-#  CHAT LOG PAGE
-# ══════════════════════════════════════════════════════════════════════
-if st.session_state.page == "chatlog":
-    st.markdown("### Chat Log")
-    chat_log = _load_chat_log()
-
-    if not chat_log:
-        st.info("No conversations logged yet. Ask some questions first!")
-    else:
-        # Filters
-        col_f1, col_f2, col_f3 = st.columns(3)
-        with col_f1:
-            modes_available = sorted(set(e.get("mode", "") for e in chat_log))
-            filter_mode = st.selectbox("Filter by mode", ["All"] + modes_available)
-        with col_f2:
-            dates_available = sorted(set(e.get("timestamp", "")[:10] for e in chat_log if e.get("timestamp")))
-            filter_date = st.selectbox("Filter by date", ["All"] + dates_available)
-        with col_f3:
-            search_term = st.text_input("Search conversations", "")
-
-        # Apply filters
-        filtered = chat_log
-        if filter_mode != "All":
-            filtered = [e for e in filtered if e.get("mode") == filter_mode]
-        if filter_date != "All":
-            filtered = [e for e in filtered if e.get("timestamp", "").startswith(filter_date)]
-        if search_term:
-            term_lower = search_term.lower()
-            filtered = [e for e in filtered if term_lower in e.get("question", "").lower() or term_lower in e.get("answer", "").lower()]
-
-        st.markdown(f"**{len(filtered)}** conversations found")
-        st.markdown("<br>", unsafe_allow_html=True)
-
-        # Display conversations (newest first)
-        for entry in reversed(filtered[-100:]):
-            mode = entry.get("mode", "Unknown")
-            ts = entry.get("timestamp", "")
-            question = entry.get("question", "")
-            answer = entry.get("answer", "")
-            sources = entry.get("sources", [])
-            resp_time = entry.get("response_time", 0)
-            is_followup = entry.get("is_followup", False)
-            used_memory = entry.get("used_memory", False)
-
-            mode_cls = {"Naive RAG": "naive", "Graph RAG": "graph", "Hybrid RAG": "hybrid", "Web Research": "web"}.get(mode, "naive")
-
-            badges = f'<span class="badge badge-{mode_cls}">{mode}</span>'
-            if is_followup:
-                badges += ' <span class="badge badge-naive">Reformulated</span>'
-            if used_memory:
-                badges += ' <span class="badge badge-graph">Memory</span>'
-
-            with st.expander(f"**{question[:80]}{'...' if len(question) > 80 else ''}** — {ts} — {mode} ({resp_time}s)"):
-                st.markdown(f'<div style="margin-bottom:8px;">{badges}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="msg-user" style="margin-bottom:12px;">{question}</div>', unsafe_allow_html=True)
-                st.markdown(f'<div class="msg-assistant">{answer}</div>', unsafe_allow_html=True)
-                if sources:
-                    st.markdown(f"**Sources:** {', '.join(sources)}")
 
     st.stop()
 
@@ -996,6 +1050,10 @@ if question and question.strip():
                 "reformulated": is_followup,
                 "used_memory":  used_memory,
             })
+
+            # Auto-save conversation to persistent storage
+            _save_current_session()
+
         except Exception as e:
             st.session_state.messages.append({
                 "role":    "assistant",
