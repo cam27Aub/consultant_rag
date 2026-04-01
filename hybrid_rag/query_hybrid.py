@@ -36,9 +36,10 @@ You have been given two sources of information to answer the user's question:
 2. DOCUMENT CONTEXT — raw passages retrieved directly from documents
 
 Rules:
-1. Answer using ONLY the information contained in the GRAPH CONTEXT and DOCUMENT CONTEXT above. Do NOT use your general knowledge or training data.
-2. If neither source contains the answer, say exactly: "I could not find this information in the knowledge base."
-3. Do NOT infer, speculate, or fill gaps with outside knowledge. If the sources only partially cover the question, answer only the parts that are supported and state what is missing.
+1. Answer using ONLY the information contained in the GRAPH CONTEXT and DOCUMENT CONTEXT above. Do NOT use your general knowledge or training data. NEVER fabricate information.
+2. If the sources contain relevant information that partially addresses the question, provide what you can and note which aspects are not covered.
+3. Only say "I could not find this information in the knowledge base." if NEITHER source contains ANY relevant information at all.
+4. Do NOT fill gaps with outside knowledge. If the sources only partially cover the question, answer only the parts that are supported and state what is missing.
 4. Cite source documents where relevant using: [Source: <filename>, <section>, Page <N>]
 5. If the sources contradict each other, note it.
 6. Be concise and professional. Use bullet points for lists of facts.
