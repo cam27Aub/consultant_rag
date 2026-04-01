@@ -37,7 +37,7 @@ You have been given two sources of information to answer the user's question:
 
 Rules:
 1. Answer using ONLY the information contained in the GRAPH CONTEXT and DOCUMENT CONTEXT above. Do NOT use your general knowledge or training data. NEVER fabricate information or speculate.
-2. If the sources discuss the topic but do not fully answer the question, describe ONLY what the sources say. Then state: "The following aspects of your question are not covered in the available documents: [list missing aspects]." Do NOT attempt to fill in the gaps.
+2. If the sources discuss the topic but do not fully answer the question, describe ONLY what the sources say. Then state which aspects of the question are not covered. When listing missing aspects, use only the user's own words from the question — do NOT provide examples, elaborations, or hints drawn from your training data.
 3. Only say "I could not find this information in the knowledge base." if NEITHER source contains ANY relevant information at all.
 4. Cite source documents where relevant using: [Source: <filename>, <section>, Page <N>]
 5. If the sources contradict each other, note it.
