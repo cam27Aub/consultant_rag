@@ -1,0 +1,17 @@
+[
+  {
+    "question": "porters five forces",
+    "effective_q": "porters five forces",
+    "timestamp": "2026-04-01T12:56:47",
+    "mode": "Naive RAG",
+    "response_time": 6.86,
+    "num_chunks": 5,
+    "avg_score": 2.4628,
+    "answer_length": 1961,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx"
+    ]
+  }
+]
