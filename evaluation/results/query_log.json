@@ -3875,5 +3875,25 @@
     "relevancy": 0.68,
     "completeness": 0.46,
     "hallucination": 0.35
+  },
+  {
+    "question": "What is the difference between SWOT and Porter's Five Forces?",
+    "effective_q": "What is the difference between SWOT and Porter's Five Forces?",
+    "timestamp": "2026-04-01T18:35:42",
+    "mode": "Graph RAG",
+    "response_time": 17.07,
+    "num_chunks": 13,
+    "avg_score": 4.0,
+    "answer_length": 747,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "ML Project Presentation.pptx"
+    ],
+    "groundedness": 0.62,
+    "relevancy": 0.62,
+    "completeness": 0.56,
+    "hallucination": 0.49
   }
 ]
