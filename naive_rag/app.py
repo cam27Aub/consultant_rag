@@ -99,6 +99,67 @@ def _append_log(entry: dict):
     _save_log(log)
 
 
+# ── Persistent chat log (GitHub-backed) ───────────────────────────────
+CHAT_LOG_FILE = "evaluation/results/chat_log.json"
+
+
+def _load_chat_log() -> list[dict]:
+    """Load chat log from GitHub repo, fallback to local file."""
+    token, repo = _gh_token(), _gh_repo()
+    if token and repo:
+        try:
+            url = f"{_GITHUB_API}/repos/{repo}/contents/{CHAT_LOG_FILE}"
+            r = http_requests.get(url, headers=_gh_headers(), timeout=10)
+            if r.status_code == 200:
+                content = base64.b64decode(r.json()["content"]).decode("utf-8")
+                return json.loads(content)
+            return []
+        except Exception:
+            return []
+    # Fallback: local file
+    local = Path(__file__).parent.parent / CHAT_LOG_FILE
+    if local.exists():
+        try:
+            return json.loads(local.read_text(encoding="utf-8"))
+        except Exception:
+            return []
+    return []
+
+
+def _save_chat_log(log: list[dict]):
+    """Save chat log to GitHub repo, fallback to local file."""
+    content_str = json.dumps(log, indent=2, ensure_ascii=False)
+    token, repo = _gh_token(), _gh_repo()
+    if token and repo:
+        try:
+            url = f"{_GITHUB_API}/repos/{repo}/contents/{CHAT_LOG_FILE}"
+            r = http_requests.get(url, headers=_gh_headers(), timeout=10)
+            sha = r.json().get("sha", "") if r.status_code == 200 else ""
+
+            payload = {
+                "message": "Update chat log",
+                "content": base64.b64encode(content_str.encode("utf-8")).decode("utf-8"),
+                "branch": "master",
+            }
+            if sha:
+                payload["sha"] = sha
+
+            http_requests.put(url, headers=_gh_headers(), json=payload, timeout=10)
+            return
+        except Exception:
+            pass
+    # Fallback: local file
+    local = Path(__file__).parent.parent / CHAT_LOG_FILE
+    local.parent.mkdir(parents=True, exist_ok=True)
+    local.write_text(content_str, encoding="utf-8")
+
+
+def _append_chat(entry: dict):
+    log = _load_chat_log()
+    log.append(entry)
+    _save_chat_log(log)
+
+
 # ── Page config ────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="ConsultantIQ",
@@ -352,7 +413,7 @@ with st.sidebar:
 
     # Navigation
     st.markdown('<div class="sidebar-label">Navigation</div>', unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("Chat", use_container_width=True):
             st.session_state.page = "chat"
@@ -360,6 +421,10 @@ with st.sidebar:
     with col2:
         if st.button("Analytics", use_container_width=True):
             st.session_state.page = "analytics"
+            st.rerun()
+    with col3:
+        if st.button("Chat Log", use_container_width=True):
+            st.session_state.page = "chatlog"
             st.rerun()
 
     st.markdown("<hr>", unsafe_allow_html=True)
@@ -562,6 +627,69 @@ if st.session_state.page == "analytics":
                 "Reformulated":  "Yes" if e.get("reformulated") else "",
             })
         st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+
+    st.stop()
+
+
+# ══════════════════════════════════════════════════════════════════════
+#  CHAT LOG PAGE
+# ══════════════════════════════════════════════════════════════════════
+if st.session_state.page == "chatlog":
+    st.markdown("### Chat Log")
+    chat_log = _load_chat_log()
+
+    if not chat_log:
+        st.info("No conversations logged yet. Ask some questions first!")
+    else:
+        # Filters
+        col_f1, col_f2, col_f3 = st.columns(3)
+        with col_f1:
+            modes_available = sorted(set(e.get("mode", "") for e in chat_log))
+            filter_mode = st.selectbox("Filter by mode", ["All"] + modes_available)
+        with col_f2:
+            dates_available = sorted(set(e.get("timestamp", "")[:10] for e in chat_log if e.get("timestamp")))
+            filter_date = st.selectbox("Filter by date", ["All"] + dates_available)
+        with col_f3:
+            search_term = st.text_input("Search conversations", "")
+
+        # Apply filters
+        filtered = chat_log
+        if filter_mode != "All":
+            filtered = [e for e in filtered if e.get("mode") == filter_mode]
+        if filter_date != "All":
+            filtered = [e for e in filtered if e.get("timestamp", "").startswith(filter_date)]
+        if search_term:
+            term_lower = search_term.lower()
+            filtered = [e for e in filtered if term_lower in e.get("question", "").lower() or term_lower in e.get("answer", "").lower()]
+
+        st.markdown(f"**{len(filtered)}** conversations found")
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        # Display conversations (newest first)
+        for entry in reversed(filtered[-100:]):
+            mode = entry.get("mode", "Unknown")
+            ts = entry.get("timestamp", "")
+            question = entry.get("question", "")
+            answer = entry.get("answer", "")
+            sources = entry.get("sources", [])
+            resp_time = entry.get("response_time", 0)
+            is_followup = entry.get("is_followup", False)
+            used_memory = entry.get("used_memory", False)
+
+            mode_cls = {"Naive RAG": "naive", "Graph RAG": "graph", "Hybrid RAG": "hybrid", "Web Research": "web"}.get(mode, "naive")
+
+            badges = f'<span class="badge badge-{mode_cls}">{mode}</span>'
+            if is_followup:
+                badges += ' <span class="badge badge-naive">Reformulated</span>'
+            if used_memory:
+                badges += ' <span class="badge badge-graph">Memory</span>'
+
+            with st.expander(f"**{question[:80]}{'...' if len(question) > 80 else ''}** — {ts} — {mode} ({resp_time}s)"):
+                st.markdown(f'<div style="margin-bottom:8px;">{badges}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="msg-user" style="margin-bottom:12px;">{question}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="msg-assistant">{answer}</div>', unsafe_allow_html=True)
+                if sources:
+                    st.markdown(f"**Sources:** {', '.join(sources)}")
 
     st.stop()
 
@@ -844,6 +972,19 @@ if question and question.strip():
                 "reformulated":  is_followup,
                 "used_memory":   used_memory,
                 "sources":       sources_list,
+            })
+
+            # ── Chat log entry ────────────────────────────────
+            _append_chat({
+                "timestamp":    datetime.now().isoformat(timespec="seconds"),
+                "mode":         rag_mode,
+                "question":     question,
+                "effective_q":  effective_q if is_followup else question,
+                "answer":       answer,
+                "sources":      sources_list,
+                "is_followup":  is_followup,
+                "used_memory":  used_memory,
+                "response_time": round(elapsed, 2),
             })
 
             st.session_state.messages.append({
