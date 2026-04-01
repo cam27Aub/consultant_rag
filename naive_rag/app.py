@@ -62,18 +62,43 @@ def _rouge_l(reference: str, hypothesis: str) -> tuple[float, float]:
     return precision, recall
 
 
-def _keyword_recall(context: str, answer: str) -> float:
-    """What % of important context keywords appear in the answer."""
-    # Extract keywords: words appearing in context but not common stopwords
-    stopwords = {"the", "and", "for", "are", "with", "that", "this", "from", "have", "has",
-                 "been", "was", "were", "will", "can", "which", "their", "they", "also",
-                 "more", "than", "into", "such", "each", "about", "between", "should",
-                 "these", "other", "not", "but", "its", "all", "any", "our", "your"}
-    ctx_words = set(_tokenize(context)) - stopwords
+_STOPWORDS = {"the", "and", "for", "are", "with", "that", "this", "from", "have", "has",
+              "been", "was", "were", "will", "can", "which", "their", "they", "also",
+              "more", "than", "into", "such", "each", "about", "between", "should",
+              "these", "other", "not", "but", "its", "all", "any", "our", "your",
+              "what", "how", "does", "who", "when", "where", "why", "you", "use",
+              "would", "could", "may", "might", "must", "shall", "need", "used"}
+
+
+def _keyword_recall(question: str, context: str, answer: str) -> float:
+    """Completeness: how well the answer covers the question's key terms
+    and the most important context terms."""
     ans_words = set(_tokenize(answer))
-    if not ctx_words:
+    if not ans_words:
         return 0.0
-    return len(ctx_words & ans_words) / len(ctx_words)
+
+    # 1) Question keyword coverage — did the answer address what was asked?
+    q_words = set(_tokenize(question)) - _STOPWORDS
+    q_coverage = len(q_words & ans_words) / len(q_words) if q_words else 0.0
+
+    # 2) Context key-term coverage — only top-frequency terms (important entities)
+    ctx_tokens = _tokenize(context)
+    ctx_filtered = [w for w in ctx_tokens if w not in _STOPWORDS and len(w) > 3]
+    if not ctx_filtered:
+        return q_coverage
+    # Count word frequencies, keep only the top 20 most important terms
+    from collections import Counter
+    freq = Counter(ctx_filtered)
+    key_terms = {w for w, _ in freq.most_common(20)}
+    ctx_coverage = len(key_terms & ans_words) / len(key_terms) if key_terms else 0.0
+
+    return 0.5 * q_coverage + 0.5 * ctx_coverage
+
+
+def _rescale_cosine(raw: float, floor: float = 0.3, ceiling: float = 0.9) -> float:
+    """Rescale raw cosine similarity to a 0-1 interpretable range.
+    Embeddings rarely go below 0.3 (unrelated) or above 0.9 (near-identical)."""
+    return min(1.0, max(0.0, (raw - floor) / (ceiling - floor)))
 
 
 def _evaluate_answer(question: str, context: str, answer: str) -> dict:
@@ -97,30 +122,30 @@ def _evaluate_answer(question: str, context: str, answer: str) -> dict:
             vec_answer  = resp.data[0].embedding
             vec_context = resp.data[1].embedding
             vec_question = resp.data[2].embedding
-            embed_ground = _cosine_sim(vec_answer, vec_context)
-            embed_relev  = _cosine_sim(vec_answer, vec_question)
+            embed_ground = _rescale_cosine(_cosine_sim(vec_answer, vec_context))
+            embed_relev  = _rescale_cosine(_cosine_sim(vec_answer, vec_question))
         except Exception:
             pass
 
         # ROUGE-L: precision = hallucination check, recall = completeness check
         rouge_precision, rouge_recall = _rouge_l(context, answer)
 
-        # Keyword recall
-        kw_recall = _keyword_recall(context, answer)
+        # Keyword-based completeness (question + key context terms)
+        kw_recall = _keyword_recall(question, context, answer)
 
-        # Combine scores:
-        # Groundedness: embedding similarity between answer and context
+        # Groundedness: rescaled embedding similarity (answer vs context)
         groundedness = round(embed_ground, 2)
 
-        # Relevancy: embedding similarity between answer and question
+        # Relevancy: rescaled embedding similarity (answer vs question)
         relevancy = round(embed_relev, 2)
 
-        # Completeness: blend of keyword recall and ROUGE recall
+        # Completeness: blend of keyword coverage and ROUGE recall
         completeness = round(0.5 * kw_recall + 0.5 * rouge_recall, 2)
 
-        # Hallucination (inverted: 1.0 = no hallucination):
-        # ROUGE precision = how much of answer is found in context
-        hallucination = round(rouge_precision, 2)
+        # No-hallucination (1.0 = fully grounded):
+        # Blend ROUGE precision with embedding groundedness — pure ROUGE is
+        # too strict because the LLM rephrases and adds structure
+        hallucination = round(0.4 * rouge_precision + 0.6 * embed_ground, 2)
 
         return {
             "groundedness":  groundedness,

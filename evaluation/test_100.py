@@ -96,117 +96,117 @@ def _save_log(log):
 
 NAIVE_PROMPTS = [
     # Strategic Frameworks (strategic_frameworks_guide.docx)
-    "What are Porter's Five Forces?",
-    "Explain the BCG Growth-Share Matrix quadrants.",
-    "What is the MECE principle?",
-    "What are the primary activities in Porter's Value Chain?",
-    "What are the support activities in the Value Chain?",
-    "How do you apply Porter's Five Forces to an industry?",
-    "What is competitive rivalry in Porter's framework?",
-    "Define threat of new entrants.",
-    "How does bargaining power of buyers affect pricing?",
-    "What characterizes a 'Star' in the BCG Matrix?",
-    "When should a company divest a 'Dog' business unit?",
-    "How does the MECE principle help with issue trees?",
+    "What is the threat of substitute products in Porter's model?",
+    "How does supplier bargaining power influence an industry?",
+    "What criteria distinguish a 'Cash Cow' from a 'Question Mark' in the BCG Matrix?",
+    "What are the limitations of Porter's Five Forces?",
+    "How should a company transition a Question Mark into a Star?",
+    "What is the purpose of the value chain in competitive analysis?",
+    "How does firm infrastructure support the value chain?",
+    "What is the role of procurement in Porter's Value Chain?",
+    "How does technology development contribute to competitive advantage?",
+    "What are the steps to construct a MECE issue tree?",
+    "How do economies of scale act as a barrier to entry?",
+    "What is the difference between horizontal and vertical integration in strategy?",
     # Digital Transformation (digital_transformation_playbook.pdf)
-    "What are the four pillars of digital transformation?",
-    "Why do digital transformation programs fail?",
-    "How should a digital transformation roadmap be designed?",
-    "What percentage of digital transformations fail?",
-    "What role does executive sponsorship play in digital transformation?",
-    "How much budget should be allocated to change management?",
-    "What is the role of quick wins in a transformation roadmap?",
-    "How many initiatives should a transformation portfolio include?",
+    "What is a digital maturity assessment?",
+    "How should organizations measure digital transformation ROI?",
+    "What are common resistance factors during digital adoption?",
+    "How does cloud migration fit into a transformation roadmap?",
+    "What KPIs should track digital transformation progress?",
+    "What is the role of a transformation management office?",
+    "How should legacy systems be addressed during digital transformation?",
+    "What training approaches support digital upskilling?",
     # Financial Analysis (financial_analysis_toolkit.pdf)
-    "What is EBITDA and why is it useful?",
-    "What are the three valuation methodologies in consulting?",
-    "What is Discounted Cash Flow analysis?",
-    "Explain comparable company analysis.",
-    "What are precedent transactions?",
-    "What financial modeling best practices should consultants follow?",
-    "Why should inputs be separated from calculations in a model?",
-    "What color coding conventions are used in financial models?",
-    "What scenarios should a financial model include?",
+    "What is enterprise value and how is it calculated?",
+    "How do you calculate weighted average cost of capital?",
+    "What are the key assumptions in a DCF model?",
+    "How do you determine the terminal value of a business?",
+    "What multiples are commonly used in comparable company analysis?",
+    "How should a sensitivity analysis be structured in a financial model?",
+    "What is the difference between levered and unlevered free cash flow?",
+    "How do you normalize earnings for valuation purposes?",
+    "What are common red flags in financial statement analysis?",
     # Client Engagement (client_engagement_best_practices.docx)
-    "What is the pyramid principle in consulting?",
-    "Who developed the pyramid principle?",
-    "How should stakeholders be managed during an engagement?",
-    "What types of stakeholders exist in a consulting engagement?",
-    "How should you handle potential blockers in a project?",
+    "What is the structure of a hypothesis-driven engagement?",
+    "How should consultants scope a new project?",
+    "What are the phases of a typical consulting engagement?",
+    "How do you build executive alignment early in a project?",
+    "What techniques help manage difficult stakeholders?",
 ]
 
 GRAPH_PROMPTS = [
     # Entity/relationship focused questions
-    "How does Porter's Five Forces relate to competitive strategy?",
-    "What is the relationship between BCG Matrix and portfolio management?",
-    "How are MECE and issue trees connected?",
-    "What connects digital transformation to customer experience?",
-    "How does EBITDA relate to company valuation?",
-    "What is the link between DCF analysis and cash flow forecasting?",
-    "How does the pyramid principle connect to McKinsey?",
-    "What entities are involved in stakeholder management?",
-    "How do the four pillars of digital transformation interact?",
-    "What is the relationship between operational efficiency and technology?",
-    "How does change management relate to digital transformation success?",
-    "What connects competitive rivalry to market share?",
-    "How do support activities in the value chain enable primary activities?",
-    "What is the relationship between governance and program success?",
-    "How does bargaining power relate to supply chain management?",
-    "What frameworks are used for industry analysis?",
-    "How does business model innovation connect to digital strategy?",
-    "What metrics are used to measure consulting engagement success?",
-    "How do financial metrics relate to strategic decision-making?",
-    "What connects client engagement to project delivery?",
-    "How does data analytics support business transformation?",
-    "What is the relationship between talent gaps and transformation failure?",
-    "How do trading multiples compare to DCF in valuation?",
-    "What connects executive sponsorship to change management?",
-    "How does scenario analysis relate to financial modeling?",
-    "What entities are part of the value chain framework?",
-    "How do exit barriers affect competitive rivalry?",
-    "What links switching costs to buyer bargaining power?",
-    "How does product differentiation relate to competitive advantage?",
-    "What connects inbound logistics to operations in the value chain?",
-    "How are consulting frameworks interconnected?",
-    "What is the relationship between risk assessment and financial analysis?",
-    "How does market growth rate relate to the BCG Matrix?",
+    "How does threat of substitutes connect to buyer behavior?",
+    "What is the relationship between supplier power and input costs?",
+    "How do barriers to entry relate to industry profitability?",
+    "What connects the value chain to competitive positioning?",
+    "How does human resource management link to firm performance in the value chain?",
+    "What is the relationship between cash cows and investment strategy?",
+    "How does digital maturity relate to organizational readiness?",
+    "What connects cloud infrastructure to operational efficiency?",
+    "How does enterprise value relate to equity value?",
+    "What is the link between WACC and discount rates in valuation?",
+    "How do terminal value assumptions affect DCF outcomes?",
+    "What connects revenue growth to market share in strategic analysis?",
+    "How does hypothesis-driven consulting relate to the pyramid principle?",
+    "What is the relationship between project scoping and deliverable quality?",
+    "How do executive sponsors influence transformation governance?",
+    "What connects sensitivity analysis to risk management?",
+    "How does industry concentration relate to competitive rivalry?",
+    "What links free cash flow to enterprise valuation?",
+    "How does technology pillar connect to the other transformation pillars?",
+    "What is the relationship between stakeholder mapping and engagement planning?",
+    "How do economies of scale relate to cost leadership strategy?",
+    "What connects issue trees to root cause analysis?",
+    "How does the BCG Matrix relate to resource allocation decisions?",
+    "What links digital KPIs to business outcome measurement?",
+    "How does procurement strategy connect to supplier bargaining power?",
+    "What is the relationship between legacy systems and transformation risk?",
+    "How do trading comparables relate to market sentiment?",
+    "What connects change resistance to talent management?",
+    "How does firm infrastructure enable all value chain activities?",
+    "What is the relationship between engagement phases and stakeholder communication?",
+    "How do financial red flags connect to due diligence?",
+    "What links MECE structuring to problem decomposition?",
+    "How does market growth connect to the Question Mark quadrant?",
 ]
 
 HYBRID_PROMPTS = [
     # Complex analytical questions needing both context types
-    "Compare Porter's Five Forces with the BCG Matrix for strategic planning.",
-    "How can digital transformation principles be applied using consulting frameworks?",
-    "Explain the complete process of industry analysis using available frameworks.",
-    "What financial tools and strategic frameworks should be used together for M&A analysis?",
-    "How do the pyramid principle and stakeholder management work together in client engagements?",
-    "Compare DCF analysis with comparable company analysis for valuation.",
-    "How should a consultant approach a digital transformation engagement from start to finish?",
-    "What are all the frameworks available for competitive analysis and how do they differ?",
-    "How can financial modeling best practices support strategic decision-making?",
-    "Explain the relationship between change management and digital transformation success with specific examples.",
-    "What is the complete stakeholder management process and how does it relate to the pyramid principle?",
-    "How should value chain analysis inform digital transformation strategy?",
-    "Compare all three valuation methodologies and when to use each.",
-    "What are the key success factors for consulting engagements across all document sources?",
-    "How do strategic frameworks help in assessing market attractiveness?",
-    "Explain how EBITDA analysis can be used alongside strategic frameworks for business evaluation.",
-    "What is the role of governance in both digital transformation and financial modeling?",
-    "How can the MECE principle be applied to structure a digital transformation assessment?",
-    "What are the common themes across strategic frameworks and financial analysis tools?",
-    "How should a consultant structure a competitive analysis presentation?",
-    "Compare the failure factors of digital transformation with stakeholder management challenges.",
-    "What is the comprehensive approach to evaluating a company's competitive position?",
-    "How do quick wins in digital transformation relate to the BCG Matrix's prioritization?",
-    "Explain how all four documents' concepts connect to form a consulting toolkit.",
-    "What analytical frameworks help in understanding industry dynamics?",
-    "How should scenario analysis in financial models align with strategic planning?",
-    "What is the relationship between market forces and digital disruption?",
-    "How can value chain analysis be used to identify digital transformation opportunities?",
-    "Compare the role of data analytics across strategic, financial, and transformation contexts.",
-    "What best practices from all sources apply to a new market entry analysis?",
-    "How does the pyramid principle help present financial analysis findings?",
-    "What is the integrated approach to assessing business unit performance?",
-    "How do consulting frameworks address uncertainty in strategic planning?",
+    "How would you use both the value chain and financial analysis to assess a target company?",
+    "Compare the role of governance in digital transformation versus financial modeling.",
+    "What strategic frameworks and financial tools support a market entry decision?",
+    "How should a consultant combine stakeholder management with the pyramid principle for C-suite presentations?",
+    "Explain how sensitivity analysis in financial models complements strategic scenario planning.",
+    "What is the end-to-end process for evaluating a business unit using BCG Matrix and DCF?",
+    "How do digital transformation KPIs align with financial performance metrics?",
+    "Compare the risk factors in digital transformation with financial modeling assumptions.",
+    "How should value chain analysis and financial statement analysis be used together in due diligence?",
+    "What frameworks help structure a consulting engagement focused on cost reduction?",
+    "How can the MECE principle improve the structure of a financial model?",
+    "Compare the approach to measuring ROI in digital transformation versus capital investments.",
+    "What is the relationship between Porter's Five Forces and comparable company selection?",
+    "How should a consultant present valuation findings using the pyramid principle?",
+    "Explain how change management and stakeholder engagement work together during transformation.",
+    "What combination of tools would you use to assess industry attractiveness and company valuation?",
+    "How do quick wins in transformation relate to cash flow improvement?",
+    "Compare the role of executive sponsorship in client engagements versus digital programs.",
+    "How should a consultant integrate strategic analysis with financial due diligence?",
+    "What are the common pitfalls across strategic planning, financial analysis, and digital transformation?",
+    "How does the value chain framework inform digital investment priorities?",
+    "Compare hypothesis-driven consulting with scenario-based financial modeling.",
+    "What is the comprehensive approach to evaluating competitive threats using all available frameworks?",
+    "How do consulting engagement best practices apply to a digital transformation program?",
+    "Explain how EBITDA margins relate to competitive positioning within an industry.",
+    "What frameworks help prioritize which business units to digitally transform first?",
+    "How should a consultant assess whether to build, buy, or partner using strategic and financial analysis?",
+    "Compare stakeholder management approaches for financial restructuring versus digital programs.",
+    "What is the integrated approach to assessing a company before an acquisition?",
+    "How can issue trees structure both a strategic assessment and a financial analysis workstream?",
+    "What connects client engagement phases to the stages of a digital transformation roadmap?",
+    "How do barriers to entry influence both strategic recommendations and valuation multiples?",
+    "What best practices apply when presenting both strategic and financial findings to a board?",
 ]
 
 ALL_TESTS = (
@@ -220,6 +220,14 @@ def _evaluate_answer(question, context, answer):
     """Fast local evaluation — same as app.py. No LLM calls."""
     import re as _re
     import math as _math
+    from collections import Counter as _Counter
+
+    _stops = {"the","and","for","are","with","that","this","from","have","has",
+              "been","was","were","will","can","which","their","they","also",
+              "more","than","into","such","each","about","between","should",
+              "these","other","not","but","its","all","any","our","your",
+              "what","how","does","who","when","where","why","you","use",
+              "would","could","may","might","must","shall","need","used"}
 
     def _tok(text):
         return [w for w in _re.findall(r'[a-z]{3,}', text.lower())]
@@ -229,6 +237,9 @@ def _evaluate_answer(question, context, answer):
         na = _math.sqrt(sum(x * x for x in a))
         nb = _math.sqrt(sum(x * x for x in b))
         return dot / (na * nb) if na > 0 and nb > 0 else 0.0
+
+    def _rescale(raw, floor=0.3, ceiling=0.9):
+        return min(1.0, max(0.0, (raw - floor) / (ceiling - floor)))
 
     def _rouge_l(ref, hyp):
         rw = _tok(ref)[:500]
@@ -248,14 +259,20 @@ def _evaluate_answer(question, context, answer):
         lcs = prev[n]
         return (lcs / n if n else 0.0), (lcs / m if m else 0.0)
 
-    def _kw_recall(ctx, ans):
-        stops = {"the","and","for","are","with","that","this","from","have","has",
-                 "been","was","were","will","can","which","their","they","also",
-                 "more","than","into","such","each","about","between","should",
-                 "these","other","not","but","its","all","any","our","your"}
-        cw = set(_tok(ctx)) - stops
+    def _kw_recall(q, ctx, ans):
         aw = set(_tok(ans))
-        return len(cw & aw) / len(cw) if cw else 0.0
+        if not aw:
+            return 0.0
+        # Question keyword coverage
+        qw = set(_tok(q)) - _stops
+        q_cov = len(qw & aw) / len(qw) if qw else 0.0
+        # Context key-term coverage (top 20 frequent terms)
+        ctx_filt = [w for w in _tok(ctx) if w not in _stops and len(w) > 3]
+        if not ctx_filt:
+            return q_cov
+        key_terms = {w for w, _ in _Counter(ctx_filt).most_common(20)}
+        ctx_cov = len(key_terms & aw) / len(key_terms) if key_terms else 0.0
+        return 0.5 * q_cov + 0.5 * ctx_cov
 
     try:
         import config
@@ -272,20 +289,20 @@ def _evaluate_answer(question, context, answer):
         va = resp.data[0].embedding
         vc = resp.data[1].embedding
         vq = resp.data[2].embedding
-        embed_ground = _cos(va, vc)
-        embed_relev = _cos(va, vq)
+        embed_ground = _rescale(_cos(va, vc))
+        embed_relev = _rescale(_cos(va, vq))
     except Exception:
         embed_ground = 0.0
         embed_relev = 0.0
 
     rp, rr = _rouge_l(context, answer)
-    kw = _kw_recall(context, answer)
+    kw = _kw_recall(question, context, answer)
 
     return {
         "groundedness":  round(embed_ground, 2),
         "relevancy":     round(embed_relev, 2),
         "completeness":  round(0.5 * kw + 0.5 * rr, 2),
-        "hallucination": round(rp, 2),
+        "hallucination": round(0.4 * rp + 0.6 * embed_ground, 2),
     }
 
 
