@@ -65,5 +65,18 @@
     "is_followup": false,
     "used_memory": false,
     "response_time": 17.08
+  },
+  {
+    "timestamp": "2026-04-01T19:05:37",
+    "mode": "Graph RAG",
+    "question": "How does stakeholder mapping relate to the diagnostic phase of a consulting engagement?",
+    "effective_q": "How does stakeholder mapping relate to the diagnostic phase of a consulting engagement?",
+    "answer": "Stakeholder Mapping is a component of the Diagnostic Phase, as indicated by the relationship *Diagnostic Phase —[HAS_COMPONENT]→ Stakeholder Mapping*. Additionally, Stakeholder Mapping requires Stakeholder Interviews (*Stakeholder Mapping —[REQUIRES]→ Stakeholder Interviews*), which are also a component of the Diagnostic Phase (*Diagnostic Phase —[HAS_COMPONENT]→ Stakeholder Interviews*). This highlights that Stakeholder Mapping is an integral process within the Diagnostic Phase, contributing to understanding the client’s organizational dynamics.",
+    "sources": [
+      "client_engagement_best_practices.docx"
+    ],
+    "is_followup": false,
+    "used_memory": false,
+    "response_time": 17.16
   }
 ]
