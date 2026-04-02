@@ -78,5 +78,18 @@
     "is_followup": false,
     "used_memory": false,
     "response_time": 17.16
+  },
+  {
+    "timestamp": "2026-04-02T14:05:41",
+    "mode": "Hybrid RAG",
+    "question": "porters five forces",
+    "effective_q": "porters five forces",
+    "answer": "Porter's Five Forces is a strategic framework developed by Michael E. Porter to evaluate the attractiveness and profitability of an industry by analyzing five competitive dynamics. Below are the key details:\n\n### Overview:\n- **Purpose**: To assess industry attractiveness and profitability.\n- **Application**: Used in market entry, due diligence, and corporate strategy engagements. [Source: strategic_frameworks_guide.docx, p2]\n\n### The Five Forces:\n1. **Threat of New Entrants**: Evaluates how easily new competitors can enter the market and erode margins for existing firms. [Source: strategic_frameworks_guide.docx, p3]\n2. **Bargaining Power of Suppliers**: Assesses the leverage suppliers have over firms through pricing, quality, or availability of inputs. [Source: strategic_frameworks_guide.docx, p3]\n3. **Bargaining Power of Buyers**: Measures the influence customers exert on pricing and terms, especially when they are concentrated or price-sensitive. [Source: strategic_frameworks_guide.docx, p3]\n4. **Threat of Substitutes**: Analyzes the risk of alternative products or services reducing demand for the industry’s offerings. [Source: strategic_frameworks_guide.docx, p3]\n5. **Competitive Rivalry**: Examines the intensity of competition among existing firms, which can impact margins and drive innovation or price wars. [Source: strategic_frameworks_guide.docx, p3]\n\n### Industry Attractiveness:\n- The combined effect of all five forces determines the overall attractiveness of an industry.\n- **Strong Forces**: Indicate an unattractive industry with low profitability potential.\n- **Weak Forces**: Suggest an attractive industry with high profitability potential. [Source: strategic_frameworks_guide.docx, p3]\n\n### Presentation:\n- Consultants often rate each force (e.g., Low / Medium / High) and provide supporting evidence when presenting the analysis to clients. [Source: strategic_frameworks_guide.docx, p3]",
+    "sources": [
+      "strategic_frameworks_guide.docx"
+    ],
+    "is_followup": false,
+    "used_memory": false,
+    "response_time": 37.8
   }
 ]
