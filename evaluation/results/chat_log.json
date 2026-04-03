@@ -130,5 +130,18 @@
     "is_followup": false,
     "used_memory": false,
     "response_time": 7.91
+  },
+  {
+    "timestamp": "2026-04-03T23:52:17",
+    "mode": "Naive RAG",
+    "question": "tell me about data curation",
+    "effective_q": "tell me about data curation",
+    "answer": "Data curation is the process of organizing, maintaining, and preserving datasets to ensure their accessibility, usability, and quality for analysis. Below are the key details about data curation based on the provided context:\n\n### Definition and Objectives\n- **Definition**: Data curation involves organizing, maintaining, and preserving datasets to make them FAIR (Findable, Accessible, Interoperable, and Reusable) and analyzable. [Source: Lecture 2.pdf, Section: Data curation: Definition, Page/Slide: 7]\n- **Core Objectives**:\n  - Preserve data integrity.\n  - Facilitate accurate data-driven decision-making.\n  - Ensure long-term accessibility and compliance. [Source: Lecture 2.pdf, Section: Data curation: Definition, Page/Slide: 7]\n\n### Importance of Data Curation\n- **Challenges with Inaccurate Datasets**:\n  - Biased datasets can lead to biased AI systems.\n  - Inaccurate, unreliable, or misrepresented data can hinder analysis.\n  - Error-ridden or ambiguous datasets reduce data quality. [Source: Lecture 2.pdf, Section: Data curation: Why?, Page/Slide: 8]\n- **Consequences of Poor Curation**:\n  - Reduces feature quality.\n  - Restricts data development and applications. [Source: Lecture 2.pdf, Section: Data curation: Why?, Page/Slide: 8]\n- **Benefits**:\n  - Improves data quality by organizing, describing, cleaning, and preserving datasets.\n  - Prevents \"data swamps\" by ensuring proper storage and segregation.\n  - Facilitates long-term accessibility and usability for analysts.\n  - Prepares training data for AI/ML by ensuring it is labeled, categorized, and machine-readable. [Source: Lecture 2.pdf, Section: Data curation: Why?, Page/Slide: 8]\n\n### Steps in Data Curation\n1. **Selection**:\n   - Identify datasets relevant to project goals.\n   - Evaluate data quality and credibility.\n2. **Cleaning**:\n   - Handle missing data (e.g., imputation, deletion).\n   - Detect and resolve inconsistencies (e.g., duplicate records, incorrect formats).\n   - Normalize data for consistency.\n3. **Organization**:\n   - Apply schema definitions for structured datasets (e.g., JSON, XML, SQL tables).\n   - Use standard naming conventions and folder hierarchies.\n4. **Enrichment**:\n   - Add metadata (e.g., author, creation date, format).\n   - Integrate data with external sources (e.g., APIs, linked data).\n5. **Preservation**:\n   - Store data in durable formats (e.g., Parquet, ORC).\n   - Ensure compliance with archival standards (e.g., FAIR principles). [Source: Lecture 2.pdf, Section: Data curation: Steps, Page/Slide: 9]\n\n### Comparison with Related Concepts\n- **Data Management**:\n  - Broader in scope, addressing all data-related aspects of an organization.\n  - Includes governance, security, storage, ingestion, architectural design, and lifecycle management.\n- **Data Cleaning**:\n  - Focuses on identifying and removing inconsistencies and quality issues (e.g., duplicate values, incorrect formats, missing data).\n  - A subset of data curation. [Source: Lecture 2.pdf, Section: Data curation, Page/Slide: 10]\n\n### Applications\n- Research repositories.\n- Enterprise data management.\n- Big data analytics pipelines. [Source: Lecture 2.pdf, Section: Data curation: Definition, Page/Slide: 7]",
+    "sources": [
+      "Lecture 2.pdf"
+    ],
+    "is_followup": false,
+    "used_memory": false,
+    "response_time": 8.24
   }
 ]
