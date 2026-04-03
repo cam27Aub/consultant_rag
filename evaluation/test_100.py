@@ -228,7 +228,7 @@ ANSWER:
 {answer}
 
 Score each metric using these rubrics:
-- groundedness: Is every claim in the answer directly supported by the context? (1.0 = every claim is supported, 0.5 = some claims unsupported, 0.0 = mostly fabricated)
+- groundedness: Can every claim in the answer be traced back to the context? Do NOT judge whether the context is relevant or high-quality — only check if the answer's claims come from the provided context. (1.0 = every claim exists in the context, 0.5 = some claims have no basis in the context, 0.0 = most claims are not in the context)
 - relevancy: Does the answer address the question that was asked? (1.0 = directly and fully addresses the question, 0.5 = partially addresses it, 0.0 = completely off-topic)
 - completeness: Does the answer cover the key information available in the context that is relevant to the question? (1.0 = covers all relevant context info, 0.5 = covers some, 0.0 = misses most)
 - hallucination: Is the answer free from information NOT found in the context? (1.0 = no hallucination at all, 0.5 = minor additions beyond context, 0.0 = heavily fabricated content)
