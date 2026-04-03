@@ -107,10 +107,10 @@ ANSWER:
 {answer}
 
 Score each metric using these rubrics:
-- groundedness: Can every claim in the answer be traced back to the context? Do NOT judge whether the context is relevant or high-quality — only check if the answer's claims come from the provided context. (1.0 = every claim exists in the context, 0.5 = some claims have no basis in the context, 0.0 = most claims are not in the context)
-- relevancy: Does the answer address the question that was asked? (1.0 = directly and fully addresses the question, 0.5 = partially addresses it, 0.0 = completely off-topic)
-- completeness: Does the answer cover the key information available in the context that is relevant to the question? (1.0 = covers all relevant context info, 0.5 = covers some, 0.0 = misses most)
-- hallucination: Is the answer free from information NOT found in the context? (1.0 = no hallucination at all, 0.5 = minor additions beyond context, 0.0 = heavily fabricated content)
+- groundedness: Does the answer use information from the provided context? If the answer rephrases, summarizes, or quotes the context, that IS grounded. Do NOT penalize for context quality or topic relevance — only penalize if the answer contains claims that appear NOWHERE in the context. (1.0 = all info in the answer comes from context, 0.7 = most comes from context with minor additions, 0.3 = significant claims not in context, 0.0 = answer ignores context entirely)
+- relevancy: Does the answer address the question that was asked? (1.0 = directly and fully addresses it, 0.7 = mostly addresses it, 0.3 = barely addresses it, 0.0 = completely off-topic)
+- completeness: Does the answer cover the key information available in the context that is relevant to the question? (1.0 = thorough coverage of relevant context, 0.7 = covers most key points, 0.3 = misses significant info, 0.0 = misses almost everything)
+- hallucination: Is the answer free from information NOT found in the context? (1.0 = every claim is traceable to context, 0.7 = minor phrasing not in context but meaning is, 0.3 = noticeable additions beyond context, 0.0 = heavily fabricated)
 
 Return ONLY valid JSON with no explanation: {{"groundedness": X, "relevancy": X, "completeness": X, "hallucination": X}}"""
 
@@ -129,8 +129,8 @@ def _evaluate_answer(question: str, context: str, answer: str) -> dict:
             model=config.AZURE_CHAT_DEPLOYMENT,
             messages=[{"role": "user", "content": _EVAL_PROMPT.format(
                 question=question[:500],
-                context=context[:3000],
-                answer=answer[:2000],
+                context=context[:8000],
+                answer=answer[:3000],
             )}],
             temperature=0.0,
             max_tokens=200,
