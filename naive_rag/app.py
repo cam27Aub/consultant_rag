@@ -95,64 +95,56 @@ def _keyword_recall(question: str, context: str, answer: str) -> float:
     return 0.5 * q_coverage + 0.5 * ctx_coverage
 
 
-def _rescale_cosine(raw: float, floor: float = 0.2, ceiling: float = 0.85) -> float:
-    """Rescale raw cosine similarity to a 0-1 interpretable range.
-    Floor lowered to 0.2 to accommodate Graph RAG where entity descriptions
-    are structurally different from synthesized narrative answers."""
-    return min(1.0, max(0.0, (raw - floor) / (ceiling - floor)))
+_EVAL_PROMPT = """You are a strict evaluation judge for a RAG (Retrieval-Augmented Generation) system.
+Given a QUESTION, the CONTEXT (retrieved documents/entities), and the ANSWER produced by the system, score the answer on exactly 4 metrics. Each score must be a float between 0.0 and 1.0.
+
+QUESTION: {question}
+
+CONTEXT (retrieved documents):
+{context}
+
+ANSWER:
+{answer}
+
+Score each metric using these rubrics:
+- groundedness: Is every claim in the answer directly supported by the context? (1.0 = every claim is supported, 0.5 = some claims unsupported, 0.0 = mostly fabricated)
+- relevancy: Does the answer address the question that was asked? (1.0 = directly and fully addresses the question, 0.5 = partially addresses it, 0.0 = completely off-topic)
+- completeness: Does the answer cover the key information available in the context that is relevant to the question? (1.0 = covers all relevant context info, 0.5 = covers some, 0.0 = misses most)
+- hallucination: Is the answer free from information NOT found in the context? (1.0 = no hallucination at all, 0.5 = minor additions beyond context, 0.0 = heavily fabricated content)
+
+Return ONLY valid JSON with no explanation: {{"groundedness": X, "relevancy": X, "completeness": X, "hallucination": X}}"""
 
 
 def _evaluate_answer(question: str, context: str, answer: str) -> dict:
-    """Fast local evaluation — no LLM calls. Uses embeddings + text overlap."""
+    """LLM-as-judge evaluation using GPT-4o. Scores 4 metrics via a single call."""
     try:
-        # Embedding-based scores (uses cached embedder if available)
-        embed_ground = 0.0
-        embed_relev = 0.0
-        try:
-            import config
-            from openai import AzureOpenAI
-            client = AzureOpenAI(
-                azure_endpoint=config.AZURE_OPENAI_ENDPOINT,
-                api_key=config.AZURE_OPENAI_KEY,
-                api_version=config.AZURE_OPENAI_API_VERSION,
-            )
-            resp = client.embeddings.create(
-                model=config.AZURE_EMBED_DEPLOYMENT,
-                input=[answer[:2000], context[:3000], question[:500]],
-            )
-            vec_answer  = resp.data[0].embedding
-            vec_context = resp.data[1].embedding
-            vec_question = resp.data[2].embedding
-            embed_ground = _rescale_cosine(_cosine_sim(vec_answer, vec_context))
-            embed_relev  = _rescale_cosine(_cosine_sim(vec_answer, vec_question))
-        except Exception:
-            pass
-
-        # ROUGE-L: precision = hallucination check, recall = completeness check
-        rouge_precision, rouge_recall = _rouge_l(context, answer)
-
-        # Keyword-based completeness (question + key context terms)
-        kw_recall = _keyword_recall(question, context, answer)
-
-        # Groundedness: rescaled embedding similarity (answer vs context)
-        groundedness = round(embed_ground, 2)
-
-        # Relevancy: rescaled embedding similarity (answer vs question)
-        relevancy = round(embed_relev, 2)
-
-        # Completeness: blend of keyword coverage and ROUGE recall
-        completeness = round(0.5 * kw_recall + 0.5 * rouge_recall, 2)
-
-        # No-hallucination (1.0 = fully grounded):
-        # Blend ROUGE precision with embedding groundedness — pure ROUGE is
-        # too strict because the LLM rephrases and adds structure
-        hallucination = round(0.4 * rouge_precision + 0.6 * embed_ground, 2)
-
+        import config
+        from openai import AzureOpenAI
+        client = AzureOpenAI(
+            azure_endpoint=config.AZURE_OPENAI_ENDPOINT,
+            api_key=config.AZURE_OPENAI_KEY,
+            api_version=config.AZURE_OPENAI_API_VERSION,
+        )
+        resp = client.chat.completions.create(
+            model=config.AZURE_CHAT_DEPLOYMENT,
+            messages=[{"role": "user", "content": _EVAL_PROMPT.format(
+                question=question[:500],
+                context=context[:3000],
+                answer=answer[:2000],
+            )}],
+            temperature=0.0,
+            max_tokens=200,
+        )
+        raw = resp.choices[0].message.content.strip()
+        # Strip markdown fences if present
+        raw = re.sub(r"^```json\s*", "", raw)
+        raw = re.sub(r"\s*```$", "", raw)
+        scores = json.loads(raw)
         return {
-            "groundedness":  groundedness,
-            "relevancy":     relevancy,
-            "completeness":  completeness,
-            "hallucination": hallucination,
+            "groundedness":  round(float(scores.get("groundedness", 0)), 2),
+            "relevancy":     round(float(scores.get("relevancy", 0)), 2),
+            "completeness":  round(float(scores.get("completeness", 0)), 2),
+            "hallucination": round(float(scores.get("hallucination", 0)), 2),
         }
     except Exception:
         return {"groundedness": 0, "relevancy": 0, "completeness": 0, "hallucination": 0}

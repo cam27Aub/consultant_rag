@@ -216,64 +216,29 @@ ALL_TESTS = (
 )
 
 
+_EVAL_PROMPT = """You are a strict evaluation judge for a RAG (Retrieval-Augmented Generation) system.
+Given a QUESTION, the CONTEXT (retrieved documents/entities), and the ANSWER produced by the system, score the answer on exactly 4 metrics. Each score must be a float between 0.0 and 1.0.
+
+QUESTION: {question}
+
+CONTEXT (retrieved documents):
+{context}
+
+ANSWER:
+{answer}
+
+Score each metric using these rubrics:
+- groundedness: Is every claim in the answer directly supported by the context? (1.0 = every claim is supported, 0.5 = some claims unsupported, 0.0 = mostly fabricated)
+- relevancy: Does the answer address the question that was asked? (1.0 = directly and fully addresses the question, 0.5 = partially addresses it, 0.0 = completely off-topic)
+- completeness: Does the answer cover the key information available in the context that is relevant to the question? (1.0 = covers all relevant context info, 0.5 = covers some, 0.0 = misses most)
+- hallucination: Is the answer free from information NOT found in the context? (1.0 = no hallucination at all, 0.5 = minor additions beyond context, 0.0 = heavily fabricated content)
+
+Return ONLY valid JSON with no explanation: {{"groundedness": X, "relevancy": X, "completeness": X, "hallucination": X}}"""
+
+
 def _evaluate_answer(question, context, answer):
-    """Fast local evaluation — same as app.py. No LLM calls."""
+    """LLM-as-judge evaluation using GPT-4o. Scores 4 metrics via a single call."""
     import re as _re
-    import math as _math
-    from collections import Counter as _Counter
-
-    _stops = {"the","and","for","are","with","that","this","from","have","has",
-              "been","was","were","will","can","which","their","they","also",
-              "more","than","into","such","each","about","between","should",
-              "these","other","not","but","its","all","any","our","your",
-              "what","how","does","who","when","where","why","you","use",
-              "would","could","may","might","must","shall","need","used"}
-
-    def _tok(text):
-        return [w for w in _re.findall(r'[a-z]{3,}', text.lower())]
-
-    def _cos(a, b):
-        dot = sum(x * y for x, y in zip(a, b))
-        na = _math.sqrt(sum(x * x for x in a))
-        nb = _math.sqrt(sum(x * x for x in b))
-        return dot / (na * nb) if na > 0 and nb > 0 else 0.0
-
-    def _rescale(raw, floor=0.2, ceiling=0.85):
-        return min(1.0, max(0.0, (raw - floor) / (ceiling - floor)))
-
-    def _rouge_l(ref, hyp):
-        rw = _tok(ref)[:500]
-        hw = _tok(hyp)[:500]
-        if not rw or not hw:
-            return 0.0, 0.0
-        m, n = len(rw), len(hw)
-        prev = [0] * (n + 1)
-        for i in range(1, m + 1):
-            curr = [0] * (n + 1)
-            for j in range(1, n + 1):
-                if rw[i - 1] == hw[j - 1]:
-                    curr[j] = prev[j - 1] + 1
-                else:
-                    curr[j] = max(curr[j - 1], prev[j])
-            prev = curr
-        lcs = prev[n]
-        return (lcs / n if n else 0.0), (lcs / m if m else 0.0)
-
-    def _kw_recall(q, ctx, ans):
-        aw = set(_tok(ans))
-        if not aw:
-            return 0.0
-        # Question keyword coverage
-        qw = set(_tok(q)) - _stops
-        q_cov = len(qw & aw) / len(qw) if qw else 0.0
-        # Context key-term coverage (top 20 frequent terms)
-        ctx_filt = [w for w in _tok(ctx) if w not in _stops and len(w) > 3]
-        if not ctx_filt:
-            return q_cov
-        key_terms = {w for w, _ in _Counter(ctx_filt).most_common(20)}
-        ctx_cov = len(key_terms & aw) / len(key_terms) if key_terms else 0.0
-        return 0.5 * q_cov + 0.5 * ctx_cov
-
     try:
         import config
         from openai import AzureOpenAI
@@ -282,28 +247,28 @@ def _evaluate_answer(question, context, answer):
             api_key=config.AZURE_OPENAI_KEY,
             api_version=config.AZURE_OPENAI_API_VERSION,
         )
-        resp = client.embeddings.create(
-            model=config.AZURE_EMBED_DEPLOYMENT,
-            input=[answer[:2000], context[:3000], question[:500]],
+        resp = client.chat.completions.create(
+            model=config.AZURE_CHAT_DEPLOYMENT,
+            messages=[{"role": "user", "content": _EVAL_PROMPT.format(
+                question=question[:500],
+                context=context[:3000],
+                answer=answer[:2000],
+            )}],
+            temperature=0.0,
+            max_tokens=200,
         )
-        va = resp.data[0].embedding
-        vc = resp.data[1].embedding
-        vq = resp.data[2].embedding
-        embed_ground = _rescale(_cos(va, vc))
-        embed_relev = _rescale(_cos(va, vq))
+        raw = resp.choices[0].message.content.strip()
+        raw = _re.sub(r"^```json\s*", "", raw)
+        raw = _re.sub(r"\s*```$", "", raw)
+        scores = json.loads(raw)
+        return {
+            "groundedness":  round(float(scores.get("groundedness", 0)), 2),
+            "relevancy":     round(float(scores.get("relevancy", 0)), 2),
+            "completeness":  round(float(scores.get("completeness", 0)), 2),
+            "hallucination": round(float(scores.get("hallucination", 0)), 2),
+        }
     except Exception:
-        embed_ground = 0.0
-        embed_relev = 0.0
-
-    rp, rr = _rouge_l(context, answer)
-    kw = _kw_recall(question, context, answer)
-
-    return {
-        "groundedness":  round(embed_ground, 2),
-        "relevancy":     round(embed_relev, 2),
-        "completeness":  round(0.5 * kw + 0.5 * rr, 2),
-        "hallucination": round(0.4 * rp + 0.6 * embed_ground, 2),
-    }
+        return {"groundedness": 0, "relevancy": 0, "completeness": 0, "hallucination": 0}
 
 
 def run_tests():
