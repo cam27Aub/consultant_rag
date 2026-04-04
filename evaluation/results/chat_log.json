@@ -143,5 +143,20 @@
     "is_followup": false,
     "used_memory": false,
     "response_time": 8.24
+  },
+  {
+    "timestamp": "2026-04-04T00:01:59",
+    "mode": "Naive RAG",
+    "question": "How does Porter's Five Forces compare to PESTEL analysis?",
+    "effective_q": "How does Porter's Five Forces compare to PESTEL analysis?",
+    "answer": "The provided context does not explicitly compare Porter's Five Forces to PESTEL analysis. However, it does describe Porter's Five Forces as a framework for evaluating the attractiveness and profitability of an industry by analyzing five competitive dynamics: Threat of New Entrants, Bargaining Power of Suppliers, Bargaining Power of Buyers, Threat of Substitutes, and Competitive Rivalry. This framework focuses on industry-specific factors that influence competition and profitability.\n\nThe context does not mention PESTEL analysis or provide any details about it, so the comparison between the two frameworks is not addressed.\n\nMissing aspects:\n- Explanation of PESTEL analysis.\n- Direct comparison of Porter's Five Forces and PESTEL analysis.\n\n[Source: strategic_frameworks_guide.docx, Section: 1. Porter’s Five Forces, Page/Slide: 2; Section: The Five Forces, Page/Slide: 3]",
+    "sources": [
+      "client_engagement_best_practices.docx",
+      "Topic_9_LogisticRegression.pptx",
+      "strategic_frameworks_guide.docx"
+    ],
+    "is_followup": false,
+    "used_memory": false,
+    "response_time": 4.58
   }
 ]
