@@ -4028,5 +4028,26 @@
     "relevancy": 1.0,
     "completeness": 1.0,
     "hallucination": 1.0
+  },
+  {
+    "question": "How does Porter's Five Forces compare to PESTEL analysis?",
+    "effective_q": "How does Porter's Five Forces compare to PESTEL analysis?",
+    "timestamp": "2026-04-04T00:01:57",
+    "mode": "Naive RAG",
+    "response_time": 4.58,
+    "num_chunks": 5,
+    "avg_score": 2.1227,
+    "answer_length": 879,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "client_engagement_best_practices.docx",
+      "Topic_9_LogisticRegression.pptx",
+      "strategic_frameworks_guide.docx"
+    ],
+    "groundedness": 1.0,
+    "relevancy": 0.7,
+    "completeness": 0.3,
+    "hallucination": 1.0
   }
 ]
