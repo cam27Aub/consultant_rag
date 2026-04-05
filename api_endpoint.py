@@ -118,8 +118,9 @@ def extract_sources(captured_output: str, answer: str) -> list[str]:
             seen.add(key)
             sources.append(f"{doc} / Page {page}")
 
-    # Parse answer citations: [Source: filename, section, Page/Slide N] or [Source: filename, pN]
-    for m in re.finditer(r'\[Source:\s*(.+?),\s*(?:.*?,\s*)?(?:Page|Slide|p)/?\.?\s*(\S+?)\]', answer):
+    # Parse answer citations: [Source: filename.ext, section, Page/Slide N] or [Source: filename, pN]
+    # Use greedy match for filename to capture full extensions like .docx
+    for m in re.finditer(r'\[Source:\s*(.+?\.\w+),\s*(?:.*?,\s*)?(?:Page|Slide|p)/?\.?\s*(\S+?)\]', answer):
         doc, page = m.group(1).strip(), m.group(2).strip()
         key = f"{doc}|{page}"
         if key not in seen:
@@ -162,6 +163,12 @@ def query_rag(request: QueryRequest):
         mode_used = detect_mode_used(captured)
         sources = extract_sources(captured, answer)
         clean = clean_answer(answer)
+
+        # Remove echoed question from start of answer
+        q_lower = request.query.strip().lower()
+        lines = clean.split("\n")
+        if lines and lines[0].strip().lower().rstrip("?").strip() == q_lower.rstrip("?").strip():
+            clean = "\n".join(lines[1:]).strip()
 
         if not clean:
             clean = answer.strip()
