@@ -28,6 +28,7 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
     answer: str
     mode_used: str
+    sources: list[str] = []
 
 
 # ── App ─────────────────────────────────────────────────────
@@ -96,6 +97,38 @@ def clean_answer(raw: str) -> str:
     return result.strip()
 
 
+def extract_sources(captured_output: str, answer: str) -> list[str]:
+    """Extract unique source references as simple 'document / Page N' strings."""
+    seen = set()
+    sources = []
+
+    # Parse naive-style chunk lines: [1] Lecture 2.pdf | Section | p7 | score=0.03
+    for m in re.finditer(r'\[\d+\]\s+(.+?)\s*\|\s*.+?\|\s*p(\S+)', captured_output):
+        doc, page = m.group(1).strip(), m.group(2).strip()
+        key = f"{doc}|{page}"
+        if key not in seen:
+            seen.add(key)
+            sources.append(f"{doc} / Page {page}")
+
+    # Parse graph-style entity lines: (Source: filename.docx, p3)
+    for m in re.finditer(r'\(Source:\s*(.+?),\s*p(\S+?)\)', captured_output + answer):
+        doc, page = m.group(1).strip(), m.group(2).strip()
+        key = f"{doc}|{page}"
+        if key not in seen:
+            seen.add(key)
+            sources.append(f"{doc} / Page {page}")
+
+    # Parse answer citations: [Source: filename, section, Page/Slide N] or [Source: filename, pN]
+    for m in re.finditer(r'\[Source:\s*(.+?),\s*(?:.*?,\s*)?(?:Page|Slide|p)/?\.?\s*(\S+?)\]', answer):
+        doc, page = m.group(1).strip(), m.group(2).strip()
+        key = f"{doc}|{page}"
+        if key not in seen:
+            seen.add(key)
+            sources.append(f"{doc} / Page {page}")
+
+    return sources
+
+
 def detect_mode_used(captured_output: str) -> str:
     """Parse captured stdout to determine which mode the hybrid engine chose."""
     if "Mode: HYBRID" in captured_output:
@@ -127,6 +160,7 @@ def query_rag(request: QueryRequest):
 
         captured = buf.getvalue()
         mode_used = detect_mode_used(captured)
+        sources = extract_sources(captured, answer)
         clean = clean_answer(answer)
 
         if not clean:
@@ -135,6 +169,7 @@ def query_rag(request: QueryRequest):
         return QueryResponse(
             answer=clean,
             mode_used=mode_used,
+            sources=sources,
         )
 
     except Exception as e:
