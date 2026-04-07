@@ -18,6 +18,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import uvicorn
+from docx_generator import app as docx_app
 
 
 # ── Models ──────────────────────────────────────────────────
@@ -34,6 +35,7 @@ class QueryResponse(BaseModel):
 # ── App ─────────────────────────────────────────────────────
 
 app = FastAPI(title="ConsultantIQ API", version="2.0")
+app.mount("/docx", docx_app)
 
 app.add_middleware(
     CORSMiddleware,
