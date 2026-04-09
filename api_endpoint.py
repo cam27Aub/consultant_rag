@@ -16,9 +16,13 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse as StaticFileResponse
 from pydantic import BaseModel
 import uvicorn
+from typing import Optional
 from docx_generator import app as docx_app
+import chat_memory
 
 
 # ── Models ──────────────────────────────────────────────────
@@ -30,6 +34,16 @@ class QueryResponse(BaseModel):
     answer: str
     mode_used: str
     sources: list[str] = []
+
+class ConversationIn(BaseModel):
+    id: str
+    title: str = "New Chat"
+    messages: list[dict] = []
+    createdAt: int = 0
+    updatedAt: int = 0
+
+class PreferencesIn(BaseModel):
+    preferences: dict
 
 
 # ── App ─────────────────────────────────────────────────────
@@ -61,6 +75,9 @@ def load_retrievers():
         print("  ✓ Hybrid retriever loaded (includes naive + graph)")
     except Exception as e:
         print(f"  ✗ Hybrid retriever failed: {e}")
+
+    # Initialize chat memory (Cosmos DB)
+    chat_memory.init_db()
     print("Ready.\n")
 
 
@@ -185,12 +202,77 @@ def query_rag(request: QueryRequest):
         raise HTTPException(500, f"Query failed: {str(e)}")
 
 
+# ── Chat Memory Endpoints ──────────────────────────────────
+
+@app.get("/conversations")
+def list_conversations():
+    """List all conversations (without messages)."""
+    return chat_memory.list_conversations()
+
+
+@app.get("/conversations/{conversation_id}")
+def get_conversation(conversation_id: str):
+    """Get a single conversation with all messages."""
+    convo = chat_memory.get_conversation(conversation_id)
+    if not convo:
+        raise HTTPException(404, "Conversation not found")
+    return convo
+
+
+@app.post("/conversations")
+def sync_conversation(convo: ConversationIn):
+    """Create or update a conversation (upsert)."""
+    success = chat_memory.save_conversation(convo.model_dump())
+    if not success:
+        raise HTTPException(500, "Failed to save conversation")
+    return {"status": "ok"}
+
+
+@app.delete("/conversations/{conversation_id}")
+def remove_conversation(conversation_id: str):
+    """Delete a conversation and its messages."""
+    success = chat_memory.delete_conversation(conversation_id)
+    if not success:
+        raise HTTPException(500, "Failed to delete conversation")
+    return {"status": "ok"}
+
+
+@app.get("/user-profile")
+def get_user_profile():
+    """Get all user preferences."""
+    return chat_memory.get_preferences()
+
+
+@app.put("/user-profile")
+def update_user_profile(data: PreferencesIn):
+    """Update user preferences."""
+    success = chat_memory.save_preferences(data.preferences)
+    if not success:
+        raise HTTPException(500, "Failed to save preferences")
+    return {"status": "ok"}
+
+
 @app.get("/health")
 def health():
     return {
         "status": "ok",
         "retriever_loaded": hybrid_retriever is not None,
+        "memory_enabled": chat_memory._is_ready(),
     }
+
+
+# ── Frontend (serve React build) ─────────────────────────────
+
+frontend_dist = Path(__file__).parent / "frontend" / "dist"
+if frontend_dist.exists():
+    app.mount("/assets", StaticFiles(directory=frontend_dist / "assets"), name="frontend-assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        file_path = frontend_dist / full_path
+        if file_path.exists() and file_path.is_file():
+            return StaticFileResponse(file_path)
+        return StaticFileResponse(frontend_dist / "index.html")
 
 
 # ── Run ─────────────────────────────────────────────────────
