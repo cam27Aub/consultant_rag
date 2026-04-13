@@ -29,8 +29,10 @@ export async function parseN8nResponse(response: Response): Promise<ParsedRespon
   let text: string;
   const rawText = await response.text();
   try {
-    const data = JSON.parse(rawText);
-    text = data.output || data.text || data.response || data.message ||
+    let data = JSON.parse(rawText);
+    // Handle array responses (n8n returns arrays)
+    if (Array.isArray(data)) data = data[0] || {};
+    text = data.output || data.answer || data.text || data.response || data.message ||
       (typeof data === 'string' ? data : JSON.stringify(data));
   } catch {
     text = rawText;
