@@ -34,3 +34,6 @@ uvicorn>=0.29.0
 
 # Chat memory (Cosmos DB NoSQL)
 azure-cosmos>=4.7.0
+
+# Analytics dashboard
+matplotlib>=3.8.0

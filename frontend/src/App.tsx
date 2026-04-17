@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { ChatArea } from './components/ChatArea';
+import { AnalyticsPage } from './components/AnalyticsPage';
 import { useChatHistory } from './hooks/useChatHistory';
+
+type ActiveTab = 'chat' | 'analytics';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<ActiveTab>('chat');
   const {
     conversations,
     activeConversation,
@@ -20,18 +24,24 @@ function App() {
       <Sidebar
         conversations={conversations}
         activeId={activeId}
-        onSelect={setActiveId}
-        onCreate={createConversation}
+        onSelect={(id) => { setActiveId(id); setActiveTab('chat'); }}
+        onCreate={() => { createConversation(); setActiveTab('chat'); }}
         onDelete={deleteConversation}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
       />
-      <ChatArea
-        conversation={activeConversation}
-        onUpdate={updateConversation}
-        onNewChat={createConversation}
-        onToggleSidebar={() => setSidebarOpen(true)}
-      />
+      {activeTab === 'chat' ? (
+        <ChatArea
+          conversation={activeConversation}
+          onUpdate={updateConversation}
+          onNewChat={createConversation}
+          onToggleSidebar={() => setSidebarOpen(true)}
+        />
+      ) : (
+        <AnalyticsPage onToggleSidebar={() => setSidebarOpen(true)} />
+      )}
     </div>
   );
 }

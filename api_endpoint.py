@@ -261,6 +261,16 @@ def health():
     }
 
 
+@app.get("/analytics")
+def get_analytics():
+    """Return RAG analytics summary + base64 chart images."""
+    try:
+        import analytics_rag
+        return analytics_rag.get_analytics()
+    except Exception as e:
+        raise HTTPException(500, f"Analytics failed: {str(e)}")
+
+
 # ── Frontend (serve React build) ─────────────────────────────
 
 frontend_dist = Path(__file__).parent / "frontend" / "dist"

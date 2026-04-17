@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Plus, MessageSquare, Trash2, X } from 'lucide-react';
+import { Plus, MessageSquare, Trash2, X, BarChart2 } from 'lucide-react';
 import type { Conversation } from '../lib/types';
 import { BRANDING } from '../constants/branding';
+
+type ActiveTab = 'chat' | 'analytics';
 
 interface SidebarProps {
   conversations: Conversation[];
@@ -11,6 +13,8 @@ interface SidebarProps {
   onDelete: (id: string) => void;
   isOpen: boolean;
   onClose: () => void;
+  activeTab: ActiveTab;
+  onTabChange: (tab: ActiveTab) => void;
 }
 
 function timeAgo(ts: number): string {
@@ -32,6 +36,8 @@ export function Sidebar({
   onDelete,
   isOpen,
   onClose,
+  activeTab,
+  onTabChange,
 }: SidebarProps) {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
 
@@ -106,9 +112,21 @@ export function Sidebar({
           ))}
         </div>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-white/10">
-          <p className="text-[10px] text-white/30 text-center">
+        {/* Footer — Analytics nav + branding */}
+        <div className="p-3 border-t border-white/10 space-y-1">
+          <button
+            onClick={() => { onTabChange('analytics'); onClose(); }}
+            className={`
+              w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors
+              ${activeTab === 'analytics'
+                ? 'bg-navy text-white'
+                : 'text-white/60 hover:bg-white/5 hover:text-white'}
+            `}
+          >
+            <BarChart2 className="w-4 h-4 shrink-0" />
+            <span className="text-[13px]">Analytics</span>
+          </button>
+          <p className="text-[10px] text-white/30 text-center pt-1">
             Powered by {BRANDING.companyName}
           </p>
         </div>
