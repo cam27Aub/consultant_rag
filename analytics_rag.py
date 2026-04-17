@@ -1,20 +1,29 @@
 """
 analytics_rag.py
-Reads evaluation/results/query_log.json and computes summary stats + charts
-for the ConsultantIQ analytics dashboard.
+Reads evaluation/results/query_log.json + comparison_*.json
+and computes full analytics for the ConsultantIQ dashboard.
+
+Metrics covered:
+  Generation : groundedness, relevancy, completeness, hallucination
+  Retrieval  : Recall@1/3/5, Precision@1/3/5, MRR
+  Operational: response_time, avg_score, reformulation_rate, mode distribution
 """
 
 import json
+import glob
 import logging
 from pathlib import Path
 from collections import Counter
 
 logger = logging.getLogger(__name__)
 
-QUERY_LOG = Path(__file__).parent / "evaluation" / "results" / "query_log.json"
+RESULTS_DIR = Path(__file__).parent / "evaluation" / "results"
+QUERY_LOG   = RESULTS_DIR / "query_log.json"
 
 
-def _load_entries() -> list:
+# ── Loaders ──────────────────────────────────────────────────
+
+def _load_query_log() -> list:
     try:
         if not QUERY_LOG.exists():
             return []
@@ -26,28 +35,39 @@ def _load_entries() -> list:
         return []
 
 
+def _load_comparison_files() -> list:
+    """Load all comparison_*.json files, return list of system-level result dicts."""
+    results = []
+    pattern = str(RESULTS_DIR / "comparison_*.json")
+    for path in sorted(glob.glob(pattern)):
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, list):
+                results.extend(data)
+            elif isinstance(data, dict):
+                results.append(data)
+        except Exception as e:
+            logger.error(f"Failed to load {path}: {e}")
+    return results
+
+
+# ── Summary computation ───────────────────────────────────────
+
 def compute_summary() -> dict:
-    entries = _load_entries()
+    entries     = _load_query_log()
+    comparisons = _load_comparison_files()
+
     total = len(entries)
 
-    if total == 0:
-        return {
-            "total_queries": 0,
-            "avg_response_time": 0.0,
-            "avg_score": 0.0,
-            "reformulation_rate": 0.0,
-            "mode_distribution": {},
-            "top_sources": [],
-        }
-
-    response_times = [e.get("response_time", 0) for e in entries if e.get("response_time")]
-    scores = [e.get("avg_score", 0) for e in entries if e.get("avg_score")]
-    reformulated = sum(1 for e in entries if e.get("reformulated"))
+    # ── Operational metrics from query_log ──────────────────
+    response_times = [e["response_time"] for e in entries if e.get("response_time")]
+    scores         = [e["avg_score"]      for e in entries if e.get("avg_score")]
+    reformulated   = sum(1 for e in entries if e.get("reformulated"))
 
     mode_counter = Counter()
     for e in entries:
         mode = e.get("mode", "Unknown")
-        # Normalize mode names
         if "Hybrid" in mode:
             mode_counter["Hybrid RAG"] += 1
         elif "Graph" in mode:
@@ -62,29 +82,99 @@ def compute_summary() -> dict:
         for src in e.get("sources", []):
             source_counter[src] += 1
 
-    top_sources = [
-        {"source": src, "count": count}
-        for src, count in source_counter.most_common(8)
-    ]
+    # ── Generation quality from query_log (LLM-as-judge entries) ──
+    def _avg_metric(field):
+        vals = [e[field] for e in entries if isinstance(e.get(field), (int, float))]
+        return round(sum(vals) / len(vals), 4) if vals else None
+
+    groundedness  = _avg_metric("groundedness")
+    relevancy     = _avg_metric("relevancy")
+    completeness  = _avg_metric("completeness")
+    hallucination = _avg_metric("hallucination")
+
+    # ── Retrieval metrics from comparison files ───────────────
+    retrieval_summary = _aggregate_retrieval(comparisons)
+
+    def _avg(lst):
+        return round(sum(lst) / len(lst), 4) if lst else 0.0
 
     return {
-        "total_queries": total,
-        "avg_response_time": round(sum(response_times) / len(response_times), 2) if response_times else 0.0,
-        "avg_score": round(sum(scores) / len(scores), 4) if scores else 0.0,
-        "reformulation_rate": round(reformulated / total * 100, 1),
-        "mode_distribution": dict(mode_counter),
-        "top_sources": top_sources,
+        "total_queries":       total,
+        "avg_response_time":   round(_avg(response_times), 2),
+        "avg_score":           round(_avg(scores), 4),
+        "reformulation_rate":  round(reformulated / total * 100, 1) if total else 0.0,
+        "mode_distribution":   dict(mode_counter),
+        "top_sources":         [{"source": s, "count": c} for s, c in source_counter.most_common(8)],
+        # Generation quality
+        "groundedness":        groundedness,
+        "relevancy":           relevancy,
+        "completeness":        completeness,
+        "hallucination":       hallucination,
+        # Retrieval quality (from comparison evals)
+        "retrieval":           retrieval_summary,
     }
 
 
-def compute_charts() -> dict:
+def _aggregate_retrieval(comparisons: list) -> dict:
+    """
+    Average retrieval metrics across all comparison runs, grouped by system.
+    Returns: {
+      "naive":  {"Recall@1": ..., "Precision@1": ..., ..., "MRR": ...},
+      "graph":  {...},
+      "hybrid": {...},
+      "overall": {...}  ← average across all systems
+    }
+    """
+    METRICS = ["Recall@1", "Precision@1", "Recall@3", "Precision@3",
+               "Recall@5", "Precision@5", "MRR"]
+
+    buckets: dict[str, dict[str, list]] = {}
+
+    for comp in comparisons:
+        system = comp.get("system", "unknown").lower()
+        retrieval = comp.get("retrieval", {})
+        summary   = retrieval.get("summary", {})
+
+        if system not in buckets:
+            buckets[system] = {m: [] for m in METRICS}
+
+        for m in METRICS:
+            if isinstance(summary.get(m), (int, float)):
+                buckets[system][m].append(summary[m])
+
+    result = {}
+    all_vals: dict[str, list] = {m: [] for m in METRICS}
+
+    for system, data in buckets.items():
+        result[system] = {}
+        for m in METRICS:
+            avg = round(sum(data[m]) / len(data[m]), 4) if data[m] else None
+            result[system][m] = avg
+            if avg is not None:
+                all_vals[m].append(avg)
+
+    # Overall average
+    result["overall"] = {
+        m: round(sum(all_vals[m]) / len(all_vals[m]), 4) if all_vals[m] else None
+        for m in METRICS
+    }
+
+    return result
+
+
+# ── Charts ────────────────────────────────────────────────────
+
+def compute_charts(summary: dict) -> dict:
     from chart_generator_rag import ChartGenerator
-    entries = _load_entries()
-    generator = ChartGenerator(entries)
+    entries     = _load_query_log()
+    comparisons = _load_comparison_files()
+    generator   = ChartGenerator(entries, comparisons, summary)
     return generator.generate_all()
 
 
+# ── Entry point ───────────────────────────────────────────────
+
 def get_analytics() -> dict:
     summary = compute_summary()
-    charts = compute_charts()
+    charts  = compute_charts(summary)
     return {"summary": summary, "charts": charts}
