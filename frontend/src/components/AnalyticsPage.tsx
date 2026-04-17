@@ -1,8 +1,202 @@
-import { useEffect, useState } from 'react';
-import { BarChart2, Clock, Database, RefreshCw, TrendingUp, CheckCircle, AlertTriangle, Target, Zap } from 'lucide-react';
+import { useEffect, useState, useRef } from 'react';
+import { BarChart2, Clock, Database, RefreshCw, TrendingUp, CheckCircle, AlertTriangle, Target, Zap, Upload, Play, FileText, Loader2 } from 'lucide-react';
 import { Menu } from 'lucide-react';
 import { fetchAnalytics } from '../lib/analyticsClient';
 import type { AnalyticsPayload } from '../lib/analyticsClient';
+
+const BASE = import.meta.env.VITE_API_URL ?? '';
+
+interface DocFile { name: string; type: string; size_kb: number; }
+type IngestStatus = 'idle' | 'running' | 'done' | 'error' | 'unknown';
+
+function RAGManagement() {
+  const [docs, setDocs] = useState<DocFile[]>([]);
+  const [loadingDocs, setLoadingDocs] = useState(true);
+  const [uploading, setUploading] = useState(false);
+  const [ingestStatus, setIngestStatus] = useState<IngestStatus>('idle');
+  const [ingestMsg, setIngestMsg] = useState('');
+  const [uploadError, setUploadError] = useState('');
+  const [dragOver, setDragOver] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const loadDocs = async () => {
+    try {
+      const res = await fetch(`${BASE}/documents`);
+      const data = await res.json();
+      setDocs(data.files ?? []);
+    } catch { /* silent */ } finally {
+      setLoadingDocs(false);
+    }
+  };
+
+  const checkStatus = async () => {
+    try {
+      const res = await fetch(`${BASE}/ingest-status`);
+      const data = await res.json();
+      setIngestStatus(data.status as IngestStatus);
+      setIngestMsg(data.message ?? '');
+      if (data.status === 'done' || data.status === 'error') {
+        if (pollRef.current) { clearInterval(pollRef.current); pollRef.current = null; }
+        if (data.status === 'done') loadDocs();
+      }
+    } catch { /* silent */ }
+  };
+
+  useEffect(() => {
+    loadDocs();
+    checkStatus();
+    return () => { if (pollRef.current) clearInterval(pollRef.current); };
+  }, []);
+
+  const handleFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    setUploading(true);
+    setUploadError('');
+    const form = new FormData();
+    Array.from(files).forEach(f => form.append('files', f));
+    try {
+      const res = await fetch(`${BASE}/upload-documents`, { method: 'POST', body: form });
+      const data = await res.json();
+      if (data.errors?.length) setUploadError(data.errors.join(' · '));
+      await loadDocs();
+    } catch (e) {
+      setUploadError('Upload failed');
+    } finally {
+      setUploading(false);
+      if (fileInput.current) fileInput.current.value = '';
+    }
+  };
+
+  const triggerIngest = async () => {
+    setIngestStatus('running');
+    setIngestMsg('Starting ingestion pipeline…');
+    try {
+      await fetch(`${BASE}/ingest`, { method: 'POST' });
+      pollRef.current = setInterval(checkStatus, 3000);
+    } catch {
+      setIngestStatus('error');
+      setIngestMsg('Failed to start ingestion.');
+    }
+  };
+
+  const statusColor: Record<IngestStatus, string> = {
+    idle: 'text-sparc-muted', running: 'text-blue-600',
+    done: 'text-green-600', error: 'text-red-600', unknown: 'text-sparc-muted',
+  };
+
+  return (
+    <div className="space-y-4">
+      <p className="text-xs font-semibold text-sparc-muted uppercase tracking-widest">RAG Document Management</p>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        {/* ── Upload panel ── */}
+        <div className="bg-white rounded-xl border border-sparc-border shadow-sm p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Upload className="w-4 h-4 text-navy" />
+            <h3 className="text-sm font-semibold text-navy">Add Files to RAG</h3>
+          </div>
+
+          <div
+            onDragOver={e => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={e => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
+            onClick={() => fileInput.current?.click()}
+            className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors mb-4
+              ${dragOver ? 'border-navy bg-navy/5' : 'border-sparc-border hover:border-navy/40 hover:bg-sparc-bg'}`}
+          >
+            <Upload className="w-8 h-8 mx-auto mb-2 text-sparc-muted" />
+            <p className="text-sm font-medium text-sparc-text">Drop files here or click to browse</p>
+            <p className="text-xs text-sparc-muted mt-1">Supports PDF, PPTX, DOCX</p>
+            <input ref={fileInput} type="file" multiple accept=".pdf,.pptx,.docx"
+              className="hidden" onChange={e => handleFiles(e.target.files)} />
+          </div>
+
+          {uploading && (
+            <div className="flex items-center gap-2 text-sm text-blue-600 mb-3">
+              <Loader2 className="w-4 h-4 animate-spin" /> Uploading…
+            </div>
+          )}
+          {uploadError && <p className="text-xs text-red-600 mb-3">{uploadError}</p>}
+
+          <div>
+            <p className="text-xs font-medium text-sparc-muted mb-2">
+              Current documents ({loadingDocs ? '…' : docs.length})
+            </p>
+            {loadingDocs ? (
+              <div className="space-y-1.5">{[...Array(3)].map((_, i) => (
+                <div key={i} className="h-7 bg-gray-100 rounded animate-pulse" />
+              ))}</div>
+            ) : docs.length === 0 ? (
+              <p className="text-xs text-sparc-muted italic">No documents yet — upload some files above.</p>
+            ) : (
+              <div className="space-y-1 max-h-48 overflow-y-auto">
+                {docs.map(doc => (
+                  <div key={doc.name} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-sparc-bg">
+                    <FileText className="w-3.5 h-3.5 text-navy shrink-0" />
+                    <span className="text-xs text-sparc-text flex-1 truncate">{doc.name}</span>
+                    <span className="text-[10px] text-sparc-muted shrink-0">{doc.type} · {doc.size_kb}KB</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Ingest panel ── */}
+        <div className="bg-white rounded-xl border border-sparc-border shadow-sm p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Play className="w-4 h-4 text-navy" />
+            <h3 className="text-sm font-semibold text-navy">Ingest Documents</h3>
+          </div>
+
+          <p className="text-xs text-sparc-muted mb-5">
+            Runs the full ingestion pipeline on all documents in the RAG folder — cracking, chunking, enrichment, embedding, and indexing into Azure AI Search.
+          </p>
+
+          <div className="space-y-3 mb-6 text-xs text-sparc-text">
+            {['Document cracking (PDF, PPTX, DOCX)', 'Sentence chunking (400 words, 60-word overlap)',
+              'Chunk enrichment (keywords, summary, project tag)', 'Azure OpenAI text-embedding-3-large (3072d)',
+              'Azure AI Search index update'].map((step, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-full bg-navy/10 text-navy text-[10px] font-bold flex items-center justify-center shrink-0">{i + 1}</div>
+                {step}
+              </div>
+            ))}
+          </div>
+
+          <button
+            onClick={triggerIngest}
+            disabled={ingestStatus === 'running' || docs.length === 0}
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-navy text-white text-sm font-semibold hover:bg-navy-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+          >
+            {ingestStatus === 'running'
+              ? <><Loader2 className="w-4 h-4 animate-spin" /> Ingesting…</>
+              : <><Play className="w-4 h-4" /> Run Ingestion</>}
+          </button>
+
+          {ingestMsg && (
+            <div className={`text-xs rounded-lg px-3 py-2 ${
+              ingestStatus === 'done' ? 'bg-green-50 text-green-700' :
+              ingestStatus === 'error' ? 'bg-red-50 text-red-700' :
+              ingestStatus === 'running' ? 'bg-blue-50 text-blue-700' :
+              'bg-sparc-bg text-sparc-muted'
+            }`}>
+              <span className={`font-semibold mr-1 capitalize ${statusColor[ingestStatus]}`}>
+                {ingestStatus}:
+              </span>
+              {ingestMsg}
+            </div>
+          )}
+
+          {docs.length === 0 && (
+            <p className="text-xs text-orange-500 mt-2 italic">Upload documents first before ingesting.</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface AnalyticsPageProps {
   onToggleSidebar: () => void;
@@ -183,6 +377,8 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
           </div>
         )}
 
+        {!loading && !error && !s && <RAGManagement />}
+
         {!loading && s && (
           <div className="space-y-6 max-w-6xl mx-auto">
 
@@ -305,6 +501,9 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
                 </p>
               </div>
             )}
+
+            {/* RAG Management */}
+            <RAGManagement />
           </div>
         )}
       </div>

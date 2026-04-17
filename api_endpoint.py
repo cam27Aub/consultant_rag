@@ -14,12 +14,16 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse as StaticFileResponse
 from pydantic import BaseModel
 import uvicorn
+import shutil
+import subprocess
+import threading
+import json as _json
 from typing import Optional
 from docx_generator import app as docx_app
 import chat_memory
@@ -269,6 +273,120 @@ def get_analytics():
         return analytics_rag.get_analytics()
     except Exception as e:
         raise HTTPException(500, f"Analytics failed: {str(e)}")
+
+
+# ── RAG Document Management ──────────────────────────────────
+
+DOCS_DIR        = Path(__file__).parent / "sample_docs"
+INGEST_STATUS_F = Path(__file__).parent / "ingest_status.json"
+SUPPORTED_EXTS  = {".pdf", ".pptx", ".docx"}
+_ingest_lock    = threading.Lock()
+
+
+def _write_status(status: str, message: str = ""):
+    try:
+        INGEST_STATUS_F.write_text(
+            _json.dumps({"status": status, "message": message}),
+            encoding="utf-8"
+        )
+    except Exception:
+        pass
+
+
+def _run_ingest():
+    """Run ingestion pipeline in background thread."""
+    _write_status("running", "Ingestion started…")
+    try:
+        result = subprocess.run(
+            ["python", "naive_rag/ingest.py", "--no-vision"],
+            cwd=str(Path(__file__).parent),
+            capture_output=True,
+            text=True,
+            timeout=600,
+        )
+        if result.returncode == 0:
+            _write_status("done", "Ingestion completed successfully.")
+        else:
+            _write_status("error", result.stderr[-500:] if result.stderr else "Unknown error")
+    except subprocess.TimeoutExpired:
+        _write_status("error", "Ingestion timed out after 10 minutes.")
+    except Exception as e:
+        _write_status("error", str(e))
+
+
+@app.get("/documents")
+def list_documents():
+    """List all files currently in sample_docs/."""
+    DOCS_DIR.mkdir(exist_ok=True)
+    files = []
+    for f in sorted(DOCS_DIR.iterdir()):
+        if f.suffix.lower() in SUPPORTED_EXTS:
+            files.append({
+                "name": f.name,
+                "type": f.suffix.upper().lstrip("."),
+                "size_kb": round(f.stat().st_size / 1024, 1),
+            })
+    return {"files": files}
+
+
+@app.post("/upload-documents")
+async def upload_documents(files: list[UploadFile] = File(...)):
+    """Upload one or more documents to sample_docs/."""
+    DOCS_DIR.mkdir(exist_ok=True)
+    saved = []
+    errors = []
+    for upload in files:
+        ext = Path(upload.filename or "").suffix.lower()
+        if ext not in SUPPORTED_EXTS:
+            errors.append(f"{upload.filename}: unsupported type (use PDF, PPTX, DOCX)")
+            continue
+        dest = DOCS_DIR / (upload.filename or "upload")
+        try:
+            with open(dest, "wb") as out:
+                shutil.copyfileobj(upload.file, out)
+            saved.append(upload.filename)
+        except Exception as e:
+            errors.append(f"{upload.filename}: {e}")
+    return {"saved": saved, "errors": errors}
+
+
+@app.post("/ingest")
+def trigger_ingest():
+    """Trigger the RAG ingestion pipeline as a background job."""
+    if not _ingest_lock.acquire(blocking=False):
+        return {"status": "already_running", "message": "Ingestion is already in progress."}
+    try:
+        current = {}
+        if INGEST_STATUS_F.exists():
+            try:
+                current = _json.loads(INGEST_STATUS_F.read_text(encoding="utf-8"))
+            except Exception:
+                pass
+        if current.get("status") == "running":
+            _ingest_lock.release()
+            return {"status": "already_running", "message": "Ingestion is already in progress."}
+        t = threading.Thread(target=_run_ingest, daemon=True)
+        t.start()
+        return {"status": "started", "message": "Ingestion pipeline started."}
+    except Exception as e:
+        _ingest_lock.release()
+        raise HTTPException(500, str(e))
+    finally:
+        try:
+            _ingest_lock.release()
+        except RuntimeError:
+            pass
+
+
+@app.get("/ingest-status")
+def ingest_status():
+    """Check the status of the last ingestion run."""
+    if not INGEST_STATUS_F.exists():
+        return {"status": "idle", "message": "No ingestion has been run yet."}
+    try:
+        return _json.loads(INGEST_STATUS_F.read_text(encoding="utf-8"))
+    except Exception:
+        return {"status": "unknown", "message": "Could not read status file."}
 
 
 # ── Frontend (serve React build) ─────────────────────────────

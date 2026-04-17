@@ -118,7 +118,7 @@ export function ChatArea({ conversation, onUpdate, onNewChat, onToggleSidebar }:
       </div>
 
       <div className="flex-1 overflow-y-auto py-4">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-5xl mx-auto w-full">
           {conversation.messages.map((msg) => (
             <MessageBubble key={msg.id} message={msg} />
           ))}
