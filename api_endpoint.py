@@ -9,6 +9,8 @@ Deploy to Render: uvicorn api_endpoint:app --host 0.0.0.0 --port $PORT
 import sys
 import io
 import re
+import os
+import base64
 import contextlib
 from pathlib import Path
 
@@ -282,6 +284,40 @@ INGEST_STATUS_F = Path(__file__).parent / "ingest_status.json"
 SUPPORTED_EXTS  = {".pdf", ".pptx", ".docx"}
 _ingest_lock    = threading.Lock()
 
+# ── GitHub persistence ────────────────────────────────────────
+GITHUB_TOKEN  = os.getenv("GITHUB_TOKEN", "")
+GITHUB_REPO   = os.getenv("GITHUB_REPO", "cam27Aub/consultant_rag")
+GITHUB_BRANCH = os.getenv("GITHUB_BRANCH", "master")
+
+
+def _commit_to_github(filename: str, content: bytes) -> bool:
+    """Commit a file to sample_docs/ in the GitHub repo. Returns True on success."""
+    if not GITHUB_TOKEN:
+        return False
+    import requests as _req
+    path    = f"sample_docs/{filename}"
+    url     = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{path}"
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    # Get existing SHA if the file already exists (required for updates)
+    sha = None
+    r = _req.get(url, headers=headers, params={"ref": GITHUB_BRANCH}, timeout=10)
+    if r.status_code == 200:
+        sha = r.json().get("sha")
+
+    body: dict = {
+        "message": f"docs: add {filename} via ConsultantIQ upload",
+        "content": base64.b64encode(content).decode("utf-8"),
+        "branch":  GITHUB_BRANCH,
+    }
+    if sha:
+        body["sha"] = sha
+
+    resp = _req.put(url, headers=headers, json=body, timeout=30)
+    return resp.status_code in (200, 201)
+
 
 def _write_status(status: str, message: str = ""):
     try:
@@ -342,9 +378,12 @@ async def upload_documents(files: list[UploadFile] = File(...)):
             continue
         dest = DOCS_DIR / (upload.filename or "upload")
         try:
+            content = await upload.read()
             with open(dest, "wb") as out:
-                shutil.copyfileobj(upload.file, out)
-            saved.append(upload.filename)
+                out.write(content)
+            # Persist to GitHub so file survives Render redeploys
+            gh_ok = _commit_to_github(upload.filename, content)
+            saved.append({"name": upload.filename, "github": gh_ok})
         except Exception as e:
             errors.append(f"{upload.filename}: {e}")
     return {"saved": saved, "errors": errors}

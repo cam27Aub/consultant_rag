@@ -59,6 +59,11 @@ function RAGManagement() {
       const res = await fetch(`${BASE}/upload-documents`, { method: 'POST', body: form });
       const data = await res.json();
       if (data.errors?.length) setUploadError(data.errors.join(' · '));
+      // Check if any file failed GitHub commit
+      const ghFailed = (data.saved ?? []).filter((s: { name: string; github: boolean }) => !s.github);
+      if (ghFailed.length) {
+        setUploadError(prev => [prev, `GitHub sync failed for: ${ghFailed.map((s: { name: string }) => s.name).join(', ')} — add GITHUB_TOKEN to Render env vars`].filter(Boolean).join(' · '));
+      }
       await loadDocs();
     } catch (e) {
       setUploadError('Upload failed');
