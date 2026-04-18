@@ -10,7 +10,7 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message, onCTAClick }: MessageBubbleProps) {
-  const [chosen, setChosen] = useState<string | null>(null);
+  const [lastClicked, setLastClicked] = useState<string | null>(null);
 
   if (message.role === 'user') {
     return (
@@ -39,25 +39,23 @@ export function MessageBubble({ message, onCTAClick }: MessageBubbleProps) {
         </div>
         <div className="flex flex-wrap gap-2 pt-1">
           {(message.ctaOptions ?? []).map((option) => {
-            const isChosen = chosen === option;
+            const isLastClicked = lastClicked === option;
             return (
               <button
                 key={option}
-                disabled={chosen !== null}
                 onClick={() => {
-                  setChosen(option);
+                  setLastClicked(option);
+                  setTimeout(() => setLastClicked(null), 2000);
                   onCTAClick?.(option);
                 }}
                 className={`
                   flex items-center gap-1.5 px-4 py-2 rounded-xl border text-sm font-medium transition-all
-                  ${isChosen
-                    ? 'bg-navy text-white border-navy cursor-default'
-                    : chosen !== null
-                      ? 'bg-white text-sparc-muted border-sparc-border cursor-not-allowed opacity-50'
-                      : 'bg-white text-navy border-navy hover:bg-navy hover:text-white cursor-pointer'}
+                  ${isLastClicked
+                    ? 'bg-navy text-white border-navy'
+                    : 'bg-white text-navy border-navy hover:bg-navy hover:text-white cursor-pointer'}
                 `}
               >
-                {isChosen && <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />}
+                {isLastClicked && <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />}
                 {option}
               </button>
             );
