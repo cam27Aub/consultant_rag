@@ -329,44 +329,54 @@ def _write_status(status: str, message: str = ""):
         pass
 
 
-def _sync_docs_from_github():
-    """Pull any files in sample_docs/ from GitHub that aren't on the local filesystem."""
-    if not GITHUB_TOKEN:
-        return
+def _list_github_docs():
+    """Return list of supported files in sample_docs/ from the GitHub repo."""
     import requests as _req
     url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/sample_docs"
     headers = {
         "Authorization": f"token {GITHUB_TOKEN}",
         "Accept": "application/vnd.github.v3+json",
     }
-    try:
-        r = _req.get(url, headers=headers, params={"ref": GITHUB_BRANCH}, timeout=15)
-        if r.status_code != 200:
-            return
-        DOCS_DIR.mkdir(exist_ok=True)
-        for item in r.json():
-            if item.get("type") != "file":
-                continue
-            dest = DOCS_DIR / item["name"]
-            if dest.exists():
-                continue  # already present, skip
-            dl = _req.get(item["download_url"], timeout=60)
-            if dl.status_code == 200:
-                dest.write_bytes(dl.content)
-                print(f"[sync] pulled {item['name']} from GitHub")
-    except Exception as e:
-        print(f"[sync] GitHub sync failed: {e}")
+    r = _req.get(url, headers=headers, params={"ref": GITHUB_BRANCH}, timeout=10)
+    if r.status_code != 200:
+        return []
+    return [
+        item for item in r.json()
+        if item.get("type") == "file"
+        and Path(item["name"]).suffix.lower() in SUPPORTED_EXTS
+    ]
 
 
 def _run_ingest():
-    """Run ingestion pipeline in background thread. Releases lock when done."""
-    try:
-        # Restore any docs that were wiped by an ephemeral filesystem restart
-        _write_status("running", "Syncing documents from GitHub…")
-        _sync_docs_from_github()
+    """Download docs from GitHub into a temp dir, run ingest, then clean up.
+    Releases lock when done — Render filesystem is never used for permanent storage.
+    """
+    import tempfile
+    import requests as _req
 
+    tmp_dir = None
+    try:
+        # ── 1. List files from GitHub ──────────────────────────────
+        _write_status("running", "Fetching document list from GitHub…")
+        items = _list_github_docs()
+        if not items:
+            _write_status("error", "No documents found in GitHub repo (sample_docs/ is empty).")
+            return
+
+        # ── 2. Download to a temp directory ───────────────────────
+        tmp_dir = tempfile.mkdtemp(prefix="rag_ingest_")
+        _write_status("running", f"Downloading {len(items)} document(s)…")
+        for item in items:
+            dest = Path(tmp_dir) / item["name"]
+            dl = _req.get(item["download_url"], timeout=120)
+            dl.raise_for_status()
+            dest.write_bytes(dl.content)
+            print(f"[ingest] downloaded {item['name']}")
+
+        # ── 3. Run ingest.py against the temp dir ─────────────────
+        _write_status("running", "Running ingestion pipeline…")
         result = subprocess.run(
-            ["python", "naive_rag/ingest.py", "--no-vision"],
+            ["python", "naive_rag/ingest.py", "--no-vision", "--docs", tmp_dir],
             cwd=str(Path(__file__).parent),
             capture_output=True,
             text=True,
@@ -376,11 +386,16 @@ def _run_ingest():
             _write_status("done", "Ingestion completed successfully.")
         else:
             _write_status("error", result.stderr[-500:] if result.stderr else "Unknown error")
+
     except subprocess.TimeoutExpired:
         _write_status("error", "Ingestion timed out after 10 minutes.")
     except Exception as e:
         _write_status("error", str(e))
     finally:
+        # ── 4. Clean up temp dir ───────────────────────────────────
+        if tmp_dir:
+            import shutil
+            shutil.rmtree(tmp_dir, ignore_errors=True)
         try:
             _ingest_lock.release()
         except RuntimeError:
@@ -389,24 +404,36 @@ def _run_ingest():
 
 @app.get("/documents")
 def list_documents():
-    """List all files currently in sample_docs/."""
-    DOCS_DIR.mkdir(exist_ok=True)
-    files = []
-    for f in sorted(DOCS_DIR.iterdir()):
-        if f.suffix.lower() in SUPPORTED_EXTS:
-            files.append({
-                "name": f.name,
-                "type": f.suffix.upper().lstrip("."),
-                "size_kb": round(f.stat().st_size / 1024, 1),
-            })
-    return {"files": files}
+    """List documents from the GitHub repo (source of truth — no local files needed)."""
+    if not GITHUB_TOKEN:
+        # Fallback: scan local sample_docs/ if no GitHub token configured
+        DOCS_DIR.mkdir(exist_ok=True)
+        files = []
+        for f in sorted(DOCS_DIR.iterdir()):
+            if f.suffix.lower() in SUPPORTED_EXTS:
+                files.append({
+                    "name": f.name,
+                    "type": f.suffix.upper().lstrip("."),
+                    "size_kb": round(f.stat().st_size / 1024, 1),
+                })
+        return {"files": files}
+    try:
+        items = _list_github_docs()
+        return {"files": [
+            {
+                "name": item["name"],
+                "type": Path(item["name"]).suffix.upper().lstrip("."),
+                "size_kb": round(item.get("size", 0) / 1024, 1),
+            }
+            for item in sorted(items, key=lambda x: x["name"])
+        ]}
+    except Exception as e:
+        raise HTTPException(502, f"Could not reach GitHub: {e}")
 
 
 @app.post("/upload-documents")
 async def upload_documents(background_tasks: BackgroundTasks, files: list[UploadFile] = File(...)):
-    """Upload one or more documents to sample_docs/."""
-    import asyncio
-    DOCS_DIR.mkdir(exist_ok=True)
+    """Upload documents directly to GitHub — no permanent local storage on Render."""
     saved = []
     errors = []
     for upload in files:
@@ -414,15 +441,19 @@ async def upload_documents(background_tasks: BackgroundTasks, files: list[Upload
         if ext not in SUPPORTED_EXTS:
             errors.append(f"{upload.filename}: unsupported type (use PDF, PPTX, DOCX)")
             continue
-        dest = DOCS_DIR / (upload.filename or "upload")
         try:
             content = await upload.read()
-            with open(dest, "wb") as out:
-                out.write(content)
-            saved.append({"name": upload.filename, "github": GITHUB_TOKEN != ""})
-            # Commit to GitHub in background so it doesn't block the response
             if GITHUB_TOKEN:
-                background_tasks.add_task(_commit_to_github, upload.filename, content)
+                # Commit synchronously so the file is in GitHub before we return
+                ok = _commit_to_github(upload.filename, content)
+                saved.append({"name": upload.filename, "github": ok})
+                if not ok:
+                    errors.append(f"{upload.filename}: GitHub commit failed")
+            else:
+                # No GitHub token — fall back to local storage
+                DOCS_DIR.mkdir(exist_ok=True)
+                (DOCS_DIR / (upload.filename or "upload")).write_bytes(content)
+                saved.append({"name": upload.filename, "github": False})
         except Exception as e:
             errors.append(f"{upload.filename}: {e}")
     return {"saved": saved, "errors": errors}
@@ -430,16 +461,15 @@ async def upload_documents(background_tasks: BackgroundTasks, files: list[Upload
 
 @app.delete("/documents/{filename}")
 def delete_document(filename: str, background_tasks: BackgroundTasks):
-    """Delete a document from sample_docs/ and from GitHub."""
-    dest = DOCS_DIR / filename
-    if not dest.exists():
-        raise HTTPException(404, f"{filename} not found")
-    try:
+    """Delete a document from GitHub (and local fallback if present)."""
+    if not GITHUB_TOKEN:
+        dest = DOCS_DIR / filename
+        if not dest.exists():
+            raise HTTPException(404, f"{filename} not found")
         dest.unlink()
-    except Exception as e:
-        raise HTTPException(500, f"Failed to delete file: {e}")
-    if GITHUB_TOKEN:
-        background_tasks.add_task(_delete_from_github, filename)
+        return {"deleted": filename}
+    # Delete from GitHub
+    background_tasks.add_task(_delete_from_github, filename)
     return {"deleted": filename}
 
 
