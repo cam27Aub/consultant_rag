@@ -20,7 +20,7 @@ function App() {
   } = useChatHistory();
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden w-full">
       <Sidebar
         conversations={conversations}
         activeId={activeId}
