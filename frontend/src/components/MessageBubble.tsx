@@ -9,7 +9,7 @@ interface MessageBubbleProps {
 export function MessageBubble({ message }: MessageBubbleProps) {
   if (message.role === 'user') {
     return (
-      <div className="flex justify-end px-4 py-2">
+      <div className="flex justify-end py-2">
         <div className="bg-navy text-white rounded-2xl rounded-br-sm px-4 py-2.5 max-w-[75%]">
           <p className="text-sm whitespace-pre-wrap">{message.content}</p>
         </div>
@@ -18,11 +18,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   }
 
   return (
-    <div className="flex items-start gap-3 px-4 py-2">
+    <div className="flex items-start gap-3 py-2">
       <div className="w-8 h-8 rounded-full bg-navy flex items-center justify-center shrink-0 mt-0.5">
         <span className="text-white text-xs font-bold">S</span>
       </div>
-      <div className="max-w-[85%] space-y-2">
+      <div className="flex-1 min-w-0 space-y-2">
         {message.responseType === 'text' && (
           <div className="bg-white border border-sparc-border rounded-2xl rounded-bl-sm px-4 py-3">
             <MarkdownRenderer content={message.content} />
