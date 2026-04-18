@@ -92,16 +92,22 @@ function RAGManagement() {
     }
   };
 
-  const triggerIngest = async () => {
+  const triggerIngest = () => {
     setIngestStatus('running');
     setIngestMsg('Starting ingestion pipeline…');
-    try {
-      await fetch(`${BASE}/ingest`, { method: 'POST' });
-      pollRef.current = setInterval(checkStatus, 3000);
-    } catch {
-      setIngestStatus('error');
-      setIngestMsg('Failed to start ingestion.');
-    }
+
+    // Fire-and-forget with a 10 s timeout — don't await so the UI never freezes.
+    // Render free-tier cold starts can take 30 s; we optimistically start polling
+    // and let the status file tell us what happened.
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 10_000);
+    fetch(`${BASE}/ingest`, { method: 'POST', signal: ctrl.signal })
+      .then(() => clearTimeout(timer))
+      .catch(() => clearTimeout(timer)); // timeout / network error — polling will catch real status
+
+    // Start polling immediately; backend writes "running" before the thread spawns
+    if (pollRef.current) clearInterval(pollRef.current);
+    pollRef.current = setInterval(checkStatus, 3000);
   };
 
   const statusColor: Record<IngestStatus, string> = {

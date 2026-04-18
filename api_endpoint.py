@@ -330,8 +330,7 @@ def _write_status(status: str, message: str = ""):
 
 
 def _run_ingest():
-    """Run ingestion pipeline in background thread."""
-    _write_status("running", "Ingestion started…")
+    """Run ingestion pipeline in background thread. Releases lock when done."""
     try:
         result = subprocess.run(
             ["python", "naive_rag/ingest.py", "--no-vision"],
@@ -348,6 +347,11 @@ def _run_ingest():
         _write_status("error", "Ingestion timed out after 10 minutes.")
     except Exception as e:
         _write_status("error", str(e))
+    finally:
+        try:
+            _ingest_lock.release()
+        except RuntimeError:
+            pass
 
 
 @app.get("/documents")
@@ -431,30 +435,29 @@ def _delete_from_github(filename: str) -> bool:
 
 @app.post("/ingest")
 def trigger_ingest():
-    """Trigger the RAG ingestion pipeline as a background job."""
+    """Trigger the RAG ingestion pipeline as a background job.
+    Returns immediately — actual work runs in a background thread.
+    """
+    # Check status file first (survives across requests)
+    if INGEST_STATUS_F.exists():
+        try:
+            current = _json.loads(INGEST_STATUS_F.read_text(encoding="utf-8"))
+            if current.get("status") == "running":
+                return {"status": "already_running", "message": "Ingestion is already in progress."}
+        except Exception:
+            pass
+
+    # Try to acquire lock (non-blocking) to prevent concurrent starts
     if not _ingest_lock.acquire(blocking=False):
         return {"status": "already_running", "message": "Ingestion is already in progress."}
-    try:
-        current = {}
-        if INGEST_STATUS_F.exists():
-            try:
-                current = _json.loads(INGEST_STATUS_F.read_text(encoding="utf-8"))
-            except Exception:
-                pass
-        if current.get("status") == "running":
-            _ingest_lock.release()
-            return {"status": "already_running", "message": "Ingestion is already in progress."}
-        t = threading.Thread(target=_run_ingest, daemon=True)
-        t.start()
-        return {"status": "started", "message": "Ingestion pipeline started."}
-    except Exception as e:
-        _ingest_lock.release()
-        raise HTTPException(500, str(e))
-    finally:
-        try:
-            _ingest_lock.release()
-        except RuntimeError:
-            pass
+
+    # Write running status before spawning thread so polls see it immediately
+    _write_status("running", "Ingestion started…")
+
+    t = threading.Thread(target=_run_ingest, daemon=True)
+    t.start()
+    # Lock is intentionally held — _run_ingest releases it when done
+    return {"status": "started", "message": "Ingestion pipeline started."}
 
 
 @app.get("/ingest-status")
