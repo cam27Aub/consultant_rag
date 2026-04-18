@@ -12,7 +12,9 @@ import re
 import os
 import base64
 import contextlib
+import time
 from pathlib import Path
+from datetime import datetime
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -166,13 +168,137 @@ def detect_mode_used(captured_output: str) -> str:
     return "hybrid"
 
 
+# ── Auto-evaluation for real queries ────────────────────────
+
+_GITHUB_API = "https://api.github.com"
+_EVAL_LOG_PATH = Path(__file__).parent / "evaluation" / "results" / "query_log.json"
+
+_EVAL_PROMPT = """You are a strict evaluation judge for a RAG system.
+Given a QUESTION, CONTEXT (retrieved documents), and ANSWER, score on 4 metrics (0.0–1.0).
+
+QUESTION: {question}
+
+CONTEXT:
+{context}
+
+ANSWER:
+{answer}
+
+Rubrics:
+- groundedness: Does the answer use information from the context? (1.0 = all from context, 0.0 = ignores context)
+- relevancy: Does the answer address the question? (1.0 = fully, 0.0 = off-topic)
+- completeness: Does the answer cover the key info in context relevant to the question? (1.0 = thorough, 0.0 = misses everything)
+- hallucination: Is the answer free from info NOT in context? (1.0 = every claim traceable, 0.0 = heavily fabricated)
+
+Return ONLY valid JSON: {{"groundedness": X, "relevancy": X, "completeness": X, "hallucination": X}}"""
+
+
+def _eval_load_log() -> list:
+    token = GITHUB_TOKEN
+    repo  = GITHUB_REPO
+    if token and repo:
+        try:
+            import requests as _req
+            url = f"{_GITHUB_API}/repos/{repo}/contents/evaluation/results/query_log.json"
+            headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
+            r = _req.get(url, headers=headers, timeout=10)
+            if r.status_code == 200:
+                return _json.loads(base64.b64decode(r.json()["content"]).decode("utf-8"))
+        except Exception:
+            pass
+    if _EVAL_LOG_PATH.exists():
+        try:
+            return _json.loads(_EVAL_LOG_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    return []
+
+
+def _eval_save_log(log: list):
+    content_str = _json.dumps(log, indent=2, ensure_ascii=False)
+    token = GITHUB_TOKEN
+    repo  = GITHUB_REPO
+    if token and repo:
+        try:
+            import requests as _req
+            url = f"{_GITHUB_API}/repos/{repo}/contents/evaluation/results/query_log.json"
+            headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
+            r = _req.get(url, headers=headers, timeout=10)
+            sha = r.json().get("sha", "") if r.status_code == 200 else ""
+            payload = {
+                "message": "analytics: log real query eval",
+                "content": base64.b64encode(content_str.encode("utf-8")).decode("utf-8"),
+                "branch": "master",
+            }
+            if sha:
+                payload["sha"] = sha
+            _req.put(url, headers=headers, json=payload, timeout=15)
+            return
+        except Exception:
+            pass
+    _EVAL_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    _EVAL_LOG_PATH.write_text(content_str, encoding="utf-8")
+
+
+def _auto_evaluate(question: str, answer: str, context: str,
+                   mode: str, response_time: float, sources: list):
+    """Background task: LLM-as-judge on a real UI query → appended to analytics log."""
+    try:
+        import config
+        from openai import AzureOpenAI
+        client = AzureOpenAI(
+            azure_endpoint=config.AZURE_OPENAI_ENDPOINT,
+            api_key=config.AZURE_OPENAI_KEY,
+            api_version=config.AZURE_OPENAI_API_VERSION,
+        )
+        resp = client.chat.completions.create(
+            model=config.AZURE_CHAT_DEPLOYMENT,
+            messages=[{"role": "user", "content": _EVAL_PROMPT.format(
+                question=question[:500],
+                context=context[:6000],
+                answer=answer[:3000],
+            )}],
+            temperature=0.0,
+            max_tokens=150,
+        )
+        raw = resp.choices[0].message.content.strip()
+        raw = re.sub(r"^```json\s*", "", raw)
+        raw = re.sub(r"\s*```$",     "", raw)
+        scores = _json.loads(raw)
+        entry = {
+            "question":      question,
+            "effective_q":   question,
+            "timestamp":     datetime.now().isoformat(timespec="seconds"),
+            "mode":          mode,
+            "response_time": round(response_time, 2),
+            "num_chunks":    len(sources),
+            "avg_score":     0,
+            "answer_length": len(answer),
+            "reformulated":  False,
+            "used_memory":   False,
+            "sources":       sources,
+            "test_run":      False,   # ← real UI query, not a test
+            "groundedness":  round(float(scores.get("groundedness",  0)), 2),
+            "relevancy":     round(float(scores.get("relevancy",     0)), 2),
+            "completeness":  round(float(scores.get("completeness",  0)), 2),
+            "hallucination": round(float(scores.get("hallucination", 0)), 2),
+        }
+        log = _eval_load_log()
+        log.append(entry)
+        _eval_save_log(log)
+    except Exception as e:
+        print(f"[auto-eval] skipped: {e}")
+
+
 # ── Endpoints ───────────────────────────────────────────────
 
 @app.post("/query", response_model=QueryResponse)
-def query_rag(request: QueryRequest):
+def query_rag(request: QueryRequest, background_tasks: BackgroundTasks):
     """
     Main query endpoint. No mode parameter needed.
     The hybrid engine automatically decides: graph, naive, or both.
+    Every response is automatically evaluated in the background and
+    logged to the analytics query log.
 
     n8n calls:  POST /query  {"query": "user's question"}
     """
@@ -180,9 +306,11 @@ def query_rag(request: QueryRequest):
         raise HTTPException(500, "Retriever not loaded")
 
     try:
+        t0 = time.time()
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
             answer = hybrid_retriever.ask(request.query)
+        response_time = time.time() - t0
 
         captured = buf.getvalue()
         mode_used = detect_mode_used(captured)
@@ -197,6 +325,12 @@ def query_rag(request: QueryRequest):
 
         if not clean:
             clean = answer.strip()
+
+        # Auto-evaluate in background — doesn't slow down the response
+        background_tasks.add_task(
+            _auto_evaluate,
+            request.query, clean, captured, mode_used, response_time, sources,
+        )
 
         return QueryResponse(
             answer=clean,
