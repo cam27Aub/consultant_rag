@@ -120,7 +120,7 @@ export function ChatArea({ conversation, onUpdate, onNewChat, onToggleSidebar }:
       <div className="flex-1 overflow-y-auto py-4">
         <div className="w-full px-4">
           {conversation.messages.map((msg) => (
-            <MessageBubble key={msg.id} message={msg} />
+            <MessageBubble key={msg.id} message={msg} onCTAClick={handleSend} />
           ))}
           {isLoading && <ThinkingIndicator />}
           <div ref={messagesEndRef} />
