@@ -329,9 +329,42 @@ def _write_status(status: str, message: str = ""):
         pass
 
 
+def _sync_docs_from_github():
+    """Pull any files in sample_docs/ from GitHub that aren't on the local filesystem."""
+    if not GITHUB_TOKEN:
+        return
+    import requests as _req
+    url = f"https://api.github.com/repos/{GITHUB_REPO}/contents/sample_docs"
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    try:
+        r = _req.get(url, headers=headers, params={"ref": GITHUB_BRANCH}, timeout=15)
+        if r.status_code != 200:
+            return
+        DOCS_DIR.mkdir(exist_ok=True)
+        for item in r.json():
+            if item.get("type") != "file":
+                continue
+            dest = DOCS_DIR / item["name"]
+            if dest.exists():
+                continue  # already present, skip
+            dl = _req.get(item["download_url"], timeout=60)
+            if dl.status_code == 200:
+                dest.write_bytes(dl.content)
+                print(f"[sync] pulled {item['name']} from GitHub")
+    except Exception as e:
+        print(f"[sync] GitHub sync failed: {e}")
+
+
 def _run_ingest():
     """Run ingestion pipeline in background thread. Releases lock when done."""
     try:
+        # Restore any docs that were wiped by an ephemeral filesystem restart
+        _write_status("running", "Syncing documents from GitHub…")
+        _sync_docs_from_github()
+
         result = subprocess.run(
             ["python", "naive_rag/ingest.py", "--no-vision"],
             cwd=str(Path(__file__).parent),
