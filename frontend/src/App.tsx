@@ -16,6 +16,7 @@ function App() {
     setActiveId,
     createConversation,
     updateConversation,
+    renameConversation,
     deleteConversation,
   } = useChatHistory();
 
@@ -27,6 +28,7 @@ function App() {
         onSelect={(id) => { setActiveId(id); setActiveTab('chat'); }}
         onCreate={() => { createConversation(); setActiveTab('chat'); }}
         onDelete={deleteConversation}
+        onRename={renameConversation}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         activeTab={activeTab}

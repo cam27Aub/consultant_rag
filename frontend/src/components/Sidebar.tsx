@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Plus, MessageSquare, Trash2, X, BarChart2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Plus, MessageSquare, Trash2, X, BarChart2, Pencil } from 'lucide-react';
 import type { Conversation } from '../lib/types';
 import { BRANDING } from '../constants/branding';
 
@@ -11,6 +11,7 @@ interface SidebarProps {
   onSelect: (id: string) => void;
   onCreate: () => void;
   onDelete: (id: string) => void;
+  onRename: (id: string, title: string) => void;
   isOpen: boolean;
   onClose: () => void;
   activeTab: ActiveTab;
@@ -34,12 +35,16 @@ export function Sidebar({
   onSelect,
   onCreate,
   onDelete,
+  onRename,
   isOpen,
   onClose,
   activeTab,
   onTabChange,
 }: SidebarProps) {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)');
@@ -47,6 +52,30 @@ export function Sidebar({
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
   }, []);
+
+  useEffect(() => {
+    if (editingId) {
+      inputRef.current?.focus();
+      inputRef.current?.select();
+    }
+  }, [editingId]);
+
+  const startEditing = (e: React.MouseEvent, convo: Conversation) => {
+    e.stopPropagation();
+    setEditingId(convo.id);
+    setEditingTitle(convo.title);
+  };
+
+  const commitRename = () => {
+    if (editingId && editingTitle.trim()) {
+      onRename(editingId, editingTitle.trim());
+    }
+    setEditingId(null);
+  };
+
+  const cancelRename = () => {
+    setEditingId(null);
+  };
 
   return (
     <>
@@ -90,7 +119,7 @@ export function Sidebar({
           {conversations.map((convo) => (
             <div
               key={convo.id}
-              onClick={() => { onSelect(convo.id); onClose(); }}
+              onClick={() => { if (editingId !== convo.id) { onSelect(convo.id); onClose(); } }}
               className={`
                 group flex items-center gap-2 mx-2 px-3 py-2.5 rounded-lg cursor-pointer
                 transition-colors text-sm
@@ -98,16 +127,46 @@ export function Sidebar({
               `}
             >
               <MessageSquare className="w-4 h-4 shrink-0 opacity-60" />
-              <div className="flex-1 min-w-0">
-                <p className="truncate text-[13px]">{convo.title}</p>
-                <p className="text-[10px] opacity-40 mt-0.5">{timeAgo(convo.updatedAt)}</p>
-              </div>
-              <button
-                onClick={(e) => { e.stopPropagation(); onDelete(convo.id); }}
-                className="opacity-0 group-hover:opacity-60 hover:!opacity-100 p-1 rounded transition-opacity"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
+
+              {editingId === convo.id ? (
+                <input
+                  ref={inputRef}
+                  value={editingTitle}
+                  onChange={(e) => setEditingTitle(e.target.value)}
+                  onBlur={commitRename}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') commitRename();
+                    if (e.key === 'Escape') cancelRename();
+                    e.stopPropagation();
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex-1 min-w-0 bg-white/10 text-white text-[13px] rounded px-1.5 py-0.5 outline-none focus:ring-1 focus:ring-white/30"
+                />
+              ) : (
+                <div className="flex-1 min-w-0">
+                  <p className="truncate text-[13px]">{convo.title}</p>
+                  <p className="text-[10px] opacity-40 mt-0.5">{timeAgo(convo.updatedAt)}</p>
+                </div>
+              )}
+
+              {editingId !== convo.id && (
+                <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={(e) => startEditing(e, convo)}
+                    className="p-1 rounded hover:bg-white/10 transition-colors"
+                    title="Rename"
+                  >
+                    <Pencil className="w-3 h-3" />
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDelete(convo.id); }}
+                    className="p-1 rounded hover:bg-white/10 transition-colors"
+                    title="Delete"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

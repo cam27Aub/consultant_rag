@@ -145,6 +145,20 @@ export function useChatHistory() {
     });
   }, [debouncedSync]);
 
+  const renameConversation = useCallback((id: string, title: string) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+    setConversations((prev) => {
+      const updated = prev.map((c) => {
+        if (c.id !== id) return c;
+        const renamed = { ...c, title: trimmed, updatedAt: Date.now() };
+        syncConversation(renamed);
+        return renamed;
+      });
+      return updated;
+    });
+  }, []);
+
   const deleteConversation = useCallback(
     (id: string) => {
       setConversations((prev) => prev.filter((c) => c.id !== id));
@@ -167,6 +181,7 @@ export function useChatHistory() {
     setActiveId,
     createConversation,
     updateConversation,
+    renameConversation,
     deleteConversation,
   };
 }
