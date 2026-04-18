@@ -61,6 +61,7 @@ export function ChatArea({ conversation, onUpdate, onNewChat, onToggleSidebar }:
         responseType: parsed.type,
         fileName: parsed.fileName,
         downloadUrl: parsed.downloadUrl,
+        ctaOptions: parsed.ctaOptions,
         timestamp: Date.now(),
       };
 
