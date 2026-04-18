@@ -156,7 +156,7 @@ function RAGManagement() {
           </div>
 
           <p className="text-xs text-sparc-muted mb-5">
-            Runs the full ingestion pipeline on all documents in the RAG folder — cracking, chunking, enrichment, embedding, and indexing into Azure AI Search.
+            Runs the full ingestion pipeline on all documents in the RAG folder: cracking, chunking, enrichment, embedding, and indexing into Azure AI Search.
           </p>
 
           <div className="space-y-3 mb-6 text-xs text-sparc-text">
