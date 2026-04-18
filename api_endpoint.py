@@ -391,6 +391,44 @@ async def upload_documents(background_tasks: BackgroundTasks, files: list[Upload
     return {"saved": saved, "errors": errors}
 
 
+@app.delete("/documents/{filename}")
+def delete_document(filename: str, background_tasks: BackgroundTasks):
+    """Delete a document from sample_docs/ and from GitHub."""
+    dest = DOCS_DIR / filename
+    if not dest.exists():
+        raise HTTPException(404, f"{filename} not found")
+    try:
+        dest.unlink()
+    except Exception as e:
+        raise HTTPException(500, f"Failed to delete file: {e}")
+    if GITHUB_TOKEN:
+        background_tasks.add_task(_delete_from_github, filename)
+    return {"deleted": filename}
+
+
+def _delete_from_github(filename: str) -> bool:
+    """Delete a file from the GitHub repo."""
+    if not GITHUB_TOKEN:
+        return False
+    import requests as _req
+    path    = f"sample_docs/{filename}"
+    url     = f"https://api.github.com/repos/{GITHUB_REPO}/contents/{path}"
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json",
+    }
+    r = _req.get(url, headers=headers, params={"ref": GITHUB_BRANCH}, timeout=10)
+    if r.status_code != 200:
+        return False
+    sha  = r.json().get("sha")
+    resp = _req.delete(url, headers=headers, timeout=30, json={
+        "message": f"docs: remove {filename} via ConsultantIQ",
+        "sha":     sha,
+        "branch":  GITHUB_BRANCH,
+    })
+    return resp.status_code == 200
+
+
 @app.post("/ingest")
 def trigger_ingest():
     """Trigger the RAG ingestion pipeline as a background job."""

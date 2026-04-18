@@ -4,6 +4,14 @@ function cleanSignalTags(text: string): string {
   return text.replace(/%%REPORT_READY%%/g, '').replace(/%%DECK_READY%%/g, '').trim();
 }
 
+function extractCtaOptions(text: string): { cleanText: string; options: string[] | null } {
+  const match = text.match(/%%CTA%%([\s\S]*?)%%CTA_END%%/i);
+  if (!match) return { cleanText: text, options: null };
+  const options = match[1].split('|').map((o) => o.trim()).filter(Boolean);
+  const cleanText = text.replace(match[0], '').trim();
+  return { cleanText, options };
+}
+
 function extractFileName(disposition: string | null): string | null {
   if (!disposition) return null;
   const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
@@ -50,6 +58,12 @@ export async function parseN8nResponse(response: Response): Promise<ParsedRespon
       fileName: 'Presentation.pptx',
       downloadUrl: pptxUrlMatch ? pptxUrlMatch[0] : undefined,
     };
+  }
+
+  // CTA quick-reply buttons
+  const { cleanText, options } = extractCtaOptions(text);
+  if (options) {
+    return { type: 'cta', content: cleanSignalTags(cleanText), ctaOptions: options };
   }
 
   // Plain text / markdown

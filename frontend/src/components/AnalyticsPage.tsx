@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { BarChart2, Clock, Database, RefreshCw, TrendingUp, CheckCircle, AlertTriangle, Target, Zap, Upload, Play, FileText, Loader2 } from 'lucide-react';
+import { BarChart2, Clock, Database, RefreshCw, TrendingUp, CheckCircle, AlertTriangle, Target, Zap, Upload, Play, FileText, Loader2, Trash2 } from 'lucide-react';
 import { Menu } from 'lucide-react';
 import { fetchAnalytics } from '../lib/analyticsClient';
 import type { AnalyticsPayload } from '../lib/analyticsClient';
@@ -13,6 +13,7 @@ function RAGManagement() {
   const [docs, setDocs] = useState<DocFile[]>([]);
   const [loadingDocs, setLoadingDocs] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [deletingFile, setDeletingFile] = useState<string | null>(null);
   const [ingestStatus, setIngestStatus] = useState<IngestStatus>('idle');
   const [ingestMsg, setIngestMsg] = useState('');
   const [uploadError, setUploadError] = useState('');
@@ -70,6 +71,24 @@ function RAGManagement() {
     } finally {
       setUploading(false);
       if (fileInput.current) fileInput.current.value = '';
+    }
+  };
+
+  const handleDelete = async (filename: string) => {
+    if (!window.confirm(`Delete "${filename}" from the RAG folder and GitHub?`)) return;
+    setDeletingFile(filename);
+    try {
+      const res = await fetch(`${BASE}/documents/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        setUploadError(`Delete failed: ${err.detail ?? res.statusText}`);
+      } else {
+        await loadDocs();
+      }
+    } catch {
+      setUploadError('Delete request failed');
+    } finally {
+      setDeletingFile(null);
     }
   };
 
@@ -137,10 +156,20 @@ function RAGManagement() {
             ) : (
               <div className="space-y-1 max-h-48 overflow-y-auto">
                 {docs.map(doc => (
-                  <div key={doc.name} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-sparc-bg">
+                  <div key={doc.name} className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-sparc-bg group">
                     <FileText className="w-3.5 h-3.5 text-navy shrink-0" />
                     <span className="text-xs text-sparc-text flex-1 truncate">{doc.name}</span>
                     <span className="text-[10px] text-sparc-muted shrink-0">{doc.type} · {doc.size_kb}KB</span>
+                    <button
+                      onClick={() => handleDelete(doc.name)}
+                      disabled={deletingFile === doc.name}
+                      title="Delete file"
+                      className="ml-1 p-0.5 rounded text-sparc-muted hover:text-red-600 hover:bg-red-50 transition-colors disabled:opacity-40 opacity-0 group-hover:opacity-100 shrink-0"
+                    >
+                      {deletingFile === doc.name
+                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        : <Trash2 className="w-3.5 h-3.5" />}
+                    </button>
                   </div>
                 ))}
               </div>

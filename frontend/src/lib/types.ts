@@ -1,5 +1,5 @@
 export type MessageRole = 'user' | 'assistant';
-export type ResponseType = 'text' | 'file_download' | 'link_download';
+export type ResponseType = 'text' | 'file_download' | 'link_download' | 'cta';
 
 export interface ChatMessage {
   id: string;
@@ -8,6 +8,7 @@ export interface ChatMessage {
   responseType: ResponseType;
   fileName?: string;
   downloadUrl?: string;
+  ctaOptions?: string[];
   timestamp: number;
 }
 
@@ -29,4 +30,5 @@ export interface ParsedResponse {
   content: string;
   fileName?: string;
   downloadUrl?: string;
+  ctaOptions?: string[];
 }
