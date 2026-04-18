@@ -380,7 +380,7 @@ def _run_ingest():
             cwd=str(Path(__file__).parent),
             capture_output=True,
             text=True,
-            timeout=600,
+            timeout=1800,
         )
         if result.returncode == 0:
             _write_status("done", "Ingestion completed successfully.")
@@ -388,7 +388,7 @@ def _run_ingest():
             _write_status("error", result.stderr[-500:] if result.stderr else "Unknown error")
 
     except subprocess.TimeoutExpired:
-        _write_status("error", "Ingestion timed out after 10 minutes.")
+        _write_status("error", "Ingestion timed out after 30 minutes.")
     except Exception as e:
         _write_status("error", str(e))
     finally:
