@@ -7,76 +7,76 @@ from datetime import datetime
 
 GOLDEN_DATASET = [
     {
-        "question": "What are Porter's Five Forces and how should consultants use them?",
-        "relevant_sources": ["strategic_frameworks_guide.docx"],
-        "expected_answer": "Porter's Five Forces is a framework for competitive analysis covering threat of new entrants, bargaining power of suppliers, bargaining power of buyers, threat of substitutes, and competitive rivalry. Consultants rate each force as Low, Medium, or High.",
-        "keywords": ["new entrants", "suppliers", "buyers", "substitutes", "rivalry", "competitive", "industry"]
+        "question": "What percentage of the time do large language models direct users to airline websites when asked about flights?",
+        "relevant_sources": ["bain_brief_is_the_airline_industry_ready_for_agent-led_bookings.pdf"],
+        "expected_answer": "Large language models direct users to airline websites only about 5 percent of the time. The top 6 online travel agencies account for approximately 67 percent of LLM-driven search traffic.",
+        "keywords": ["5%", "OTA", "airline", "LLM", "online travel", "67"]
     },
     {
-        "question": "What are the four quadrants of the BCG Growth-Share Matrix?",
-        "relevant_sources": ["strategic_frameworks_guide.docx"],
-        "expected_answer": "The four quadrants are Stars (high growth, high share), Cash Cows (low growth, high share), Question Marks (high growth, low share), and Dogs (low growth, low share).",
-        "keywords": ["stars", "cash cows", "question marks", "dogs", "growth", "market share"]
+        "question": "What are the three layers of the agentic AI platform architecture described by Bain?",
+        "relevant_sources": ["Layers of Agentic AI by Bain.pdf"],
+        "expected_answer": "The three layers are the Application and Orchestration layer, the Analytics and Insight layer, and the Data and Knowledge layer.",
+        "keywords": ["orchestration", "analytics", "insight", "data", "knowledge", "application", "layer"]
     },
     {
-        "question": "What is the MECE principle in consulting?",
-        "relevant_sources": ["strategic_frameworks_guide.docx"],
-        "expected_answer": "MECE stands for Mutually Exclusive Collectively Exhaustive. It ensures problem decomposition is both complete and non-overlapping, enabling teams to divide work streams efficiently.",
-        "keywords": ["mutually exclusive", "collectively exhaustive", "issue tree", "problem", "decomposition"]
+        "question": "How productive are MSMEs compared to large companies on average?",
+        "relevant_sources": ["a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"],
+        "expected_answer": "MSMEs are roughly half as productive as large companies on average. Closing this gap could add 5 percent to GDP in advanced economies and 10 percent in emerging markets.",
+        "keywords": ["half", "productive", "5%", "10%", "GDP", "advanced", "emerging"]
     },
     {
-        "question": "What are the primary activities in Porter's Value Chain?",
-        "relevant_sources": ["strategic_frameworks_guide.docx"],
-        "expected_answer": "The primary activities are inbound logistics, operations, outbound logistics, marketing and sales, and service.",
-        "keywords": ["inbound logistics", "operations", "outbound logistics", "marketing", "service"]
+        "question": "What is the projected industrial automation market size by 2030 and how much new AI value will be unlocked?",
+        "relevant_sources": ["bain_brief_industrial_automation_from_control_to__intelligence.pdf"],
+        "expected_answer": "The industrial automation market is projected to grow from 250 billion dollars in 2025 to 400 billion dollars by 2030. An additional 70 billion dollars of new AI market value is expected to be unlocked by 2030.",
+        "keywords": ["250", "400", "70", "billion", "2030", "AI", "market"]
     },
     {
-        "question": "What are the main reasons digital transformation programs fail?",
-        "relevant_sources": ["digital_transformation_playbook.pdf"],
-        "expected_answer": "Digital transformation programs fail primarily due to organizational reasons: lack of clear vision, insufficient executive sponsorship, resistance to change, talent gaps, and poor program governance. The failure rate is 60 to 80 percent.",
-        "keywords": ["vision", "sponsorship", "resistance", "talent", "governance", "failure", "60", "80"]
+        "question": "How does the MSME productivity gap differ between B2B and B2C businesses?",
+        "relevant_sources": ["a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"],
+        "expected_answer": "B2B MSMEs have a 40 percent narrower productivity gap compared to B2C MSMEs. B2B MSMEs are also 30 percent more likely to introduce process innovation and provide formal training to 60 percent of employees versus 35 percent at B2C MSMEs.",
+        "keywords": ["40%", "B2B", "B2C", "narrower", "innovation", "training", "60%", "35%"]
     },
     {
-        "question": "What are the four pillars of digital transformation?",
-        "relevant_sources": ["digital_transformation_playbook.pdf"],
-        "expected_answer": "The four pillars are Customer Experience, Operational Efficiency, Business Model Innovation, and Data and Analytics.",
-        "keywords": ["customer experience", "operational efficiency", "business model", "data", "analytics"]
+        "question": "What is the total annual economic value that generative AI could add to the global economy?",
+        "relevant_sources": ["the-economic-potential-of-generative-ai-the-next-productivity-frontier.pdf"],
+        "expected_answer": "Generative AI could add between 2.6 trillion and 4.4 trillion dollars annually across the use cases analyzed by McKinsey.",
+        "keywords": ["2.6", "4.4", "trillion", "annually", "economic", "generative AI"]
     },
     {
-        "question": "How should a digital transformation roadmap be designed?",
-        "relevant_sources": ["digital_transformation_playbook.pdf"],
-        "expected_answer": "The roadmap should start with value not technology, sequence for dependencies and quick wins, right-size the portfolio to three to five initiatives, build in governance and decision gates, and allocate 15 to 20 percent of budget to change management.",
-        "keywords": ["value", "quick wins", "portfolio", "governance", "change management", "sequence"]
+        "question": "What productivity and maintenance cost gains can manufacturers expect from AI-enabled industrial automation?",
+        "relevant_sources": ["bain_brief_industrial_automation_from_control_to__intelligence.pdf"],
+        "expected_answer": "Manufacturers can expect 30 to 50 percent productivity gains and up to 35 percent maintenance cost reductions from AI-enabled industrial automation.",
+        "keywords": ["30", "50", "productivity", "35", "maintenance", "cost", "reduction"]
     },
     {
-        "question": "What is EBITDA and why do consultants use it?",
-        "relevant_sources": ["financial_analysis_toolkit.pdf"],
-        "expected_answer": "EBITDA is earnings before interest, taxes, depreciation, and amortization. Consultants use it because it strips out effects of capital structure, tax jurisdiction, and accounting policies enabling cleaner comparisons across companies and industries.",
-        "keywords": ["earnings", "interest", "depreciation", "amortization", "capital structure", "comparison"]
+        "question": "How do AI agents discover tools in a modern agentic AI platform?",
+        "relevant_sources": ["Layers of Agentic AI by Bain.pdf"],
+        "expected_answer": "AI agents discover and connect to tools via MCP (Model Context Protocol) servers and tool catalogs, enabling dynamic tool discovery rather than static API endpoint configuration.",
+        "keywords": ["MCP", "Model Context Protocol", "tool catalog", "discovery", "agents"]
     },
     {
-        "question": "What are the three valuation methodologies used in consulting?",
-        "relevant_sources": ["financial_analysis_toolkit.pdf"],
-        "expected_answer": "The three methodologies are Discounted Cash Flow (DCF) analysis, Comparable Company Analysis using trading multiples, and Precedent Transactions Analysis.",
-        "keywords": ["discounted cash flow", "DCF", "comparable company", "trading multiples", "precedent transactions"]
+        "question": "What is friend-shoring and how is it reshaping global supply chains?",
+        "relevant_sources": ["geopolitics-and-the-geometry-of-global-trade-vf.pdf"],
+        "expected_answer": "Friend-shoring involves relocating supply chains to geopolitically aligned countries, prioritizing security and reliability over pure cost efficiency. It is part of a broader shift away from globally optimized supply chains toward geopolitically resilient ones.",
+        "keywords": ["friend-shoring", "geopolitical", "supply chain", "aligned", "security", "resilient"]
     },
     {
-        "question": "What is the pyramid principle in consulting communication?",
-        "relevant_sources": ["client_engagement_best_practices.docx"],
-        "expected_answer": "The pyramid principle developed by Barbara Minto at McKinsey states that you should lead with the answer, then support it with grouped and summarized arguments, and finally provide detailed evidence.",
-        "keywords": ["pyramid", "Minto", "answer", "argument", "evidence", "lead", "McKinsey"]
+        "question": "What are the AI substitution rates for manufacturing operations management and sensor roles?",
+        "relevant_sources": ["bain_brief_industrial_automation_from_control_to__intelligence.pdf"],
+        "expected_answer": "The AI substitution rate for manufacturing operations management is 55 percent, manufacturing monitoring is 54 percent, manufacturing control is 54 percent, maintenance is 51 percent, and sensors have a lower substitution rate of 24 percent.",
+        "keywords": ["55", "54", "51", "24", "substitution", "manufacturing", "operations", "sensors"]
     },
     {
-        "question": "How should stakeholders be managed during a consulting engagement?",
-        "relevant_sources": ["client_engagement_best_practices.docx"],
-        "expected_answer": "Stakeholders include sponsors, key decision-makers, subject matter experts, potential blockers, and implementation owners. Each requires a different management approach including keeping sponsors informed, pre-wiring recommendations with decision-makers, and engaging blockers early.",
-        "keywords": ["sponsor", "decision-maker", "blocker", "subject matter expert", "implementation", "engagement"]
+        "question": "What share of airline industry revenues is expected to flow through AI-based solutions by 2030?",
+        "relevant_sources": ["bain_brief_is_the_airline_industry_ready_for_agent-led_bookings.pdf"],
+        "expected_answer": "Nearly half of airline industry revenues are projected to pass through AI-based solutions by 2030.",
+        "keywords": ["half", "revenues", "2030", "AI", "airline", "agent"]
     },
     {
-        "question": "What financial modeling best practices should consultants follow?",
-        "relevant_sources": ["financial_analysis_toolkit.pdf"],
-        "expected_answer": "Best practices include separating inputs from calculations from outputs, using color coding with blue for inputs and black for calculations, including base case upside and downside scenarios, avoiding circular references and hardcoded numbers, and building in error checks.",
-        "keywords": ["inputs", "calculations", "scenario", "base case", "circular", "assumptions", "color"]
+        "question": "What are the main barriers to productivity growth in advanced economies?",
+        "relevant_sources": ["investing-in-productivity-growth-vf.pdf"],
+        "expected_answer": "Key barriers include capital misallocation, regulatory burden, low research and development investment, and slow technology diffusion from frontier firms to laggard firms.",
+        "keywords": ["capital", "misallocation", "regulatory", "R&D", "technology diffusion", "frontier", "laggard"]
     },
 ]
 

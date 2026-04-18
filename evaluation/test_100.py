@@ -1,9 +1,17 @@
 """
-test_100.py — Run 100 test prompts across Naive, Graph, and Hybrid RAG.
-Results are saved to the app's analytics log (GitHub-backed).
+test_100.py — Run 100 test prompts across Naive RAG and Graph RAG.
+
+Metrics per query (all via LLM-as-judge):
+  Answer quality : groundedness, relevancy, completeness, hallucination
+  Retrieval      : precision@1, precision@3, precision@5, MRR
+
+Prompts are loaded from evaluation/test_prompts_100.json.
+  id  1-50  → Naive RAG
+  id 51-100 → Graph RAG
 
 Usage:
     python evaluation/test_100.py
+    python evaluation/test_100.py --clear   # wipe old test entries first
 """
 import sys
 from pathlib import Path
@@ -16,10 +24,11 @@ import json
 import time
 import base64
 import os
+import re
 import requests as http_requests
 from datetime import datetime
 
-# ── GitHub log helpers (same as app.py) ───────────────────────────────
+# ── GitHub log helpers ────────────────────────────────────────────────────────
 _GITHUB_API = "https://api.github.com"
 
 
@@ -91,175 +100,67 @@ def _save_log(log):
     LOG_PATH.write_text(content_str, encoding="utf-8")
 
 
-# ── 100 Test Prompts ──────────────────────────────────────────────────
-# Divided: 34 Naive, 33 Graph, 33 Hybrid
+# ── Load prompts from JSON ────────────────────────────────────────────────────
 
-NAIVE_PROMPTS = [
-    # Strategic Frameworks (strategic_frameworks_guide.docx)
-    "What is the threat of substitute products in Porter's model?",
-    "How does supplier bargaining power influence an industry?",
-    "What criteria distinguish a 'Cash Cow' from a 'Question Mark' in the BCG Matrix?",
-    "What are the limitations of Porter's Five Forces?",
-    "How should a company transition a Question Mark into a Star?",
-    "What is the purpose of the value chain in competitive analysis?",
-    "How does firm infrastructure support the value chain?",
-    "What is the role of procurement in Porter's Value Chain?",
-    "How does technology development contribute to competitive advantage?",
-    "What are the steps to construct a MECE issue tree?",
-    "How do economies of scale act as a barrier to entry?",
-    "What is the difference between horizontal and vertical integration in strategy?",
-    # Digital Transformation (digital_transformation_playbook.pdf)
-    "What is a digital maturity assessment?",
-    "How should organizations measure digital transformation ROI?",
-    "What are common resistance factors during digital adoption?",
-    "How does cloud migration fit into a transformation roadmap?",
-    "What KPIs should track digital transformation progress?",
-    "What is the role of a transformation management office?",
-    "How should legacy systems be addressed during digital transformation?",
-    "What training approaches support digital upskilling?",
-    # Financial Analysis (financial_analysis_toolkit.pdf)
-    "What is enterprise value and how is it calculated?",
-    "How do you calculate weighted average cost of capital?",
-    "What are the key assumptions in a DCF model?",
-    "How do you determine the terminal value of a business?",
-    "What multiples are commonly used in comparable company analysis?",
-    "How should a sensitivity analysis be structured in a financial model?",
-    "What is the difference between levered and unlevered free cash flow?",
-    "How do you normalize earnings for valuation purposes?",
-    "What are common red flags in financial statement analysis?",
-    # Client Engagement (client_engagement_best_practices.docx)
-    "What is the structure of a hypothesis-driven engagement?",
-    "How should consultants scope a new project?",
-    "What are the phases of a typical consulting engagement?",
-    "How do you build executive alignment early in a project?",
-    "What techniques help manage difficult stakeholders?",
-]
-
-GRAPH_PROMPTS = [
-    # Entity/relationship focused questions
-    "How does threat of substitutes connect to buyer behavior?",
-    "What is the relationship between supplier power and input costs?",
-    "How do barriers to entry relate to industry profitability?",
-    "What connects the value chain to competitive positioning?",
-    "How does human resource management link to firm performance in the value chain?",
-    "What is the relationship between cash cows and investment strategy?",
-    "How does digital maturity relate to organizational readiness?",
-    "What connects cloud infrastructure to operational efficiency?",
-    "How does enterprise value relate to equity value?",
-    "What is the link between WACC and discount rates in valuation?",
-    "How do terminal value assumptions affect DCF outcomes?",
-    "What connects revenue growth to market share in strategic analysis?",
-    "How does hypothesis-driven consulting relate to the pyramid principle?",
-    "What is the relationship between project scoping and deliverable quality?",
-    "How do executive sponsors influence transformation governance?",
-    "What connects sensitivity analysis to risk management?",
-    "How does industry concentration relate to competitive rivalry?",
-    "What links free cash flow to enterprise valuation?",
-    "How does technology pillar connect to the other transformation pillars?",
-    "What is the relationship between stakeholder mapping and engagement planning?",
-    "How do economies of scale relate to cost leadership strategy?",
-    "What connects issue trees to root cause analysis?",
-    "How does the BCG Matrix relate to resource allocation decisions?",
-    "What links digital KPIs to business outcome measurement?",
-    "How does procurement strategy connect to supplier bargaining power?",
-    "What is the relationship between legacy systems and transformation risk?",
-    "How do trading comparables relate to market sentiment?",
-    "What connects change resistance to talent management?",
-    "How does firm infrastructure enable all value chain activities?",
-    "What is the relationship between engagement phases and stakeholder communication?",
-    "How do financial red flags connect to due diligence?",
-    "What links MECE structuring to problem decomposition?",
-    "How does market growth connect to the Question Mark quadrant?",
-]
-
-HYBRID_PROMPTS = [
-    # Complex analytical questions needing both context types
-    "How would you use both the value chain and financial analysis to assess a target company?",
-    "Compare the role of governance in digital transformation versus financial modeling.",
-    "What strategic frameworks and financial tools support a market entry decision?",
-    "How should a consultant combine stakeholder management with the pyramid principle for C-suite presentations?",
-    "Explain how sensitivity analysis in financial models complements strategic scenario planning.",
-    "What is the end-to-end process for evaluating a business unit using BCG Matrix and DCF?",
-    "How do digital transformation KPIs align with financial performance metrics?",
-    "Compare the risk factors in digital transformation with financial modeling assumptions.",
-    "How should value chain analysis and financial statement analysis be used together in due diligence?",
-    "What frameworks help structure a consulting engagement focused on cost reduction?",
-    "How can the MECE principle improve the structure of a financial model?",
-    "Compare the approach to measuring ROI in digital transformation versus capital investments.",
-    "What is the relationship between Porter's Five Forces and comparable company selection?",
-    "How should a consultant present valuation findings using the pyramid principle?",
-    "Explain how change management and stakeholder engagement work together during transformation.",
-    "What combination of tools would you use to assess industry attractiveness and company valuation?",
-    "How do quick wins in transformation relate to cash flow improvement?",
-    "Compare the role of executive sponsorship in client engagements versus digital programs.",
-    "How should a consultant integrate strategic analysis with financial due diligence?",
-    "What are the common pitfalls across strategic planning, financial analysis, and digital transformation?",
-    "How does the value chain framework inform digital investment priorities?",
-    "Compare hypothesis-driven consulting with scenario-based financial modeling.",
-    "What is the comprehensive approach to evaluating competitive threats using all available frameworks?",
-    "How do consulting engagement best practices apply to a digital transformation program?",
-    "Explain how EBITDA margins relate to competitive positioning within an industry.",
-    "What frameworks help prioritize which business units to digitally transform first?",
-    "How should a consultant assess whether to build, buy, or partner using strategic and financial analysis?",
-    "Compare stakeholder management approaches for financial restructuring versus digital programs.",
-    "What is the integrated approach to assessing a company before an acquisition?",
-    "How can issue trees structure both a strategic assessment and a financial analysis workstream?",
-    "What connects client engagement phases to the stages of a digital transformation roadmap?",
-    "How do barriers to entry influence both strategic recommendations and valuation multiples?",
-    "What best practices apply when presenting both strategic and financial findings to a board?",
-]
-
-ALL_TESTS = (
-    [(q, "Naive RAG") for q in NAIVE_PROMPTS] +
-    [(q, "Graph RAG") for q in GRAPH_PROMPTS] +
-    [(q, "Hybrid RAG") for q in HYBRID_PROMPTS]
-)
+def _load_prompts():
+    p = Path(__file__).parent / "test_prompts_100.json"
+    with open(p, encoding="utf-8") as f:
+        data = json.load(f)
+    naive = [(item["prompt"], "Naive RAG") for item in data if item.get("mode") == "naive"]
+    graph = [(item["prompt"], "Graph RAG") for item in data if item.get("mode") == "graph"]
+    return naive, graph
 
 
-_EVAL_PROMPT = """You are a strict evaluation judge for a RAG (Retrieval-Augmented Generation) system.
-Given a QUESTION, the CONTEXT (retrieved documents/entities), and the ANSWER produced by the system, score the answer on exactly 4 metrics. Each score must be a float between 0.0 and 1.0.
+# ── LLM clients ──────────────────────────────────────────────────────────────
+
+def _get_openai_client():
+    import config
+    from openai import AzureOpenAI
+    return AzureOpenAI(
+        azure_endpoint=config.AZURE_OPENAI_ENDPOINT,
+        api_key=config.AZURE_OPENAI_KEY,
+        api_version=config.AZURE_OPENAI_API_VERSION,
+    ), config.AZURE_CHAT_DEPLOYMENT
+
+
+# ── Answer quality: LLM-as-judge ─────────────────────────────────────────────
+
+_ANSWER_EVAL_PROMPT = """You are a strict evaluation judge for a RAG system.
+Given a QUESTION, CONTEXT (retrieved documents), and ANSWER, score on 4 metrics (0.0–1.0).
 
 QUESTION: {question}
 
-CONTEXT (retrieved documents):
+CONTEXT:
 {context}
 
 ANSWER:
 {answer}
 
-Score each metric using these rubrics:
-- groundedness: Does the answer use information from the provided context? If the answer rephrases, summarizes, or quotes the context, that IS grounded. Do NOT penalize for context quality or topic relevance — only penalize if the answer contains claims that appear NOWHERE in the context. (1.0 = all info in the answer comes from context, 0.7 = most comes from context with minor additions, 0.3 = significant claims not in context, 0.0 = answer ignores context entirely)
-- relevancy: Does the answer address the question that was asked? (1.0 = directly and fully addresses it, 0.7 = mostly addresses it, 0.3 = barely addresses it, 0.0 = completely off-topic)
-- completeness: Does the answer cover the key information available in the context that is relevant to the question? (1.0 = thorough coverage of relevant context, 0.7 = covers most key points, 0.3 = misses significant info, 0.0 = misses almost everything)
-- hallucination: Is the answer free from information NOT found in the context? (1.0 = every claim is traceable to context, 0.7 = minor phrasing not in context but meaning is, 0.3 = noticeable additions beyond context, 0.0 = heavily fabricated)
+Rubrics:
+- groundedness: Does the answer use information from the context? (1.0 = all from context, 0.0 = ignores context)
+- relevancy: Does the answer address the question? (1.0 = fully, 0.0 = off-topic)
+- completeness: Does the answer cover the key info in context relevant to the question? (1.0 = thorough, 0.0 = misses everything)
+- hallucination: Is the answer free from info NOT in context? (1.0 = every claim traceable, 0.0 = heavily fabricated)
 
-Return ONLY valid JSON with no explanation: {{"groundedness": X, "relevancy": X, "completeness": X, "hallucination": X}}"""
+Return ONLY valid JSON: {{"groundedness": X, "relevancy": X, "completeness": X, "hallucination": X}}"""
 
 
-def _evaluate_answer(question, context, answer):
-    """LLM-as-judge evaluation using GPT-4o. Scores 4 metrics via a single call."""
-    import re as _re
+def _evaluate_answer(question: str, context: str, answer: str) -> dict:
     try:
-        import config
-        from openai import AzureOpenAI
-        client = AzureOpenAI(
-            azure_endpoint=config.AZURE_OPENAI_ENDPOINT,
-            api_key=config.AZURE_OPENAI_KEY,
-            api_version=config.AZURE_OPENAI_API_VERSION,
-        )
+        client, model = _get_openai_client()
         resp = client.chat.completions.create(
-            model=config.AZURE_CHAT_DEPLOYMENT,
-            messages=[{"role": "user", "content": _EVAL_PROMPT.format(
+            model=model,
+            messages=[{"role": "user", "content": _ANSWER_EVAL_PROMPT.format(
                 question=question[:500],
                 context=context[:8000],
                 answer=answer[:3000],
             )}],
             temperature=0.0,
-            max_tokens=200,
+            max_tokens=150,
         )
         raw = resp.choices[0].message.content.strip()
-        raw = _re.sub(r"^```json\s*", "", raw)
-        raw = _re.sub(r"\s*```$", "", raw)
+        raw = re.sub(r"^```json\s*", "", raw)
+        raw = re.sub(r"\s*```$", "", raw)
         scores = json.loads(raw)
         return {
             "groundedness":  round(float(scores.get("groundedness", 0)), 2),
@@ -268,30 +169,99 @@ def _evaluate_answer(question, context, answer):
             "hallucination": round(float(scores.get("hallucination", 0)), 2),
         }
     except Exception:
-        return {"groundedness": 0, "relevancy": 0, "completeness": 0, "hallucination": 0}
+        return {"groundedness": 0.0, "relevancy": 0.0, "completeness": 0.0, "hallucination": 0.0}
 
+
+# ── Retrieval quality: chunk relevance → Precision@K and MRR ─────────────────
+
+_CHUNK_EVAL_PROMPT = """You are evaluating retrieval quality for a RAG system.
+Given a QUESTION and a list of retrieved CHUNKS, decide whether each chunk is relevant to answering the question.
+
+QUESTION: {question}
+
+CHUNKS:
+{chunks}
+
+For each chunk index (0-based), return true if it is relevant to the question, false otherwise.
+Return ONLY a JSON array of booleans with exactly {n} elements, e.g. [true, false, true, true, false]"""
+
+
+def _evaluate_chunks(question: str, chunks: list[str]) -> dict:
+    """Score retrieved chunks for relevance. Returns precision@1/3/5 and MRR."""
+    if not chunks:
+        return {"precision_at_1": 0.0, "precision_at_3": 0.0, "precision_at_5": 0.0, "mrr": 0.0}
+
+    k = min(5, len(chunks))
+    chunks_text = "\n\n".join(
+        f"[{i}] {c[:400]}" for i, c in enumerate(chunks[:k])
+    )
+    try:
+        client, model = _get_openai_client()
+        resp = client.chat.completions.create(
+            model=model,
+            messages=[{"role": "user", "content": _CHUNK_EVAL_PROMPT.format(
+                question=question[:500],
+                chunks=chunks_text,
+                n=k,
+            )}],
+            temperature=0.0,
+            max_tokens=50,
+        )
+        raw = resp.choices[0].message.content.strip()
+        raw = re.sub(r"^```json\s*", "", raw)
+        raw = re.sub(r"\s*```$", "", raw)
+        relevance = json.loads(raw)
+        if not isinstance(relevance, list):
+            raise ValueError("not a list")
+        # Pad to 5 with False if fewer chunks returned
+        while len(relevance) < 5:
+            relevance.append(False)
+        relevance = [bool(v) for v in relevance[:5]]
+    except Exception:
+        relevance = [False] * 5
+
+    def p_at(k_):
+        return round(sum(relevance[:k_]) / k_, 2) if k_ > 0 else 0.0
+
+    mrr = 0.0
+    for rank, rel in enumerate(relevance, 1):
+        if rel:
+            mrr = round(1.0 / rank, 2)
+            break
+
+    return {
+        "precision_at_1": p_at(1),
+        "precision_at_3": p_at(min(3, len(chunks))),
+        "precision_at_5": p_at(min(5, len(chunks))),
+        "mrr":            mrr,
+    }
+
+
+# ── Run ───────────────────────────────────────────────────────────────────────
 
 def run_tests():
     import asyncio
     if sys.platform == "win32":
         asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
+    naive_prompts, graph_prompts = _load_prompts()
+    all_tests = naive_prompts + graph_prompts
+
     # Clear old test entries if --clear flag
-    clear_old = "--clear" in sys.argv
-    if clear_old:
+    if "--clear" in sys.argv:
         print("Clearing old test entries from log...")
         old_log = _load_log()
-        old_log = [e for e in old_log if not e.get("test_run")]
-        _save_log(old_log)
-        print(f"  Kept {len(old_log)} non-test entries.")
+        kept = [e for e in old_log if not e.get("test_run")]
+        _save_log(kept)
+        print(f"  Kept {len(kept)} non-test entries.")
 
-    print(f"\n{'='*60}")
-    print(f"  ConsultantIQ — 100 Prompt Stress Test")
-    print(f"  Naive: {len(NAIVE_PROMPTS)} | Graph: {len(GRAPH_PROMPTS)} | Hybrid: {len(HYBRID_PROMPTS)}")
-    print(f"  Total: {len(ALL_TESTS)}")
-    print(f"{'='*60}\n")
+    print(f"\n{'='*65}")
+    print(f"  ConsultantIQ — 100 Prompt Evaluation")
+    print(f"  Naive RAG: {len(naive_prompts)} prompts | Graph RAG: {len(graph_prompts)} prompts")
+    print(f"  Metrics: groundedness · relevancy · completeness · hallucination")
+    print(f"           precision@1/3/5 · MRR  (all via LLM-as-judge)")
+    print(f"{'='*65}\n")
 
-    # Load retrievers
     print("Loading Naive RAG...")
     from naive_rag.retriever import RAGRetriever
     naive = RAGRetriever()
@@ -300,200 +270,149 @@ def run_tests():
     from graph_rag.retriever_graph import GraphRetriever
     graph = GraphRetriever()
 
-    print("Loading Hybrid RAG...")
-    from hybrid_rag.query_hybrid import HybridRetriever
-    hybrid = HybridRetriever()
-
     log = _load_log()
     success, errors = 0, 0
 
-    for i, (question, mode) in enumerate(ALL_TESTS, 1):
-        print(f"[{i:3d}/{len(ALL_TESTS)}] ({mode:10s}) {question[:55]}...", end=" ", flush=True)
+    for i, (question, mode) in enumerate(all_tests, 1):
+        label = f"[{i:3d}/{len(all_tests)}] ({mode:10s}) {question[:50]}..."
+        print(label, end=" ", flush=True)
 
         t0 = time.time()
         try:
             context_text = ""
+            chunk_texts  = []
 
+            # ── Naive RAG ────────────────────────────────────────────────
             if mode == "Naive RAG":
                 result = naive.ask(question, top_k=5, verbose=False)
                 answer = result["answer"]
                 chunks = result["chunks"]
                 sources_list = list({c.get("source", "") for c in chunks if c.get("source")})
-                scores_vals = []
+                scores_vals  = []
                 for c in chunks:
-                    s = (c.get("@search.reranker_score")
-                         or c.get("_score_rrf")
-                         or c.get("_score_vector")
-                         or c.get("_score_fulltext")
-                         or 0)
+                    s = (c.get("@search.reranker_score") or c.get("_score_rrf")
+                         or c.get("_score_vector") or c.get("_score_fulltext") or 0)
                     try:
                         scores_vals.append(float(s))
                     except (ValueError, TypeError):
                         pass
-                avg_score = sum(scores_vals) / len(scores_vals) if scores_vals else 0
-                num_chunks = len(chunks)
-                context_text = "\n".join((c.get("cleaned_text") or c.get("chunk_text") or "") for c in chunks[:5])
+                avg_score    = sum(scores_vals) / len(scores_vals) if scores_vals else 0.0
+                num_chunks   = len(chunks)
+                chunk_texts  = [(c.get("cleaned_text") or c.get("chunk_text") or "") for c in chunks[:5]]
+                context_text = "\n".join(chunk_texts)
 
+            # ── Graph RAG ────────────────────────────────────────────────
             elif mode == "Graph RAG":
                 import io, contextlib
-                subgraph = graph.retrieve(question, top_k=5)
-                nodes = subgraph.get("nodes", [])
+                subgraph   = graph.retrieve(question, top_k=5)
+                nodes      = subgraph.get("nodes", [])
                 graph_edges = subgraph.get("edges", [])
                 buf = io.StringIO()
                 with contextlib.redirect_stdout(buf):
                     answer = graph.ask(question, top_k=5)
                 sources_list = list({n.get("source", "") for n in nodes if n.get("source")})
                 match_scores = [n.get("_match_score", 0) for n in nodes if n.get("_match_score", 0) > 0]
-                avg_score = sum(match_scores) / len(match_scores) if match_scores else (
-                    min(len(nodes) / 5, 1.0) if nodes else 0
+                avg_score    = sum(match_scores) / len(match_scores) if match_scores else (
+                    min(len(nodes) / 5, 1.0) if nodes else 0.0
                 )
-                num_chunks = len(nodes)
-                context_text = "\n".join(f"{n.get('name','')}: {n.get('description','')}" for n in nodes)
-                # Include edges so relationship terms are matchable in evaluation
+                num_chunks   = len(nodes)
+                chunk_texts  = [f"{n.get('name','')}: {n.get('description','')}" for n in nodes]
+                context_text = "\n".join(chunk_texts)
                 for e in graph_edges:
-                    context_text += f"\n{e.get('from', '')} {e.get('type', '')} {e.get('to', '')}"
-
-            elif mode == "Hybrid RAG":
-                import io, contextlib
-                buf = io.StringIO()
-                with contextlib.redirect_stdout(buf):
-                    answer = hybrid.ask(question)
-                # Clean terminal formatting
-                clean_lines = []
-                for ln in answer.split("\n"):
-                    s = ln.strip()
-                    if s.startswith("=") or s.startswith("──") or s.startswith("? "):
-                        continue
-                    clean_lines.append(ln)
-                answer = "\n".join(clean_lines).strip()
-                # Get context from both sources
-                graph_nodes = []
-                hybrid_edges = []
-                try:
-                    sub = hybrid.graph.retrieve(question, top_k=5)
-                    graph_nodes = sub.get("nodes", [])
-                    hybrid_edges = sub.get("edges", [])
-                    g_ctx = "\n".join(f"{n.get('name','')}: {n.get('description','')}" for n in graph_nodes)
-                except Exception:
-                    g_ctx = ""
-                naive_chunks_h = []
-                try:
-                    naive_chunks_h = hybrid.naive.retrieve(question, top_k=5) if hybrid.naive else []
-                    if not isinstance(naive_chunks_h, list):
-                        naive_chunks_h = []
-                    n_ctx = "\n".join((c.get("cleaned_text") or c.get("chunk_text") or "") for c in naive_chunks_h[:5])
-                except Exception:
-                    n_ctx = ""
-                context_text = g_ctx + "\n" + n_ctx
-                # Include edges so relationship terms are matchable in evaluation
-                for e in hybrid_edges:
-                    context_text += f"\n{e.get('from', '')} {e.get('type', '')} {e.get('to', '')}"
-
-                # Sources from both graph nodes and naive chunks
-                g_sources = {n.get("source", "") for n in graph_nodes if n.get("source")}
-                n_sources = {c.get("source", "") for c in naive_chunks_h if c.get("source")}
-                sources_list = list(g_sources | n_sources)
-
-                # Score: blend graph match scores with naive retrieval scores
-                g_match = [n.get("_match_score", 0) for n in graph_nodes if n.get("_match_score", 0) > 0]
-                graph_score = sum(g_match) / len(g_match) if g_match else 0
-                naive_scores_h = []
-                for c in naive_chunks_h:
-                    s = (c.get("@search.reranker_score") or c.get("_score_rrf")
-                         or c.get("_score_vector") or c.get("_score_fulltext") or 0)
-                    try:
-                        v = float(s)
-                        if v > 0:
-                            naive_scores_h.append(v)
-                    except (ValueError, TypeError):
-                        pass
-                naive_score = sum(naive_scores_h) / len(naive_scores_h) if naive_scores_h else 0
-                if graph_score > 0 and naive_score > 0:
-                    avg_score = (graph_score + naive_score) / 2
-                else:
-                    avg_score = graph_score or naive_score or 0
-                num_chunks = len(graph_nodes) + len(naive_chunks_h)
+                    context_text += f"\n{e.get('from','')} {e.get('type','')} {e.get('to','')}"
 
             elapsed = time.time() - t0
 
-            # Evaluate
-            eval_scores = _evaluate_answer(question, context_text, answer)
+            # ── Evaluate answer quality ───────────────────────────────────
+            answer_scores = _evaluate_answer(question, context_text, answer)
 
-            log.append({
-                "question":      question,
-                "effective_q":   question,
-                "timestamp":     datetime.now().isoformat(timespec="seconds"),
-                "mode":          mode,
-                "response_time": round(elapsed, 2),
-                "num_chunks":    num_chunks,
-                "avg_score":     round(avg_score, 4),
-                "answer_length": len(answer),
-                "reformulated":  False,
-                "used_memory":   False,
-                "sources":       sources_list,
-                "test_run":      True,
-                "groundedness":  eval_scores["groundedness"],
-                "relevancy":     eval_scores["relevancy"],
-                "completeness":  eval_scores["completeness"],
-                "hallucination": eval_scores["hallucination"],
-            })
+            # ── Evaluate retrieval quality ────────────────────────────────
+            retrieval_scores = _evaluate_chunks(question, chunk_texts)
 
+            entry = {
+                "question":        question,
+                "effective_q":     question,
+                "timestamp":       datetime.now().isoformat(timespec="seconds"),
+                "mode":            mode,
+                "response_time":   round(elapsed, 2),
+                "num_chunks":      num_chunks,
+                "avg_score":       round(avg_score, 4),
+                "answer_length":   len(answer),
+                "reformulated":    False,
+                "used_memory":     False,
+                "sources":         sources_list,
+                "test_run":        True,
+                # Answer quality
+                "groundedness":    answer_scores["groundedness"],
+                "relevancy":       answer_scores["relevancy"],
+                "completeness":    answer_scores["completeness"],
+                "hallucination":   answer_scores["hallucination"],
+                # Retrieval quality
+                "precision_at_1":  retrieval_scores["precision_at_1"],
+                "precision_at_3":  retrieval_scores["precision_at_3"],
+                "precision_at_5":  retrieval_scores["precision_at_5"],
+                "mrr":             retrieval_scores["mrr"],
+            }
+            log.append(entry)
             success += 1
-            g = eval_scores["groundedness"]
-            r = eval_scores["relevancy"]
-            c = eval_scores["completeness"]
-            h = eval_scores["hallucination"]
-            print(f"OK ({elapsed:.1f}s) G:{g} R:{r} C:{c} H:{h}")
+
+            g  = answer_scores["groundedness"]
+            r  = answer_scores["relevancy"]
+            c  = answer_scores["completeness"]
+            h  = answer_scores["hallucination"]
+            p1 = retrieval_scores["precision_at_1"]
+            p5 = retrieval_scores["precision_at_5"]
+            m  = retrieval_scores["mrr"]
+            print(f"OK ({elapsed:.1f}s)  G:{g} R:{r} C:{c} H:{h}  P@1:{p1} P@5:{p5} MRR:{m}")
 
         except Exception as e:
             elapsed = time.time() - t0
             errors += 1
             print(f"ERR ({elapsed:.1f}s) — {str(e)[:60]}")
-
             log.append({
-                "question":      question,
-                "effective_q":   question,
-                "timestamp":     datetime.now().isoformat(timespec="seconds"),
-                "mode":          mode,
-                "response_time": round(elapsed, 2),
-                "num_chunks":    0,
-                "avg_score":     0,
-                "answer_length": 0,
-                "reformulated":  False,
-                "used_memory":   False,
-                "sources":       [],
-                "test_run":      True,
-                "error":         str(e)[:200],
-                "groundedness":  0, "relevancy": 0, "completeness": 0, "hallucination": 0,
+                "question": question, "effective_q": question,
+                "timestamp": datetime.now().isoformat(timespec="seconds"),
+                "mode": mode, "response_time": round(elapsed, 2),
+                "num_chunks": 0, "avg_score": 0, "answer_length": 0,
+                "reformulated": False, "used_memory": False, "sources": [],
+                "test_run": True, "error": str(e)[:200],
+                "groundedness": 0.0, "relevancy": 0.0,
+                "completeness": 0.0, "hallucination": 0.0,
+                "precision_at_1": 0.0, "precision_at_3": 0.0,
+                "precision_at_5": 0.0, "mrr": 0.0,
             })
 
-    # Save all results at once
+    # ── Save ─────────────────────────────────────────────────────────────────
     print(f"\nSaving {len(log)} log entries...")
     _save_log(log)
 
-    print(f"\n{'='*60}")
-    print(f"  RESULTS")
-    print(f"  Success: {success} | Errors: {errors} | Total: {len(ALL_TESTS)}")
-    print(f"{'='*60}")
+    # ── Summary ──────────────────────────────────────────────────────────────
+    print(f"\n{'='*65}")
+    print(f"  RESULTS  —  Success: {success}  |  Errors: {errors}  |  Total: {len(all_tests)}")
+    print(f"{'='*65}")
 
-    # Per-mode summary
     test_entries = [e for e in log if e.get("test_run") and not e.get("error")]
-    for mode in ["Naive RAG", "Graph RAG", "Hybrid RAG"]:
+    for mode in ["Naive RAG", "Graph RAG"]:
         me = [e for e in test_entries if e.get("mode") == mode]
-        if me:
-            avg_time = sum(e["response_time"] for e in me) / len(me)
-            avg_g = sum(e.get("groundedness", 0) for e in me) / len(me)
-            avg_r = sum(e.get("relevancy", 0) for e in me) / len(me)
-            avg_c = sum(e.get("completeness", 0) for e in me) / len(me)
-            avg_h = sum(e.get("hallucination", 0) for e in me) / len(me)
-            print(f"\n  {mode} ({len(me)} queries):")
-            print(f"    Avg Time:         {avg_time:.1f}s")
-            print(f"    Groundedness:     {avg_g:.2f}")
-            print(f"    Relevancy:        {avg_r:.2f}")
-            print(f"    Completeness:     {avg_c:.2f}")
-            print(f"    No Hallucination: {avg_h:.2f}")
+        if not me:
+            continue
+        n = len(me)
+        def avg(key): return round(sum(e.get(key, 0) for e in me) / n, 3)
+        print(f"\n  {mode}  ({n} queries)")
+        print(f"  {'─'*40}")
+        print(f"  Avg Response Time   {avg('response_time'):.1f}s")
+        print(f"  ── Answer Quality ──────────────────")
+        print(f"  Groundedness        {avg('groundedness'):.3f}")
+        print(f"  Relevancy           {avg('relevancy'):.3f}")
+        print(f"  Completeness        {avg('completeness'):.3f}")
+        print(f"  Hallucination-free  {avg('hallucination'):.3f}")
+        print(f"  ── Retrieval Quality ───────────────")
+        print(f"  Precision@1         {avg('precision_at_1'):.3f}")
+        print(f"  Precision@3         {avg('precision_at_3'):.3f}")
+        print(f"  Precision@5         {avg('precision_at_5'):.3f}")
+        print(f"  MRR                 {avg('mrr'):.3f}")
 
-    print(f"\nDone! Check Analytics in the Streamlit app.")
+    print(f"\nDone. Results saved to analytics log.")
 
 
 if __name__ == "__main__":
