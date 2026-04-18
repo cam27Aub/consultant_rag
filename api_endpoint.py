@@ -373,19 +373,32 @@ def _run_ingest():
             dest.write_bytes(dl.content)
             print(f"[ingest] downloaded {item['name']}")
 
-        # ── 3. Run ingest.py against the temp dir ─────────────────
+        # ── 3. Run ingest.py against the temp dir (stream stdout → status) ──
         _write_status("running", "Running ingestion pipeline…")
-        result = subprocess.run(
+        proc = subprocess.Popen(
             ["python", "naive_rag/ingest.py", "--no-vision", "--docs", tmp_dir],
             cwd=str(Path(__file__).parent),
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,   # merge stderr into stdout
             text=True,
-            timeout=1800,
+            bufsize=1,
         )
-        if result.returncode == 0:
+        last_line = "Running ingestion pipeline…"
+        deadline = __import__("time").time() + 1800
+        for line in proc.stdout:
+            line = line.rstrip()
+            if line:
+                last_line = line
+                _write_status("running", line)
+            if __import__("time").time() > deadline:
+                proc.kill()
+                _write_status("error", "Ingestion timed out after 30 minutes.")
+                return
+        proc.wait()
+        if proc.returncode == 0:
             _write_status("done", "Ingestion completed successfully.")
         else:
-            _write_status("error", result.stderr[-500:] if result.stderr else "Unknown error")
+            _write_status("error", f"Pipeline failed: {last_line}")
 
     except subprocess.TimeoutExpired:
         _write_status("error", "Ingestion timed out after 30 minutes.")
