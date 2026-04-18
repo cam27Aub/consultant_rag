@@ -98,7 +98,7 @@ export function ChatArea({ conversation, onUpdate, onNewChat, onToggleSidebar }:
             </div>
             <h2 className="text-2xl font-bold text-navy mb-2">{BRANDING.appName}</h2>
             <p className="text-sm text-sparc-muted">
-              Research intelligence powered by {BRANDING.companyName}. Ask anything — get data-backed insights, reports, and presentations.
+              Research intelligence powered by {BRANDING.companyName}. Ask anything, get data-backed insights, reports, and presentations.
             </p>
           </div>
         </div>

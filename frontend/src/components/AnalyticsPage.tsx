@@ -352,7 +352,7 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
           </button>
           <div>
             <h2 className="text-sm font-semibold text-navy">RAG Analytics</h2>
-            <p className="text-xs text-sparc-muted">Retrieval quality · Generation quality · Usage</p>
+            <p className="text-xs text-sparc-muted">Retrieval quality, Generation quality, Usage</p>
           </div>
         </div>
         <button onClick={load} disabled={loading}

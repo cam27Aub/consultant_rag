@@ -366,8 +366,9 @@ def list_documents():
 
 
 @app.post("/upload-documents")
-async def upload_documents(files: list[UploadFile] = File(...)):
+async def upload_documents(background_tasks: BackgroundTasks, files: list[UploadFile] = File(...)):
     """Upload one or more documents to sample_docs/."""
+    import asyncio
     DOCS_DIR.mkdir(exist_ok=True)
     saved = []
     errors = []
@@ -381,9 +382,10 @@ async def upload_documents(files: list[UploadFile] = File(...)):
             content = await upload.read()
             with open(dest, "wb") as out:
                 out.write(content)
-            # Persist to GitHub so file survives Render redeploys
-            gh_ok = _commit_to_github(upload.filename, content)
-            saved.append({"name": upload.filename, "github": gh_ok})
+            saved.append({"name": upload.filename, "github": GITHUB_TOKEN != ""})
+            # Commit to GitHub in background so it doesn't block the response
+            if GITHUB_TOKEN:
+                background_tasks.add_task(_commit_to_github, upload.filename, content)
         except Exception as e:
             errors.append(f"{upload.filename}: {e}")
     return {"saved": saved, "errors": errors}
