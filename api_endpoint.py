@@ -19,7 +19,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from fastapi import FastAPI, HTTPException, UploadFile, File, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse as StaticFileResponse
+from fastapi.responses import FileResponse as StaticFileResponse, Response
 from pydantic import BaseModel
 import uvicorn
 import shutil
@@ -479,7 +479,12 @@ if frontend_dist.exists():
         file_path = frontend_dist / full_path
         if file_path.exists() and file_path.is_file():
             return StaticFileResponse(file_path)
-        return StaticFileResponse(frontend_dist / "index.html")
+        # Always serve index.html with no-cache so browsers pick up new bundles
+        resp = StaticFileResponse(frontend_dist / "index.html")
+        resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        resp.headers["Pragma"] = "no-cache"
+        resp.headers["Expires"] = "0"
+        return resp
 
 
 # ── Run ─────────────────────────────────────────────────────
