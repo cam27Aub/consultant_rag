@@ -413,8 +413,8 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
                   sub="logged queries" icon={Database} accent="#1F3564" />
                 <KpiCard label="Avg Response Time" value={`${s.avg_response_time}s`}
                   sub="per query" icon={Clock} accent="#2E74B5" />
-                <KpiCard label="Avg Similarity Score" value={s.avg_score > 0 ? s.avg_score.toFixed(3) : '—'}
-                  sub="chunk retrieval quality" icon={BarChart2} accent="#C8A951" />
+                <KpiCard label="Avg Retrieval Score" value={s.avg_score > 0 ? s.avg_score.toFixed(2) : '—'}
+                  sub="Azure Search raw score (not 0–1)" icon={BarChart2} accent="#C8A951" />
                 <KpiCard label="Reformulation Rate" value={`${s.reformulation_rate}%`}
                   sub="follow-ups rewritten" icon={TrendingUp} accent="#059669" />
               </div>
