@@ -45,17 +45,12 @@ def _gh_repo():
 # ── Loaders ──────────────────────────────────────────────────
 
 def _load_query_log() -> list:
-    # 1. Try local file first (fast path)
-    try:
-        if QUERY_LOG.exists():
-            with open(QUERY_LOG, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            if isinstance(data, list) and data:
-                return data
-    except Exception as e:
-        logger.warning(f"Local query_log read failed: {e}")
-
-    # 2. Fallback: fetch from GitHub (needed on Render where file isn't deployed)
+    """
+    Load query log. Strategy:
+    - If GITHUB_TOKEN + GITHUB_REPO are set: always fetch from GitHub (live data,
+      no local caching so Render always gets fresh data after the 5-min analytics cache expires).
+    - Otherwise: read from local file (dev fallback).
+    """
     token, repo = _gh_token(), _gh_repo()
     if token and repo:
         try:
@@ -68,15 +63,19 @@ def _load_query_log() -> list:
             if r.status_code == 200:
                 content = base64.b64decode(r.json()["content"]).decode("utf-8")
                 data = json.loads(content)
-                # Cache locally for subsequent calls this session
-                try:
-                    QUERY_LOG.parent.mkdir(parents=True, exist_ok=True)
-                    QUERY_LOG.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
-                except Exception:
-                    pass
                 return data if isinstance(data, list) else []
         except Exception as e:
             logger.error(f"GitHub query_log fetch failed: {e}")
+
+    # Local fallback (dev without GitHub creds, or GitHub fetch failed)
+    try:
+        if QUERY_LOG.exists():
+            with open(QUERY_LOG, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, list) and data:
+                return data
+    except Exception as e:
+        logger.warning(f"Local query_log read failed: {e}")
 
     return []
 
