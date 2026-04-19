@@ -2419,5 +2419,28 @@
     "precision_at_3": 0.0,
     "precision_at_5": 0.0,
     "mrr": 0.0
+  },
+  {
+    "question": "what do you know about data curation?\n\n\n",
+    "effective_q": "what do you know about data curation?\n\n\n",
+    "timestamp": "2026-04-19T10:36:37",
+    "mode": "naive",
+    "response_time": 27.25,
+    "num_chunks": 4,
+    "avg_score": 0,
+    "answer_length": 2125,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "Data Processing Lecture 2.pdf / Page 7",
+      "Lecture 2.pdf / Page 7",
+      "Data Processing Lecture 2.pdf / Page 10",
+      "Lecture 2.pdf / Page 10"
+    ],
+    "test_run": false,
+    "groundedness": 1.0,
+    "relevancy": 1.0,
+    "completeness": 1.0,
+    "hallucination": 0.0
   }
 ]
