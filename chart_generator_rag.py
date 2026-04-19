@@ -106,18 +106,27 @@ class ChartGenerator:
         labels = list(mode_counter.keys())
         sizes  = list(mode_counter.values())
         colors = [MODE_COLORS.get(l, MUTED) for l in labels]
+        total  = sum(sizes)
 
         fig, ax = plt.subplots(figsize=(6, 5), facecolor=LIGHT_BG)
-        wedges, texts, autotexts = ax.pie(
-            sizes, labels=labels, colors=colors,
-            autopct="%1.1f%%", startangle=90,
+        wedges, _ = ax.pie(
+            sizes, colors=colors, startangle=90,
             wedgeprops=dict(width=0.45, edgecolor="white", linewidth=2),
-            textprops={"fontsize": 10, "color": TEXT},
         )
-        for t in autotexts:
-            t.set_fontsize(9)
-            t.set_fontweight("bold")
-            t.set_color("white")
+        # Put percentage + count inside wedges manually to avoid matplotlib alignment bugs
+        for wedge, label, size in zip(wedges, labels, sizes):
+            angle = (wedge.theta1 + wedge.theta2) / 2
+            import math
+            r = 0.72
+            x = r * math.cos(math.radians(angle))
+            y = r * math.sin(math.radians(angle))
+            pct = size / total * 100
+            ax.text(x, y, f"{pct:.1f}%", ha="center", va="center",
+                    fontsize=10, fontweight="bold", color="white")
+
+        ax.legend(wedges, labels, loc="lower center", ncol=len(labels),
+                  fontsize=9, frameon=False,
+                  bbox_to_anchor=(0.5, -0.05))
         ax.set_title("Query Mode Distribution", fontsize=12, fontweight="bold", color=TEXT, pad=12)
         ax.set_ylabel("")
         return _fig_to_base64(fig)
@@ -133,21 +142,36 @@ class ChartGenerator:
         if not valid:
             return self._empty_chart("No response time data yet")
 
-        labels = list(range(1, len(valid) + 1))
-        times  = [e["response_time"] for e in valid]
-        colors = [MODE_COLORS.get(_normalize_mode(e.get("mode", "")), MUTED) for e in valid]
+        # Split by mode
+        naive_pts  = [(i + 1, e["response_time"]) for i, e in enumerate(valid)
+                      if _normalize_mode(e.get("mode", "")) == "Naive RAG"]
+        graph_pts  = [(i + 1, e["response_time"]) for i, e in enumerate(valid)
+                      if _normalize_mode(e.get("mode", "")) == "Graph RAG"]
+        other_pts  = [(i + 1, e["response_time"]) for i, e in enumerate(valid)
+                      if _normalize_mode(e.get("mode", "")) not in ("Naive RAG", "Graph RAG")]
 
         fig, ax = plt.subplots(figsize=(10, 4), facecolor=LIGHT_BG)
-        ax.fill_between(labels, times, alpha=0.08, color=NAVY)
-        ax.plot(labels, times, color=NAVY, linewidth=1.5, zorder=2)
-        ax.scatter(labels, times, c=colors, s=30, zorder=3, edgecolors="white", linewidths=0.5)
 
-        avg = sum(times) / len(times)
+        for pts, color, label in [
+            (naive_pts, NAVY,       "Naive RAG"),
+            (graph_pts, NAVY_LIGHT, "Graph RAG"),
+            (other_pts, GOLD,       "Other"),
+        ]:
+            if not pts:
+                continue
+            xs = [p[0] for p in pts]
+            ys = [p[1] for p in pts]
+            ax.plot(xs, ys, color=color, linewidth=1.5, label=label, zorder=2)
+            ax.scatter(xs, ys, color=color, s=30, zorder=3,
+                       edgecolors="white", linewidths=0.5)
+
+        all_times = [e["response_time"] for e in valid]
+        avg = sum(all_times) / len(all_times)
         ax.axhline(avg, color=GOLD, linewidth=1.2, linestyle="--", alpha=0.9,
                    label=f"Avg: {avg:.1f}s")
         ax.legend(fontsize=8, frameon=False)
         _style_ax(ax, "Response Time — Last 50 Queries", xlabel="Query #", ylabel="Seconds")
-        ax.set_xlim(1, len(labels))
+        ax.set_xlim(1, len(valid))
         ax.set_ylim(bottom=0)
         return _fig_to_base64(fig)
 
@@ -184,10 +208,7 @@ class ChartGenerator:
         ax.axhline(1.0, color=BORDER, linewidth=0.8, linestyle="--")
         _style_ax(ax, "Generation Quality Metrics (avg across all queries)", ylabel="Score (0 – 1)")
 
-        # Note for hallucination (lower = better)
-        if "Hallucination" in available:
-            ax.text(labels.index("Hallucination"), available["Hallucination"] + 0.05,
-                    "lower↑better", ha="center", fontsize=7, color=RED, style="italic")
+        # No annotation needed — hallucination direction explained in KPI cards
 
         return _fig_to_base64(fig)
 

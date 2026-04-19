@@ -52,6 +52,16 @@ def _load_comparison_files() -> list:
     return results
 
 
+def _normalize_mode_str(mode: str) -> str:
+    if "Hybrid" in mode:
+        return "Hybrid RAG"
+    if "Graph" in mode or "graph" in mode:
+        return "Graph RAG"
+    if "Naive" in mode or "naive" in mode:
+        return "Naive RAG"
+    return "Unknown"
+
+
 # ── Summary computation ───────────────────────────────────────
 
 def compute_summary() -> dict:
@@ -83,14 +93,31 @@ def compute_summary() -> dict:
             source_counter[src] += 1
 
     # ── Generation quality from query_log (LLM-as-judge entries) ──
-    def _avg_metric(field):
-        vals = [e[field] for e in entries if isinstance(e.get(field), (int, float))]
+    def _avg_metric(field, subset=None):
+        src = subset if subset is not None else entries
+        vals = [e[field] for e in src if isinstance(e.get(field), (int, float))]
         return round(sum(vals) / len(vals), 4) if vals else None
 
     groundedness  = _avg_metric("groundedness")
     relevancy     = _avg_metric("relevancy")
     completeness  = _avg_metric("completeness")
     hallucination = _avg_metric("hallucination")
+
+    # ── Per-mode quality breakdown ────────────────────────────
+    def _mode_entries(mode_key):
+        return [e for e in entries if _normalize_mode_str(e.get("mode", "")) == mode_key]
+
+    per_mode_quality = {}
+    for mode_label in ("Naive RAG", "Graph RAG"):
+        subset = _mode_entries(mode_label)
+        if subset:
+            per_mode_quality[mode_label] = {
+                "groundedness":  _avg_metric("groundedness",  subset),
+                "relevancy":     _avg_metric("relevancy",     subset),
+                "completeness":  _avg_metric("completeness",  subset),
+                "hallucination": _avg_metric("hallucination", subset),
+                "count":         len(subset),
+            }
 
     # ── Retrieval metrics from comparison files ───────────────
     retrieval_summary = _aggregate_retrieval(comparisons)
@@ -112,6 +139,8 @@ def compute_summary() -> dict:
         "hallucination":       hallucination,
         # Retrieval quality (from comparison evals)
         "retrieval":           retrieval_summary,
+        # Per-mode generation quality
+        "per_mode_quality":    per_mode_quality,
     }
 
 
@@ -174,7 +203,18 @@ def compute_charts(summary: dict) -> dict:
 
 # ── Entry point ───────────────────────────────────────────────
 
-def get_analytics() -> dict:
+_cache: dict = {"data": None, "ts": 0.0}
+_CACHE_TTL   = 300  # 5 minutes — chart generation is expensive
+
+
+def get_analytics(bust_cache: bool = False) -> dict:
+    import time
+    now = time.time()
+    if not bust_cache and _cache["data"] and (now - _cache["ts"]) < _CACHE_TTL:
+        return _cache["data"]
     summary = compute_summary()
     charts  = compute_charts(summary)
-    return {"summary": summary, "charts": charts}
+    result  = {"summary": summary, "charts": charts}
+    _cache["data"] = result
+    _cache["ts"]   = now
+    return result

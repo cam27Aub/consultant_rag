@@ -11,6 +11,14 @@ export interface RetrievalMetrics {
   [key: string]: number | null;
 }
 
+export interface ModeQuality {
+  groundedness: number | null;
+  relevancy: number | null;
+  completeness: number | null;
+  hallucination: number | null;
+  count: number;
+}
+
 export interface AnalyticsSummary {
   total_queries: number;
   avg_response_time: number;
@@ -18,11 +26,13 @@ export interface AnalyticsSummary {
   reformulation_rate: number;
   mode_distribution: Record<string, number>;
   top_sources: { source: string; count: number }[];
-  // Generation quality
+  // Generation quality (global averages)
   groundedness: number | null;
   relevancy: number | null;
   completeness: number | null;
   hallucination: number | null;
+  // Per-mode quality breakdown
+  per_mode_quality: Record<string, ModeQuality>;
   // Retrieval quality
   retrieval: Record<string, RetrievalMetrics>;
 }
@@ -37,8 +47,9 @@ export interface AnalyticsPayload {
   charts: Record<string, ChartData>;
 }
 
-export async function fetchAnalytics(): Promise<AnalyticsPayload> {
-  const res = await fetch(`${BASE}/analytics`);
+export async function fetchAnalytics(bustCache = false): Promise<AnalyticsPayload> {
+  const url = bustCache ? `${BASE}/analytics?refresh=true` : `${BASE}/analytics`;
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`Analytics request failed: ${res.status}`);
   return res.json();
 }

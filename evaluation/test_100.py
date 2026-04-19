@@ -166,7 +166,8 @@ def _evaluate_answer(question: str, context: str, answer: str) -> dict:
             "groundedness":  round(float(scores.get("groundedness", 0)), 2),
             "relevancy":     round(float(scores.get("relevancy", 0)), 2),
             "completeness":  round(float(scores.get("completeness", 0)), 2),
-            "hallucination": round(float(scores.get("hallucination", 0)), 2),
+            # Flip: prompt returns "hallucination-free" (1=good), we store as rate (0=good)
+            "hallucination": round(1.0 - float(scores.get("hallucination", 0)), 2),
         }
     except Exception:
         return {"groundedness": 0.0, "relevancy": 0.0, "completeness": 0.0, "hallucination": 0.0}
@@ -259,7 +260,7 @@ def run_tests():
     print(f"  ConsultantIQ — 100 Prompt Evaluation")
     print(f"  Naive RAG: {len(naive_prompts)} prompts | Graph RAG: {len(graph_prompts)} prompts")
     print(f"  Metrics: groundedness · relevancy · completeness · hallucination")
-    print(f"           precision@1/3/5 · MRR  (all via LLM-as-judge)")
+    print(f"  LLM-as-judge: 1 GPT-4o call per query")
     print(f"{'='*65}\n")
 
     print("Loading Naive RAG...")
@@ -323,11 +324,17 @@ def run_tests():
 
             elapsed = time.time() - t0
 
-            # ── Evaluate answer quality ───────────────────────────────────
+            # ── Evaluate answer quality (single GPT-4o call per query) ────
             answer_scores = _evaluate_answer(question, context_text, answer)
 
-            # ── Evaluate retrieval quality ────────────────────────────────
-            retrieval_scores = _evaluate_chunks(question, chunk_texts)
+            # Chunk relevance eval skipped — would double API calls and
+            # hit student-tier TPM limits. P@K / MRR can be added later
+            # on a dedicated high-throughput tier.
+            retrieval_scores = {"precision_at_1": 0.0, "precision_at_3": 0.0,
+                                 "precision_at_5": 0.0, "mrr": 0.0}
+
+            # Small pause to stay within Azure OpenAI rate limits
+            time.sleep(2)
 
             entry = {
                 "question":        question,
@@ -356,14 +363,11 @@ def run_tests():
             log.append(entry)
             success += 1
 
-            g  = answer_scores["groundedness"]
-            r  = answer_scores["relevancy"]
-            c  = answer_scores["completeness"]
-            h  = answer_scores["hallucination"]
-            p1 = retrieval_scores["precision_at_1"]
-            p5 = retrieval_scores["precision_at_5"]
-            m  = retrieval_scores["mrr"]
-            print(f"OK ({elapsed:.1f}s)  G:{g} R:{r} C:{c} H:{h}  P@1:{p1} P@5:{p5} MRR:{m}")
+            g = answer_scores["groundedness"]
+            r = answer_scores["relevancy"]
+            c = answer_scores["completeness"]
+            h = answer_scores["hallucination"]
+            print(f"OK ({elapsed:.1f}s)  G:{g} R:{r} C:{c} H:{h}")
 
         except Exception as e:
             elapsed = time.time() - t0
@@ -405,12 +409,7 @@ def run_tests():
         print(f"  Groundedness        {avg('groundedness'):.3f}")
         print(f"  Relevancy           {avg('relevancy'):.3f}")
         print(f"  Completeness        {avg('completeness'):.3f}")
-        print(f"  Hallucination-free  {avg('hallucination'):.3f}")
-        print(f"  ── Retrieval Quality ───────────────")
-        print(f"  Precision@1         {avg('precision_at_1'):.3f}")
-        print(f"  Precision@3         {avg('precision_at_3'):.3f}")
-        print(f"  Precision@5         {avg('precision_at_5'):.3f}")
-        print(f"  MRR                 {avg('mrr'):.3f}")
+        print(f"  Hallucination       {avg('hallucination'):.3f}  (lower = better)")
 
     print(f"\nDone. Results saved to analytics log.")
 

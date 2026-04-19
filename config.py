@@ -1,4 +1,12 @@
 import os
+from pathlib import Path
+
+# Load .env automatically when running locally
+try:
+    from dotenv import load_dotenv
+    load_dotenv(Path(__file__).parent / ".env")
+except ImportError:
+    pass
 
 def _secret(key, default=""):
     """Read from Streamlit secrets first, then environment variables."""

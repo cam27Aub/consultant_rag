@@ -281,7 +281,8 @@ def _auto_evaluate(question: str, answer: str, context: str,
             "groundedness":  round(float(scores.get("groundedness",  0)), 2),
             "relevancy":     round(float(scores.get("relevancy",     0)), 2),
             "completeness":  round(float(scores.get("completeness",  0)), 2),
-            "hallucination": round(float(scores.get("hallucination", 0)), 2),
+            # Flip: prompt returns "hallucination-free" (1=good), we store as rate (0=good)
+            "hallucination": round(1.0 - float(scores.get("hallucination", 0)), 2),
         }
         log = _eval_load_log()
         log.append(entry)
@@ -402,11 +403,13 @@ def health():
 
 
 @app.get("/analytics")
-def get_analytics():
-    """Return RAG analytics summary + base64 chart images."""
+def get_analytics(refresh: bool = False):
+    """Return RAG analytics summary + base64 chart images.
+    Pass ?refresh=true to bypass the 5-minute cache.
+    """
     try:
         import analytics_rag
-        return analytics_rag.get_analytics()
+        return analytics_rag.get_analytics(bust_cache=refresh)
     except Exception as e:
         raise HTTPException(500, f"Analytics failed: {str(e)}")
 

@@ -37,11 +37,11 @@ class GraphStore:
             message_serializer=serializer.GraphSONSerializersV2d0(),
         )
 
-    def _run(self, query, retries=2):
+    def _run(self, query, retries=2, timeout=45):
         for attempt in range(retries + 1):
             try:
                 callback = self.client.submitAsync(query)
-                return callback.result().all().result()
+                return callback.result().all().result(timeout=timeout)
             except RuntimeError as e:
                 if "closed" in str(e).lower() and attempt < retries:
                     print("  Reconnecting to Cosmos DB...")
@@ -111,7 +111,7 @@ class GraphStore:
         """
         try:
             if self._vertex_cache is None:
-                self._vertex_cache = self._run("g.V().valueMap(true).limit(2000)")
+                self._vertex_cache = self._run("g.V().valueMap(true).limit(500)", timeout=60)
             all_vertices = self._vertex_cache
         except Exception:
             return []

@@ -263,23 +263,6 @@ function KpiCard({
   );
 }
 
-function MetricBadge({ label, value, color }: { label: string; value: number | null; color: string }) {
-  return (
-    <div className="flex items-center justify-between py-2 border-b border-sparc-border last:border-0">
-      <span className="text-sm text-sparc-text">{label}</span>
-      {value !== null && value !== undefined ? (
-        <div className="flex items-center gap-2">
-          <div className="w-24 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-            <div className="h-full rounded-full" style={{ width: `${Math.min(value * 100, 100)}%`, background: color }} />
-          </div>
-          <span className="text-sm font-semibold w-12 text-right" style={{ color }}>{value.toFixed(3)}</span>
-        </div>
-      ) : (
-        <span className="text-xs text-sparc-muted italic">no data</span>
-      )}
-    </div>
-  );
-}
 
 function ChartCard({ title, image }: { title: string; image: string | null }) {
   return (
@@ -360,11 +343,11 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = async () => {
+  const load = async (bustCache = false) => {
     setLoading(true);
     setError(null);
     try {
-      setData(await fetchAnalytics());
+      setData(await fetchAnalytics(bustCache));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load analytics');
     } finally {
@@ -390,7 +373,7 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
             <p className="text-xs text-sparc-muted">Retrieval quality, Generation quality, Usage</p>
           </div>
         </div>
-        <button onClick={load} disabled={loading}
+        <button onClick={() => load(true)} disabled={loading}
           className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-navy border border-navy/20 rounded-lg hover:bg-navy/5 transition-colors disabled:opacity-50">
           <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
           Refresh
@@ -450,21 +433,69 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
                 <KpiCard label="Completeness" value={s.completeness !== null && s.completeness !== undefined ? s.completeness.toFixed(3) : '—'}
                   sub="keyword coverage" icon={Zap} accent="#C8A951"
                   note={s.completeness === null ? 'run evaluation to populate' : undefined} />
-                <KpiCard label="Hallucination" value={s.hallucination !== null && s.hallucination !== undefined ? s.hallucination.toFixed(3) : '—'}
-                  sub="lower is better" icon={AlertTriangle} accent="#DC2626"
+                <KpiCard label="Hallucination Rate" value={s.hallucination !== null && s.hallucination !== undefined ? s.hallucination.toFixed(3) : '—'}
+                  sub="0 = none · 1 = heavy (lower is better)" icon={AlertTriangle} accent="#DC2626"
                   note={s.hallucination === null ? 'run evaluation to populate' : undefined} />
               </div>
             </div>
 
             {/* ── Quality metrics breakdown ── */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              {/* Per-Mode Quality Comparison */}
               <div className="bg-white rounded-xl border border-sparc-border p-5 shadow-sm">
-                <h3 className="text-sm font-semibold text-navy mb-1">Generation Quality Breakdown</h3>
-                <p className="text-xs text-sparc-muted mb-4">Averaged across all evaluated queries</p>
-                <MetricBadge label="Groundedness" value={s.groundedness ?? null} color="#059669" />
-                <MetricBadge label="Relevancy" value={s.relevancy ?? null} color="#2E74B5" />
-                <MetricBadge label="Completeness" value={s.completeness ?? null} color="#C8A951" />
-                <MetricBadge label="Hallucination" value={s.hallucination ?? null} color="#DC2626" />
+                <h3 className="text-sm font-semibold text-navy mb-1">Quality by RAG Mode</h3>
+                <p className="text-xs text-sparc-muted mb-4">Naive RAG vs Graph RAG — averaged across evaluated queries</p>
+                {s.per_mode_quality && Object.keys(s.per_mode_quality).length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr>
+                          <th className="text-left py-1.5 text-sparc-muted font-medium">Metric</th>
+                          {Object.keys(s.per_mode_quality).map(mode => (
+                            <th key={mode} className="text-center py-1.5 text-sparc-muted font-medium px-2">
+                              {mode}
+                              <span className="block text-[10px] text-sparc-muted font-normal">
+                                ({s.per_mode_quality[mode].count} queries)
+                              </span>
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(['groundedness', 'relevancy', 'completeness', 'hallucination'] as const).map((key) => {
+                          const meta: Record<string, { label: string; color: string }> = {
+                            groundedness:  { label: 'Groundedness',    color: '#059669' },
+                            relevancy:     { label: 'Relevancy',       color: '#2E74B5' },
+                            completeness:  { label: 'Completeness',    color: '#C8A951' },
+                            hallucination: { label: 'Hallucination ↓', color: '#DC2626' },
+                          };
+                          const { label, color } = meta[key];
+                          return (
+                          <tr key={key} className="border-t border-sparc-border">
+                            <td className="py-2 text-sparc-text font-medium">{label}</td>
+                            {Object.values(s.per_mode_quality).map((mq, i) => {
+                              const val = mq[key];
+                              return (
+                                <td key={i} className="py-2 text-center px-2">
+                                  {val !== null && val !== undefined ? (
+                                    <span className="font-semibold" style={{ color }}>{(val as number).toFixed(3)}</span>
+                                  ) : (
+                                    <span className="text-sparc-muted">—</span>
+                                  )}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="text-xs text-sparc-muted italic mt-6 text-center">
+                    No evaluated queries yet — use the RAG chat to generate data.
+                  </p>
+                )}
               </div>
 
               <ChartCard title={charts.quality_metrics?.title ?? 'Generation Quality Metrics'}
