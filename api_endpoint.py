@@ -216,28 +216,36 @@ def _eval_load_log() -> list:
 
 def _eval_save_log(log: list):
     content_str = _json.dumps(log, indent=2, ensure_ascii=False)
+    # Always write locally first (backup in case GitHub fails)
+    try:
+        _EVAL_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+        _EVAL_LOG_PATH.write_text(content_str, encoding="utf-8")
+    except Exception as e:
+        print(f"[eval-log] local write failed: {e}")
+
     token = GITHUB_TOKEN
     repo  = GITHUB_REPO
-    if token and repo:
-        try:
-            import requests as _req
-            url = f"{_GITHUB_API}/repos/{repo}/contents/evaluation/results/query_log.json"
-            headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
-            r = _req.get(url, headers=headers, timeout=10)
-            sha = r.json().get("sha", "") if r.status_code == 200 else ""
-            payload = {
-                "message": "analytics: log real query eval",
-                "content": base64.b64encode(content_str.encode("utf-8")).decode("utf-8"),
-                "branch": "master",
-            }
-            if sha:
-                payload["sha"] = sha
-            _req.put(url, headers=headers, json=payload, timeout=15)
-            return
-        except Exception:
-            pass
-    _EVAL_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    _EVAL_LOG_PATH.write_text(content_str, encoding="utf-8")
+    if not (token and repo):
+        return
+    try:
+        import requests as _req
+        url = f"{_GITHUB_API}/repos/{repo}/contents/evaluation/results/query_log.json"
+        headers = {"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"}
+        # Fetch current SHA (needed to update existing file)
+        r = _req.get(url, headers=headers, timeout=10)
+        sha = r.json().get("sha", "") if r.status_code == 200 else ""
+        payload = {
+            "message": "analytics: log real query eval",
+            "content": base64.b64encode(content_str.encode("utf-8")).decode("utf-8"),
+            "branch": "master",
+        }
+        if sha:
+            payload["sha"] = sha
+        put_r = _req.put(url, headers=headers, json=payload, timeout=30)
+        if put_r.status_code not in (200, 201):
+            print(f"[eval-log] GitHub PUT failed: {put_r.status_code} - {put_r.text[:200]}")
+    except Exception as e:
+        print(f"[eval-log] GitHub push failed: {e}")
 
 
 def _auto_evaluate(question: str, answer: str, context: str,
