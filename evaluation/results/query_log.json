@@ -2562,5 +2562,29 @@
     "relevancy": 0.5,
     "completeness": 0.0,
     "hallucination": 0.0
+  },
+  {
+    "question": "Yes, proceed\n\n\n",
+    "effective_q": "Yes, proceed\n\n\n",
+    "timestamp": "2026-04-19T14:49:42",
+    "mode": "naive",
+    "response_time": 1.54,
+    "num_chunks": 5,
+    "avg_score": 0,
+    "answer_length": 56,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "bain_report_global_m_and_a_report_2 / Page 82",
+      "Data Processing Lecture 2.pdf / Page 2",
+      "geopolitics-and-the-geometry-of-glo / Page 50",
+      "bain_report_global_m_and_a_report_2 / Page 23",
+      "Topic_9_LogisticRegression.pptx / Page 15"
+    ],
+    "test_run": false,
+    "groundedness": 1.0,
+    "relevancy": 0.5,
+    "completeness": 0.0,
+    "hallucination": 0.0
   }
 ]
