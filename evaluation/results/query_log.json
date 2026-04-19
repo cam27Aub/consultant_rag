@@ -2610,5 +2610,27 @@
     "relevancy": 0.5,
     "completeness": 0.0,
     "hallucination": 0.0
+  },
+  {
+    "question": "Download as Word\n\n\n",
+    "effective_q": "Download as Word\n\n\n",
+    "timestamp": "2026-04-19T14:54:43",
+    "mode": "naive",
+    "response_time": 1.98,
+    "num_chunks": 3,
+    "avg_score": 0,
+    "answer_length": 56,
+    "reformulated": false,
+    "used_memory": false,
+    "sources": [
+      "Data Processing Lecture 1.pdf / Page 18",
+      "Lecture 1.pdf / Page 18",
+      "the-economic-potential-of-generativ / Page 65"
+    ],
+    "test_run": false,
+    "groundedness": 1.0,
+    "relevancy": 0.5,
+    "completeness": 0.0,
+    "hallucination": 0.0
   }
 ]
