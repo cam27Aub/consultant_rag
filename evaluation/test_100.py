@@ -28,7 +28,7 @@ import re
 import requests as http_requests
 from datetime import datetime
 
-# ── GitHub log helpers ────────────────────────────────────────────────────────
+# -- GitHub log helpers --------------------------------------------------------
 _GITHUB_API = "https://api.github.com"
 
 
@@ -82,7 +82,7 @@ def _save_log(log):
     # Always write local backup first
     LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     LOG_PATH.write_text(content_str, encoding="utf-8")
-    print(f"  [save] Written locally → {LOG_PATH}")
+    print(f"  [save] Written locally -> {LOG_PATH}")
 
     token, repo = _gh_token(), _gh_repo()
     if token and repo:
@@ -99,14 +99,14 @@ def _save_log(log):
                 payload["sha"] = sha
             put_r = http_requests.put(url, headers=_gh_headers(), json=payload, timeout=60)
             if put_r.status_code in (200, 201):
-                print(f"  [save] Pushed to GitHub ✓ ({put_r.status_code})")
+                print(f"  [save] Pushed to GitHub OK ({put_r.status_code})")
             else:
-                print(f"  [save] GitHub PUT failed: {put_r.status_code} — {put_r.text[:200]}")
+                print(f"  [save] GitHub PUT failed: {put_r.status_code} - {put_r.text[:200]}")
         except Exception as e:
             print(f"  [save] GitHub push error: {e}")
 
 
-# ── Load prompts from JSON ────────────────────────────────────────────────────
+# -- Load prompts from JSON ----------------------------------------------------
 
 def _load_prompts():
     p = Path(__file__).parent / "test_prompts_100.json"
@@ -117,7 +117,7 @@ def _load_prompts():
     return naive, graph
 
 
-# ── LLM clients ──────────────────────────────────────────────────────────────
+# -- LLM clients --------------------------------------------------------------
 
 def _get_openai_client():
     import config
@@ -129,7 +129,7 @@ def _get_openai_client():
     ), config.AZURE_CHAT_DEPLOYMENT
 
 
-# ── Answer quality: LLM-as-judge ─────────────────────────────────────────────
+# -- Answer quality: LLM-as-judge ---------------------------------------------
 
 _ANSWER_EVAL_PROMPT = """You are a strict evaluation judge for a RAG system.
 Given a QUESTION, CONTEXT (retrieved documents), and ANSWER, score on 4 metrics (0.0–1.0).
@@ -179,7 +179,7 @@ def _evaluate_answer(question: str, context: str, answer: str) -> dict:
         return {"groundedness": 0.0, "relevancy": 0.0, "completeness": 0.0, "hallucination": 0.0}
 
 
-# ── Retrieval quality: chunk relevance → Precision@K and MRR ─────────────────
+# -- Retrieval quality: chunk relevance → Precision@K and MRR -----------------
 
 _CHUNK_EVAL_PROMPT = """You are evaluating retrieval quality for a RAG system.
 Given a QUESTION and a list of retrieved CHUNKS, decide whether each chunk is relevant to answering the question.
@@ -244,7 +244,7 @@ def _evaluate_chunks(question: str, chunks: list[str]) -> dict:
     }
 
 
-# ── Run ───────────────────────────────────────────────────────────────────────
+# -- Run -----------------------------------------------------------------------
 
 def run_tests():
     import asyncio
@@ -289,7 +289,7 @@ def run_tests():
             context_text = ""
             chunk_texts  = []
 
-            # ── Naive RAG ────────────────────────────────────────────────
+            # -- Naive RAG ------------------------------------------------
             if mode == "Naive RAG":
                 result = naive.ask(question, top_k=5, verbose=False)
                 answer = result["answer"]
@@ -308,7 +308,7 @@ def run_tests():
                 chunk_texts  = [(c.get("cleaned_text") or c.get("chunk_text") or "") for c in chunks[:5]]
                 context_text = "\n".join(chunk_texts)
 
-            # ── Graph RAG ────────────────────────────────────────────────
+            # -- Graph RAG ------------------------------------------------
             elif mode == "Graph RAG":
                 import io, contextlib
                 subgraph   = graph.retrieve(question, top_k=5)
@@ -330,7 +330,7 @@ def run_tests():
 
             elapsed = time.time() - t0
 
-            # ── Evaluate answer quality (single GPT-4o call per query) ────
+            # -- Evaluate answer quality (single GPT-4o call per query) ----
             answer_scores = _evaluate_answer(question, context_text, answer)
 
             # Chunk relevance eval skipped — would double API calls and
@@ -392,11 +392,11 @@ def run_tests():
                 "precision_at_5": 0.0, "mrr": 0.0,
             })
 
-    # ── Save ─────────────────────────────────────────────────────────────────
+    # -- Save -----------------------------------------------------------------
     print(f"\nSaving {len(log)} log entries...")
     _save_log(log)
 
-    # ── Summary ──────────────────────────────────────────────────────────────
+    # -- Summary --------------------------------------------------------------
     print(f"\n{'='*65}")
     print(f"  RESULTS  —  Success: {success}  |  Errors: {errors}  |  Total: {len(all_tests)}")
     print(f"{'='*65}")
@@ -409,9 +409,9 @@ def run_tests():
         n = len(me)
         def avg(key): return round(sum(e.get(key, 0) for e in me) / n, 3)
         print(f"\n  {mode}  ({n} queries)")
-        print(f"  {'─'*40}")
+        print(f"  {'-'*40}")
         print(f"  Avg Response Time   {avg('response_time'):.1f}s")
-        print(f"  ── Answer Quality ──────────────────")
+        print(f"  -- Answer Quality ------------------")
         print(f"  Groundedness        {avg('groundedness'):.3f}")
         print(f"  Relevancy           {avg('relevancy'):.3f}")
         print(f"  Completeness        {avg('completeness'):.3f}")
