@@ -79,11 +79,16 @@ def _load_log():
 
 def _save_log(log):
     content_str = json.dumps(log, indent=2, ensure_ascii=False)
+    # Always write local backup first
+    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    LOG_PATH.write_text(content_str, encoding="utf-8")
+    print(f"  [save] Written locally → {LOG_PATH}")
+
     token, repo = _gh_token(), _gh_repo()
     if token and repo:
         try:
             url = f"{_GITHUB_API}/repos/{repo}/contents/evaluation/results/query_log.json"
-            r = http_requests.get(url, headers=_gh_headers(), timeout=10)
+            r = http_requests.get(url, headers=_gh_headers(), timeout=15)
             sha = r.json().get("sha", "") if r.status_code == 200 else ""
             payload = {
                 "message": "Update query log (test_100)",
@@ -92,12 +97,13 @@ def _save_log(log):
             }
             if sha:
                 payload["sha"] = sha
-            http_requests.put(url, headers=_gh_headers(), json=payload, timeout=10)
-            return
-        except Exception:
-            pass
-    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    LOG_PATH.write_text(content_str, encoding="utf-8")
+            put_r = http_requests.put(url, headers=_gh_headers(), json=payload, timeout=60)
+            if put_r.status_code in (200, 201):
+                print(f"  [save] Pushed to GitHub ✓ ({put_r.status_code})")
+            else:
+                print(f"  [save] GitHub PUT failed: {put_r.status_code} — {put_r.text[:200]}")
+        except Exception as e:
+            print(f"  [save] GitHub push error: {e}")
 
 
 # ── Load prompts from JSON ────────────────────────────────────────────────────

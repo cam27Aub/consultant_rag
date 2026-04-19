@@ -12,6 +12,9 @@ Metrics covered:
 import json
 import glob
 import logging
+import base64
+import os
+import requests as _requests
 from pathlib import Path
 from collections import Counter
 
@@ -20,19 +23,62 @@ logger = logging.getLogger(__name__)
 RESULTS_DIR = Path(__file__).parent / "evaluation" / "results"
 QUERY_LOG   = RESULTS_DIR / "query_log.json"
 
+_GITHUB_API = "https://api.github.com"
+
+
+def _gh_token():
+    try:
+        import streamlit as st
+        return st.secrets.get("GITHUB_TOKEN", os.getenv("GITHUB_TOKEN", ""))
+    except Exception:
+        return os.getenv("GITHUB_TOKEN", "")
+
+
+def _gh_repo():
+    try:
+        import streamlit as st
+        return st.secrets.get("GITHUB_REPO", os.getenv("GITHUB_REPO", ""))
+    except Exception:
+        return os.getenv("GITHUB_REPO", "")
+
 
 # ── Loaders ──────────────────────────────────────────────────
 
 def _load_query_log() -> list:
+    # 1. Try local file first (fast path)
     try:
-        if not QUERY_LOG.exists():
-            return []
-        with open(QUERY_LOG, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        return data if isinstance(data, list) else []
+        if QUERY_LOG.exists():
+            with open(QUERY_LOG, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, list) and data:
+                return data
     except Exception as e:
-        logger.error(f"Failed to load query_log.json: {e}")
-        return []
+        logger.warning(f"Local query_log read failed: {e}")
+
+    # 2. Fallback: fetch from GitHub (needed on Render where file isn't deployed)
+    token, repo = _gh_token(), _gh_repo()
+    if token and repo:
+        try:
+            url = f"{_GITHUB_API}/repos/{repo}/contents/evaluation/results/query_log.json"
+            r = _requests.get(
+                url,
+                headers={"Authorization": f"token {token}", "Accept": "application/vnd.github.v3+json"},
+                timeout=20,
+            )
+            if r.status_code == 200:
+                content = base64.b64decode(r.json()["content"]).decode("utf-8")
+                data = json.loads(content)
+                # Cache locally for subsequent calls this session
+                try:
+                    QUERY_LOG.parent.mkdir(parents=True, exist_ok=True)
+                    QUERY_LOG.write_text(json.dumps(data, indent=2, ensure_ascii=False), encoding="utf-8")
+                except Exception:
+                    pass
+                return data if isinstance(data, list) else []
+        except Exception as e:
+            logger.error(f"GitHub query_log fetch failed: {e}")
+
+    return []
 
 
 def _load_comparison_files() -> list:
