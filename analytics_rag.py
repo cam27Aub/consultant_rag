@@ -117,8 +117,6 @@ def compute_summary() -> dict:
 
     # ── Operational metrics from query_log ──────────────────
     response_times = [e["response_time"] for e in entries if e.get("response_time")]
-    scores         = [e["avg_score"]      for e in entries if e.get("avg_score")]
-    reformulated   = sum(1 for e in entries if e.get("reformulated"))
 
     mode_counter = Counter()
     for e in entries:
@@ -137,16 +135,15 @@ def compute_summary() -> dict:
         for src in e.get("sources", []):
             source_counter[src] += 1
 
-    # ── Generation quality from query_log (LLM-as-judge entries) ──
+    # ── RAGAS metrics from query_log (LLM-as-judge entries) ──
     def _avg_metric(field, subset=None):
         src = subset if subset is not None else entries
         vals = [e[field] for e in src if isinstance(e.get(field), (int, float))]
         return round(sum(vals) / len(vals), 4) if vals else None
 
-    groundedness  = _avg_metric("groundedness")
-    relevancy     = _avg_metric("relevancy")
-    completeness  = _avg_metric("completeness")
-    hallucination = _avg_metric("hallucination")
+    faithfulness      = _avg_metric("faithfulness")
+    answer_relevancy  = _avg_metric("answer_relevancy")
+    context_precision = _avg_metric("context_precision")
 
     # ── Per-mode quality breakdown ────────────────────────────
     def _mode_entries(mode_key):
@@ -157,11 +154,10 @@ def compute_summary() -> dict:
         subset = _mode_entries(mode_label)
         if subset:
             per_mode_quality[mode_label] = {
-                "groundedness":  _avg_metric("groundedness",  subset),
-                "relevancy":     _avg_metric("relevancy",     subset),
-                "completeness":  _avg_metric("completeness",  subset),
-                "hallucination": _avg_metric("hallucination", subset),
-                "count":         len(subset),
+                "faithfulness":      _avg_metric("faithfulness",      subset),
+                "answer_relevancy":  _avg_metric("answer_relevancy",  subset),
+                "context_precision": _avg_metric("context_precision", subset),
+                "count":             len(subset),
             }
 
     # ── Retrieval metrics from comparison files ───────────────
@@ -173,18 +169,13 @@ def compute_summary() -> dict:
     return {
         "total_queries":       total,
         "avg_response_time":   round(_avg(response_times), 2),
-        "avg_score":           round(_avg(scores), 4),
-        "reformulation_rate":  round(reformulated / total * 100, 1) if total else 0.0,
         "mode_distribution":   dict(mode_counter),
         "top_sources":         [{"source": s, "count": c} for s, c in source_counter.most_common(8)],
-        # Generation quality
-        "groundedness":        groundedness,
-        "relevancy":           relevancy,
-        "completeness":        completeness,
-        "hallucination":       hallucination,
-        # Retrieval quality (from comparison evals)
-        "retrieval":           retrieval_summary,
-        # Per-mode generation quality
+        # RAGAS metrics (global averages)
+        "faithfulness":        faithfulness,
+        "answer_relevancy":    answer_relevancy,
+        "context_precision":   context_precision,
+        # Per-mode RAGAS breakdown
         "per_mode_quality":    per_mode_quality,
     }
 

@@ -174,7 +174,7 @@ _GITHUB_API = "https://api.github.com"
 _EVAL_LOG_PATH = Path(__file__).parent / "evaluation" / "results" / "query_log.json"
 
 _EVAL_PROMPT = """You are a strict evaluation judge for a RAG system.
-Given a QUESTION, CONTEXT (retrieved documents), and ANSWER, score on 4 metrics (0.0–1.0).
+Given a QUESTION, CONTEXT (retrieved documents), and ANSWER, score on 3 metrics (0.0-1.0).
 
 QUESTION: {question}
 
@@ -185,12 +185,11 @@ ANSWER:
 {answer}
 
 Rubrics:
-- groundedness: Does the answer use information from the context? (1.0 = all from context, 0.0 = ignores context)
-- relevancy: Does the answer address the question? (1.0 = fully, 0.0 = off-topic)
-- completeness: Does the answer cover the key info in context relevant to the question? (1.0 = thorough, 0.0 = misses everything)
-- hallucination: Is the answer free from info NOT in context? (1.0 = every claim traceable, 0.0 = heavily fabricated)
+- faithfulness: Is every claim in the answer supported by the provided context? (1.0 = fully grounded, 0.0 = answer contradicts or ignores context)
+- answer_relevancy: Does the answer actually address what the question asked? (1.0 = directly answers, 0.0 = completely off-topic)
+- context_precision: Is the retrieved context relevant and useful for answering this question? (1.0 = context is perfectly relevant, 0.0 = context is irrelevant)
 
-Return ONLY valid JSON: {{"groundedness": X, "relevancy": X, "completeness": X, "hallucination": X}}"""
+Return ONLY valid JSON: {{"faithfulness": X, "answer_relevancy": X, "context_precision": X}}"""
 
 
 def _eval_load_log() -> list:
@@ -274,23 +273,19 @@ def _auto_evaluate(question: str, answer: str, context: str,
         raw = re.sub(r"\s*```$",     "", raw)
         scores = _json.loads(raw)
         entry = {
-            "question":      question,
-            "effective_q":   question,
-            "timestamp":     datetime.now().isoformat(timespec="seconds"),
-            "mode":          mode,
-            "response_time": round(response_time, 2),
-            "num_chunks":    len(sources),
-            "avg_score":     0,
-            "answer_length": len(answer),
-            "reformulated":  False,
-            "used_memory":   False,
-            "sources":       sources,
-            "test_run":      False,   # ← real UI query, not a test
-            "groundedness":  round(float(scores.get("groundedness",  0)), 2),
-            "relevancy":     round(float(scores.get("relevancy",     0)), 2),
-            "completeness":  round(float(scores.get("completeness",  0)), 2),
-            # Flip: prompt returns "hallucination-free" (1=good), we store as rate (0=good)
-            "hallucination": round(1.0 - float(scores.get("hallucination", 0)), 2),
+            "question":          question,
+            "effective_q":       question,
+            "timestamp":         datetime.now().isoformat(timespec="seconds"),
+            "mode":              mode,
+            "response_time":     round(response_time, 2),
+            "num_chunks":        len(sources),
+            "answer_length":     len(answer),
+            "sources":           sources,
+            "test_run":          False,   # real UI query, not a test
+            # RAGAS metrics
+            "faithfulness":      round(float(scores.get("faithfulness",      0)), 2),
+            "answer_relevancy":  round(float(scores.get("answer_relevancy",  0)), 2),
+            "context_precision": round(float(scores.get("context_precision", 0)), 2),
         }
         log = _eval_load_log()
         log.append(entry)

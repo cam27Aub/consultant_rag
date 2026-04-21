@@ -37,10 +37,9 @@ MODE_COLORS = {
 }
 
 QUALITY_COLORS = {
-    "Groundedness":  GREEN,
-    "Relevancy":     NAVY_LIGHT,
-    "Completeness":  GOLD,
-    "Hallucination": RED,
+    "Faithfulness":      GREEN,
+    "Answer Relevancy":  NAVY_LIGHT,
+    "Context Precision": GOLD,
 }
 
 SYSTEM_COLORS = {
@@ -181,15 +180,14 @@ class ChartGenerator:
     def chart_quality_metrics(self) -> str:
         s = self.summary
         metrics = {
-            "Groundedness":  s.get("groundedness"),
-            "Relevancy":     s.get("relevancy"),
-            "Completeness":  s.get("completeness"),
-            "Hallucination": s.get("hallucination"),
+            "Faithfulness":      s.get("faithfulness"),
+            "Answer Relevancy":  s.get("answer_relevancy"),
+            "Context Precision": s.get("context_precision"),
         }
         available = {k: v for k, v in metrics.items() if v is not None}
 
         if not available:
-            return self._empty_chart("Run evaluation to see quality metrics\n(python evaluation/evaluate.py)")
+            return self._empty_chart("Run evaluation to see quality metrics\n(python evaluation/test_100.py)")
 
         labels = list(available.keys())
         values = list(available.values())
@@ -207,74 +205,11 @@ class ChartGenerator:
 
         ax.set_ylim(0, 1.15)
         ax.axhline(1.0, color=BORDER, linewidth=0.8, linestyle="--")
-        _style_ax(ax, "Generation Quality Metrics (avg across all queries)", ylabel="Score (0 – 1)")
-
-        # No annotation needed — hallucination direction explained in KPI cards
+        _style_ax(ax, "RAGAS Quality Metrics (avg across all queries)", ylabel="Score (0 – 1)")
 
         return _fig_to_base64(fig)
 
-    # ── 4. Retrieval Metrics (Recall / Precision / MRR) ──────
-
-    def chart_retrieval_metrics(self) -> str:
-        retrieval = self.summary.get("retrieval", {})
-        systems   = [s for s in retrieval if s != "overall"]
-
-        # If comparison files gave no data, derive retrieval metrics from query_log
-        # using LLM-judge relevancy as a proxy for retrieval quality.
-        if not systems and self.entries:
-            retrieval = {}
-            for mode_label, sys_key in [("Naive RAG", "naive"), ("Graph RAG", "graph")]:
-                subset = [e for e in self.entries
-                          if _normalize_mode(e.get("mode", "")) == mode_label]
-                if not subset:
-                    continue
-                rels = [e["relevancy"] for e in subset if isinstance(e.get("relevancy"), (int, float))]
-                if not rels:
-                    continue
-                avg_rel = sum(rels) / len(rels)
-                # Precision@k proxy: fraction of queries with relevancy >= threshold
-                p1 = round(sum(1 for v in rels if v >= 0.7) / len(rels), 4)
-                p3 = round(sum(1 for v in rels if v >= 0.5) / len(rels), 4)
-                p5 = round(sum(1 for v in rels if v >= 0.3) / len(rels), 4)
-                mrr = round(avg_rel, 4)
-                retrieval[sys_key] = {
-                    "Recall@1": p1, "Recall@3": p3, "Recall@5": p5,
-                    "Precision@1": p1, "Precision@3": p3, "Precision@5": p5,
-                    "MRR": mrr,
-                }
-            systems = [s for s in retrieval]
-
-        if not systems:
-            return self._empty_chart("Run evaluation to see retrieval metrics\n(python evaluation/evaluate.py --compare-modes)")
-
-        KEYS = ["Recall@1", "Recall@3", "Recall@5", "Precision@1", "Precision@3", "Precision@5", "MRR"]
-        x     = np.arange(len(KEYS))
-        width = 0.25 / max(len(systems), 1)
-
-        fig, ax = plt.subplots(figsize=(12, 5), facecolor=LIGHT_BG)
-
-        for i, sys_name in enumerate(sorted(systems)):
-            data   = retrieval[sys_name]
-            values = [data.get(k) if data.get(k) is not None else 0.0 for k in KEYS]
-            color  = SYSTEM_COLORS.get(sys_name, PALETTE[i % len(PALETTE)])
-            offset = (i - len(systems) / 2 + 0.5) * (width + 0.02)
-            bars   = ax.bar(x + offset, values, width + 0.02, label=sys_name.title(),
-                            color=color, edgecolor="white", linewidth=0.6, alpha=0.9)
-            for bar, v in zip(bars, values):
-                if v > 0:
-                    ax.text(bar.get_x() + bar.get_width() / 2,
-                            bar.get_height() + 0.01,
-                            f"{v:.2f}",
-                            ha="center", fontsize=6, color=TEXT)
-
-        ax.set_xticks(x)
-        ax.set_xticklabels(KEYS, fontsize=8, color=TEXT)
-        ax.set_ylim(0, 1.2)
-        ax.legend(fontsize=9, frameon=False)
-        _style_ax(ax, "Retrieval Metrics by System (Recall / Precision / MRR)", ylabel="Score (0 – 1)")
-        return _fig_to_base64(fig)
-
-    # ── 5. Top Source Documents ───────────────────────────────
+    # ── 4. Top Source Documents ───────────────────────────────
 
     def chart_top_sources(self) -> str:
         source_counter: Counter = Counter()
@@ -311,60 +246,6 @@ class ChartGenerator:
         ax.set_xlim(right=max(counts) * 1.15)
         return _fig_to_base64(fig)
 
-    # ── 6. Score by Mode ──────────────────────────────────────
-
-    def chart_score_by_mode(self) -> str:
-        mode_scores: dict = defaultdict(list)
-        mode_times:  dict = defaultdict(list)
-
-        for e in self.entries:
-            m = _normalize_mode(e.get("mode", "Unknown"))
-            if e.get("avg_score"):
-                mode_scores[m].append(e["avg_score"])
-            if e.get("response_time"):
-                mode_times[m].append(e["response_time"])
-
-        modes = sorted(mode_scores.keys())
-        if not modes:
-            return self._empty_chart("No mode performance data yet")
-
-        avg_scores = [sum(mode_scores[m]) / len(mode_scores[m]) for m in modes]
-        avg_times  = [sum(mode_times[m])  / len(mode_times[m]) if mode_times[m] else 0 for m in modes]
-        bar_colors = [MODE_COLORS.get(m, MUTED) for m in modes]
-
-        x     = np.arange(len(modes))
-        width = 0.35
-
-        fig, ax1 = plt.subplots(figsize=(8, 5), facecolor=LIGHT_BG)
-        ax2 = ax1.twinx()
-
-        bars1 = ax1.bar(x - width / 2, avg_scores, width, color=bar_colors,
-                        alpha=0.9, edgecolor="white", linewidth=0.8, label="Avg Score")
-        bars2 = ax2.bar(x + width / 2, avg_times,  width, color=bar_colors,
-                        alpha=0.4, edgecolor="white", linewidth=0.8, label="Avg Response Time (s)")
-
-        for bar, v in zip(bars1, avg_scores):
-            ax1.text(bar.get_x() + bar.get_width() / 2,
-                     bar.get_height() + 0.02,
-                     f"{v:.2f}", ha="center", fontsize=8, color=TEXT, fontweight="bold")
-        for bar, v in zip(bars2, avg_times):
-            ax2.text(bar.get_x() + bar.get_width() / 2,
-                     bar.get_height() + 0.3,
-                     f"{v:.1f}s", ha="center", fontsize=8, color=TEXT)
-
-        ax1.set_xticks(x)
-        ax1.set_xticklabels(modes, fontsize=9, color=TEXT)
-        ax1.set_ylabel("Avg Similarity Score", fontsize=9, color=MUTED)
-        ax2.set_ylabel("Avg Response Time (s)", fontsize=9, color=MUTED)
-        _style_ax(ax1, "Performance by RAG Mode")
-        ax1.set_facecolor(LIGHT_BG)
-        fig.patch.set_facecolor(LIGHT_BG)
-
-        lines1, l1 = ax1.get_legend_handles_labels()
-        lines2, l2 = ax2.get_legend_handles_labels()
-        ax1.legend(lines1 + lines2, l1 + l2, fontsize=8, frameon=False)
-        return _fig_to_base64(fig)
-
     # ── Empty placeholder ─────────────────────────────────────
 
     def _empty_chart(self, message: str) -> str:
@@ -385,9 +266,7 @@ class ChartGenerator:
         charts = {
             "mode_distribution":   ("Query Mode Distribution",              self.chart_mode_distribution),
             "response_time_trend": ("Response Time Trend",                  self.chart_response_time_trend),
-            "quality_metrics":     ("Generation Quality Metrics",           self.chart_quality_metrics),
-            "retrieval_metrics":   ("Retrieval Metrics by System",          self.chart_retrieval_metrics),
-            "score_by_mode":       ("Performance by RAG Mode",              self.chart_score_by_mode),
+            "quality_metrics":     ("RAGAS Quality Metrics",                self.chart_quality_metrics),
             "top_sources":         ("Most Queried Source Documents",        self.chart_top_sources),
         }
 

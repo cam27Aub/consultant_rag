@@ -132,7 +132,7 @@ def _get_openai_client():
 # -- Answer quality: LLM-as-judge ---------------------------------------------
 
 _ANSWER_EVAL_PROMPT = """You are a strict evaluation judge for a RAG system.
-Given a QUESTION, CONTEXT (retrieved documents), and ANSWER, score on 4 metrics (0.0–1.0).
+Given a QUESTION, CONTEXT (retrieved documents), and ANSWER, score on 3 metrics (0.0-1.0).
 
 QUESTION: {question}
 
@@ -143,12 +143,11 @@ ANSWER:
 {answer}
 
 Rubrics:
-- groundedness: Does the answer use information from the context? (1.0 = all from context, 0.0 = ignores context)
-- relevancy: Does the answer address the question? (1.0 = fully, 0.0 = off-topic)
-- completeness: Does the answer cover the key info in context relevant to the question? (1.0 = thorough, 0.0 = misses everything)
-- hallucination: Is the answer free from info NOT in context? (1.0 = every claim traceable, 0.0 = heavily fabricated)
+- faithfulness: Is every claim in the answer supported by the provided context? (1.0 = fully grounded, 0.0 = answer contradicts or ignores context)
+- answer_relevancy: Does the answer actually address what the question asked? (1.0 = directly answers, 0.0 = completely off-topic)
+- context_precision: Is the retrieved context relevant and useful for answering this question? (1.0 = context is perfectly relevant, 0.0 = context is irrelevant)
 
-Return ONLY valid JSON: {{"groundedness": X, "relevancy": X, "completeness": X, "hallucination": X}}"""
+Return ONLY valid JSON: {{"faithfulness": X, "answer_relevancy": X, "context_precision": X}}"""
 
 
 def _evaluate_answer(question: str, context: str, answer: str) -> dict:
@@ -169,14 +168,12 @@ def _evaluate_answer(question: str, context: str, answer: str) -> dict:
         raw = re.sub(r"\s*```$", "", raw)
         scores = json.loads(raw)
         return {
-            "groundedness":  round(float(scores.get("groundedness", 0)), 2),
-            "relevancy":     round(float(scores.get("relevancy", 0)), 2),
-            "completeness":  round(float(scores.get("completeness", 0)), 2),
-            # Flip: prompt returns "hallucination-free" (1=good), we store as rate (0=good)
-            "hallucination": round(1.0 - float(scores.get("hallucination", 0)), 2),
+            "faithfulness":      round(float(scores.get("faithfulness", 0)), 2),
+            "answer_relevancy":  round(float(scores.get("answer_relevancy", 0)), 2),
+            "context_precision": round(float(scores.get("context_precision", 0)), 2),
         }
     except Exception:
-        return {"groundedness": 0.0, "relevancy": 0.0, "completeness": 0.0, "hallucination": 0.0}
+        return {"faithfulness": 0.0, "answer_relevancy": 0.0, "context_precision": 0.0}
 
 
 # -- Retrieval quality: chunk relevance → Precision@K and MRR -----------------
@@ -343,37 +340,27 @@ def run_tests():
             time.sleep(2)
 
             entry = {
-                "question":        question,
-                "effective_q":     question,
-                "timestamp":       datetime.now().isoformat(timespec="seconds"),
-                "mode":            mode,
-                "response_time":   round(elapsed, 2),
-                "num_chunks":      num_chunks,
-                "avg_score":       round(avg_score, 4),
-                "answer_length":   len(answer),
-                "reformulated":    False,
-                "used_memory":     False,
-                "sources":         sources_list,
-                "test_run":        True,
-                # Answer quality
-                "groundedness":    answer_scores["groundedness"],
-                "relevancy":       answer_scores["relevancy"],
-                "completeness":    answer_scores["completeness"],
-                "hallucination":   answer_scores["hallucination"],
-                # Retrieval quality
-                "precision_at_1":  retrieval_scores["precision_at_1"],
-                "precision_at_3":  retrieval_scores["precision_at_3"],
-                "precision_at_5":  retrieval_scores["precision_at_5"],
-                "mrr":             retrieval_scores["mrr"],
+                "question":          question,
+                "effective_q":       question,
+                "timestamp":         datetime.now().isoformat(timespec="seconds"),
+                "mode":              mode,
+                "response_time":     round(elapsed, 2),
+                "num_chunks":        num_chunks,
+                "answer_length":     len(answer),
+                "sources":           sources_list,
+                "test_run":          True,
+                # RAGAS metrics
+                "faithfulness":      answer_scores["faithfulness"],
+                "answer_relevancy":  answer_scores["answer_relevancy"],
+                "context_precision": answer_scores["context_precision"],
             }
             log.append(entry)
             success += 1
 
-            g = answer_scores["groundedness"]
-            r = answer_scores["relevancy"]
-            c = answer_scores["completeness"]
-            h = answer_scores["hallucination"]
-            print(f"OK ({elapsed:.1f}s)  G:{g} R:{r} C:{c} H:{h}")
+            f  = answer_scores["faithfulness"]
+            ar = answer_scores["answer_relevancy"]
+            cp = answer_scores["context_precision"]
+            print(f"OK ({elapsed:.1f}s)  F:{f} AR:{ar} CP:{cp}")
 
         except Exception as e:
             elapsed = time.time() - t0
@@ -411,11 +398,10 @@ def run_tests():
         print(f"\n  {mode}  ({n} queries)")
         print(f"  {'-'*40}")
         print(f"  Avg Response Time   {avg('response_time'):.1f}s")
-        print(f"  -- Answer Quality ------------------")
-        print(f"  Groundedness        {avg('groundedness'):.3f}")
-        print(f"  Relevancy           {avg('relevancy'):.3f}")
-        print(f"  Completeness        {avg('completeness'):.3f}")
-        print(f"  Hallucination       {avg('hallucination'):.3f}  (lower = better)")
+        print(f"  -- RAGAS Metrics -------------------")
+        print(f"  Faithfulness        {avg('faithfulness'):.3f}")
+        print(f"  Answer Relevancy    {avg('answer_relevancy'):.3f}")
+        print(f"  Context Precision   {avg('context_precision'):.3f}")
 
     print(f"\nDone. Results saved to analytics log.")
 

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { BarChart2, Clock, Database, RefreshCw, TrendingUp, CheckCircle, AlertTriangle, Target, Zap, Upload, Play, FileText, Loader2, Trash2 } from 'lucide-react';
+import { BarChart2, Clock, Database, RefreshCw, CheckCircle, Target, Zap, Upload, Play, FileText, Loader2, Trash2 } from 'lucide-react';
 import { Menu } from 'lucide-react';
 import { fetchAnalytics } from '../lib/analyticsClient';
 import type { AnalyticsPayload } from '../lib/analyticsClient';
@@ -60,13 +60,12 @@ function RAGManagement() {
       const res = await fetch(`${BASE}/upload-documents`, { method: 'POST', body: form });
       const data = await res.json();
       if (data.errors?.length) setUploadError(data.errors.join(' · '));
-      // Check if any file failed GitHub commit
       const ghFailed = (data.saved ?? []).filter((s: { name: string; github: boolean }) => !s.github);
       if (ghFailed.length) {
         setUploadError(prev => [prev, `GitHub sync failed for: ${ghFailed.map((s: { name: string }) => s.name).join(', ')} — add GITHUB_TOKEN to Render env vars`].filter(Boolean).join(' · '));
       }
       await loadDocs();
-    } catch (e) {
+    } catch {
       setUploadError('Upload failed');
     } finally {
       setUploading(false);
@@ -95,17 +94,11 @@ function RAGManagement() {
   const triggerIngest = () => {
     setIngestStatus('running');
     setIngestMsg('Starting ingestion pipeline…');
-
-    // Fire-and-forget with a 10 s timeout — don't await so the UI never freezes.
-    // Render free-tier cold starts can take 30 s; we optimistically start polling
-    // and let the status file tell us what happened.
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 10_000);
     fetch(`${BASE}/ingest`, { method: 'POST', signal: ctrl.signal })
       .then(() => clearTimeout(timer))
-      .catch(() => clearTimeout(timer)); // timeout / network error — polling will catch real status
-
-    // Start polling immediately; backend writes "running" before the thread spawns
+      .catch(() => clearTimeout(timer));
     if (pollRef.current) clearInterval(pollRef.current);
     pollRef.current = setInterval(checkStatus, 3000);
   };
@@ -120,13 +113,12 @@ function RAGManagement() {
       <p className="text-xs font-semibold text-sparc-muted uppercase tracking-widest">RAG Document Management</p>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* ── Upload panel ── */}
+        {/* Upload panel */}
         <div className="bg-white rounded-xl border border-sparc-border shadow-sm p-5">
           <div className="flex items-center gap-2 mb-4">
             <Upload className="w-4 h-4 text-navy" />
             <h3 className="text-sm font-semibold text-navy">Add Files to RAG</h3>
           </div>
-
           <div
             onDragOver={e => { e.preventDefault(); setDragOver(true); }}
             onDragLeave={() => setDragOver(false)}
@@ -141,14 +133,12 @@ function RAGManagement() {
             <input ref={fileInput} type="file" multiple accept=".pdf,.pptx,.docx"
               className="hidden" onChange={e => handleFiles(e.target.files)} />
           </div>
-
           {uploading && (
             <div className="flex items-center gap-2 text-sm text-blue-600 mb-3">
               <Loader2 className="w-4 h-4 animate-spin" /> Uploading…
             </div>
           )}
           {uploadError && <p className="text-xs text-red-600 mb-3">{uploadError}</p>}
-
           <div>
             <p className="text-xs font-medium text-sparc-muted mb-2">
               Current documents ({loadingDocs ? '…' : docs.length})
@@ -183,17 +173,15 @@ function RAGManagement() {
           </div>
         </div>
 
-        {/* ── Ingest panel ── */}
+        {/* Ingest panel */}
         <div className="bg-white rounded-xl border border-sparc-border shadow-sm p-5">
           <div className="flex items-center gap-2 mb-4">
             <Play className="w-4 h-4 text-navy" />
             <h3 className="text-sm font-semibold text-navy">Ingest Documents</h3>
           </div>
-
           <p className="text-xs text-sparc-muted mb-5">
             Runs the full ingestion pipeline on all documents in the RAG folder: cracking, chunking, enrichment, embedding, and indexing into Azure AI Search.
           </p>
-
           <div className="space-y-3 mb-6 text-xs text-sparc-text">
             {['Document cracking (PDF, PPTX, DOCX)', 'Sentence chunking (400 words, 60-word overlap)',
               'Chunk enrichment (keywords, summary, project tag)', 'Azure OpenAI text-embedding-3-large (3072d)',
@@ -204,7 +192,6 @@ function RAGManagement() {
               </div>
             ))}
           </div>
-
           <button
             onClick={triggerIngest}
             disabled={ingestStatus === 'running' || docs.length === 0}
@@ -214,7 +201,6 @@ function RAGManagement() {
               ? <><Loader2 className="w-4 h-4 animate-spin" /> Ingesting…</>
               : <><Play className="w-4 h-4" /> Run Ingestion</>}
           </button>
-
           {ingestMsg && (
             <div className={`text-xs rounded-lg px-3 py-2 ${
               ingestStatus === 'done' ? 'bg-green-50 text-green-700' :
@@ -228,7 +214,6 @@ function RAGManagement() {
               {ingestMsg}
             </div>
           )}
-
           {docs.length === 0 && (
             <p className="text-xs text-orange-500 mt-2 italic">Upload documents first before ingesting.</p>
           )}
@@ -263,7 +248,6 @@ function KpiCard({
   );
 }
 
-
 function ChartCard({ title, image }: { title: string; image: string | null }) {
   return (
     <div className="bg-white rounded-xl border border-sparc-border p-4 shadow-sm">
@@ -275,65 +259,6 @@ function ChartCard({ title, image }: { title: string; image: string | null }) {
           Chart unavailable
         </div>
       )}
-    </div>
-  );
-}
-
-function RetrievalTable({ retrieval }: { retrieval: Record<string, Record<string, number | null>> }) {
-  const systems = Object.keys(retrieval).filter(s => s !== 'overall');
-  const metrics = ['Recall@1', 'Recall@3', 'Recall@5', 'Precision@1', 'Precision@3', 'Precision@5', 'MRR'];
-
-  if (!systems.length) return null;
-
-  return (
-    <div className="bg-white rounded-xl border border-sparc-border shadow-sm overflow-hidden">
-      <div className="px-5 py-3 border-b border-sparc-border">
-        <h3 className="text-sm font-semibold text-navy">Retrieval Metrics by System</h3>
-        <p className="text-xs text-sparc-muted mt-0.5">From evaluation comparison runs</p>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="bg-navy text-white">
-              <th className="text-left px-5 py-2.5 font-semibold text-xs">Metric</th>
-              {systems.map(s => (
-                <th key={s} className="text-center px-4 py-2.5 font-semibold text-xs capitalize">{s}</th>
-              ))}
-              {retrieval.overall && (
-                <th className="text-center px-4 py-2.5 font-semibold text-xs text-yellow-300">Overall</th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {metrics.map((m, i) => (
-              <tr key={m} className={i % 2 === 0 ? 'bg-white' : 'bg-sparc-bg'}>
-                <td className="px-5 py-2.5 font-medium text-sparc-text text-xs">{m}</td>
-                {systems.map(s => {
-                  const v = retrieval[s]?.[m];
-                  return (
-                    <td key={s} className="px-4 py-2.5 text-center">
-                      {v !== null && v !== undefined ? (
-                        <span className="font-semibold text-navy text-xs">{v.toFixed(3)}</span>
-                      ) : (
-                        <span className="text-sparc-muted text-xs">—</span>
-                      )}
-                    </td>
-                  );
-                })}
-                {retrieval.overall && (
-                  <td className="px-4 py-2.5 text-center">
-                    {retrieval.overall[m] !== null && retrieval.overall[m] !== undefined ? (
-                      <span className="font-bold text-xs" style={{ color: '#C8A951' }}>
-                        {retrieval.overall[m]!.toFixed(3)}
-                      </span>
-                    ) : <span className="text-sparc-muted text-xs">—</span>}
-                  </td>
-                )}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }
@@ -370,7 +295,7 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
           </button>
           <div>
             <h2 className="text-sm font-semibold text-navy">RAG Analytics</h2>
-            <p className="text-xs text-sparc-muted">Retrieval quality, Generation quality, Usage</p>
+            <p className="text-xs text-sparc-muted">RAGAS evaluation · Usage · Performance</p>
           </div>
         </div>
         <button onClick={() => load(true)} disabled={loading}
@@ -393,7 +318,7 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
               ))}
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              {[...Array(6)].map((_, i) => (
+              {[...Array(4)].map((_, i) => (
                 <div key={i} className="bg-white rounded-xl border border-sparc-border p-4 h-72 animate-pulse" />
               ))}
             </div>
@@ -405,41 +330,49 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
         {!loading && s && (
           <div className="space-y-6 max-w-6xl mx-auto">
 
-            {/* ── Row 1: Operational KPIs ── */}
+            {/* Row 1: Operational KPIs */}
             <div>
               <p className="text-xs font-semibold text-sparc-muted uppercase tracking-widest mb-3">Usage & Performance</p>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 lg:grid-cols-2 gap-4">
                 <KpiCard label="Total Queries" value={s.total_queries.toLocaleString()}
                   sub="logged queries" icon={Database} accent="#1F3564" />
                 <KpiCard label="Avg Response Time" value={`${s.avg_response_time}s`}
                   sub="per query" icon={Clock} accent="#2E74B5" />
-                <KpiCard label="Avg Retrieval Score" value={s.avg_score > 0 ? s.avg_score.toFixed(2) : '—'}
-                  sub="Azure Search raw score (not 0–1)" icon={BarChart2} accent="#C8A951" />
-                <KpiCard label="Reformulation Rate" value={`${s.reformulation_rate}%`}
-                  sub="follow-ups rewritten" icon={TrendingUp} accent="#059669" />
               </div>
             </div>
 
-            {/* ── Row 2: Generation Quality KPIs ── */}
+            {/* Row 2: RAGAS Generation Quality KPIs */}
             <div>
-              <p className="text-xs font-semibold text-sparc-muted uppercase tracking-widest mb-3">Generation Quality</p>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <KpiCard label="Groundedness" value={s.groundedness !== null && s.groundedness !== undefined ? s.groundedness.toFixed(3) : '—'}
-                  sub="answer supported by context" icon={CheckCircle} accent="#059669"
-                  note={s.groundedness === null ? 'run evaluation to populate' : undefined} />
-                <KpiCard label="Relevancy" value={s.relevancy !== null && s.relevancy !== undefined ? s.relevancy.toFixed(3) : '—'}
-                  sub="Q ↔ A similarity" icon={Target} accent="#2E74B5"
-                  note={s.relevancy === null ? 'run evaluation to populate' : undefined} />
-                <KpiCard label="Completeness" value={s.completeness !== null && s.completeness !== undefined ? s.completeness.toFixed(3) : '—'}
-                  sub="keyword coverage" icon={Zap} accent="#C8A951"
-                  note={s.completeness === null ? 'run evaluation to populate' : undefined} />
-                <KpiCard label="Hallucination Rate" value={s.hallucination !== null && s.hallucination !== undefined ? s.hallucination.toFixed(3) : '—'}
-                  sub="0 = none · 1 = heavy (lower is better)" icon={AlertTriangle} accent="#DC2626"
-                  note={s.hallucination === null ? 'run evaluation to populate' : undefined} />
+              <p className="text-xs font-semibold text-sparc-muted uppercase tracking-widest mb-3">
+                RAGAS Generation Quality
+                <span className="ml-2 normal-case font-normal text-sparc-muted">LLM-as-judge · Es et al. 2023</span>
+              </p>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                <KpiCard
+                  label="Faithfulness"
+                  value={s.faithfulness !== null && s.faithfulness !== undefined ? s.faithfulness.toFixed(3) : '—'}
+                  sub="answer grounded in retrieved context"
+                  icon={CheckCircle} accent="#059669"
+                  note={s.faithfulness === null ? 'run evaluation to populate' : undefined}
+                />
+                <KpiCard
+                  label="Answer Relevancy"
+                  value={s.answer_relevancy !== null && s.answer_relevancy !== undefined ? s.answer_relevancy.toFixed(3) : '—'}
+                  sub="answer addresses the question asked"
+                  icon={Target} accent="#2E74B5"
+                  note={s.answer_relevancy === null ? 'run evaluation to populate' : undefined}
+                />
+                <KpiCard
+                  label="Context Precision"
+                  value={s.context_precision !== null && s.context_precision !== undefined ? s.context_precision.toFixed(3) : '—'}
+                  sub="retrieved context is relevant & useful"
+                  icon={Zap} accent="#C8A951"
+                  note={s.context_precision === null ? 'run evaluation to populate' : undefined}
+                />
               </div>
             </div>
 
-            {/* ── Quality metrics breakdown ── */}
+            {/* Quality breakdown: per-mode table + quality chart */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {/* Per-Mode Quality Comparison */}
               <div className="bg-white rounded-xl border border-sparc-border p-5 shadow-sm">
@@ -462,15 +395,13 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
                         </tr>
                       </thead>
                       <tbody>
-                        {(['groundedness', 'relevancy', 'completeness', 'hallucination'] as const).map((key) => {
-                          const meta: Record<string, { label: string; color: string }> = {
-                            groundedness:  { label: 'Groundedness',    color: '#059669' },
-                            relevancy:     { label: 'Relevancy',       color: '#2E74B5' },
-                            completeness:  { label: 'Completeness',    color: '#C8A951' },
-                            hallucination: { label: 'Hallucination ↓', color: '#DC2626' },
-                          };
-                          const { label, color } = meta[key];
-                          return (
+                        {(
+                          [
+                            { key: 'faithfulness',      label: 'Faithfulness',      color: '#059669' },
+                            { key: 'answer_relevancy',  label: 'Answer Relevancy',  color: '#2E74B5' },
+                            { key: 'context_precision', label: 'Context Precision', color: '#C8A951' },
+                          ] as { key: 'faithfulness' | 'answer_relevancy' | 'context_precision'; label: string; color: string }[]
+                        ).map(({ key, label, color }) => (
                           <tr key={key} className="border-t border-sparc-border">
                             <td className="py-2 text-sparc-text font-medium">{label}</td>
                             {Object.values(s.per_mode_quality).map((mq, i) => {
@@ -486,8 +417,7 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
                               );
                             })}
                           </tr>
-                          );
-                        })}
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -498,11 +428,11 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
                 )}
               </div>
 
-              <ChartCard title={charts.quality_metrics?.title ?? 'Generation Quality Metrics'}
+              <ChartCard title={charts.quality_metrics?.title ?? 'RAGAS Quality Metrics'}
                 image={charts.quality_metrics?.image ?? null} />
             </div>
 
-            {/* ── Charts row 1 ── */}
+            {/* Charts row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <ChartCard title={charts.mode_distribution?.title ?? 'Query Mode Distribution'}
                 image={charts.mode_distribution?.image ?? null} />
@@ -510,24 +440,11 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
                 image={charts.response_time_trend?.image ?? null} />
             </div>
 
-            {/* ── Charts row 2 ── */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              <ChartCard title={charts.score_by_mode?.title ?? 'Performance by RAG Mode'}
-                image={charts.score_by_mode?.image ?? null} />
-              <ChartCard title={charts.top_sources?.title ?? 'Most Queried Source Documents'}
-                image={charts.top_sources?.image ?? null} />
-            </div>
+            {/* Top sources chart (full width) */}
+            <ChartCard title={charts.top_sources?.title ?? 'Most Queried Source Documents'}
+              image={charts.top_sources?.image ?? null} />
 
-            {/* ── Retrieval metrics chart (full width) ── */}
-            <ChartCard title={charts.retrieval_metrics?.title ?? 'Retrieval Metrics by System'}
-              image={charts.retrieval_metrics?.image ?? null} />
-
-            {/* ── Retrieval metrics table ── */}
-            {s.retrieval && Object.keys(s.retrieval).length > 0 && (
-              <RetrievalTable retrieval={s.retrieval} />
-            )}
-
-            {/* ── Top Sources table ── */}
+            {/* Top Sources table */}
             {s.top_sources.length > 0 && (
               <div className="bg-white rounded-xl border border-sparc-border shadow-sm overflow-hidden">
                 <div className="px-5 py-3 border-b border-sparc-border">
