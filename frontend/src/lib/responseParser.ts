@@ -40,6 +40,10 @@ export async function parseN8nResponse(response: Response): Promise<ParsedRespon
     let data = JSON.parse(rawText);
     // Handle array responses (n8n returns arrays)
     if (Array.isArray(data)) data = data[0] || {};
+    // n8n webhook timed out — workflow still running, result arrives via async push
+    if (data.__async_pending) {
+      return { type: 'async_pending', content: '' };
+    }
     text = data.output || data.answer || data.text || data.response || data.message ||
       (typeof data === 'string' ? data : JSON.stringify(data));
   } catch {

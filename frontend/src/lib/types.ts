@@ -1,5 +1,5 @@
 export type MessageRole = 'user' | 'assistant';
-export type ResponseType = 'text' | 'file_download' | 'link_download' | 'cta';
+export type ResponseType = 'text' | 'file_download' | 'link_download' | 'cta' | 'async_pending';
 
 export interface ChatMessage {
   id: string;
@@ -10,6 +10,7 @@ export interface ChatMessage {
   downloadUrl?: string;
   ctaOptions?: string[];
   timestamp: number;
+  sessionId?: string; // set on async_pending messages for polling
 }
 
 export interface Conversation {

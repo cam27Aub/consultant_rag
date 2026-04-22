@@ -54,6 +54,13 @@ class PreferencesIn(BaseModel):
     preferences: dict
 
 
+# ── Async result store (session_id → completed result) ──────
+# n8n pushes completed long-running results here via HTTP POST.
+# Frontend polls GET /async-result/{session_id} to retrieve them.
+_async_results: dict = {}
+_async_lock = threading.Lock()
+
+
 # ── App ─────────────────────────────────────────────────────
 
 app = FastAPI(title="ConsultantIQ API", version="2.0")
@@ -685,6 +692,38 @@ def ingest_status():
         return _json.loads(INGEST_STATUS_F.read_text(encoding="utf-8"))
     except Exception:
         return {"status": "unknown", "message": "Could not read status file."}
+
+
+# ── Async result endpoints (n8n push + frontend poll) ────────
+
+class AsyncResultIn(BaseModel):
+    sessionId: str
+    output: Optional[str] = None
+    answer: Optional[str] = None
+    result: Optional[str] = None
+    text: Optional[str] = None
+
+@app.post("/async-result")
+async def receive_async_result(payload: AsyncResultIn):
+    """n8n HTTP Request node POSTs the completed report/deck here."""
+    content = payload.output or payload.answer or payload.result or payload.text or ""
+    with _async_lock:
+        _async_results[payload.sessionId] = {
+            "content": content,
+            "timestamp": time.time(),
+        }
+    print(f"[async-result] Received result for session {payload.sessionId} ({len(content)} chars)")
+    return {"ok": True}
+
+@app.get("/async-result/{session_id}")
+async def poll_async_result(session_id: str):
+    """Frontend polls this every 4s waiting for the async result."""
+    with _async_lock:
+        data = _async_results.get(session_id)
+        if data:
+            del _async_results[session_id]  # consume once
+            return {"status": "ready", "content": data["content"]}
+    return {"status": "pending"}
 
 
 # ── Frontend (serve React build) ─────────────────────────────
