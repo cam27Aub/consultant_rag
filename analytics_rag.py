@@ -114,17 +114,19 @@ def compute_summary() -> dict:
     entries     = _load_query_log()
     comparisons = _load_comparison_files()
 
-    total = len(entries)
+    # Separate live (real UI) queries from synthetic test_run entries
+    live_entries = [e for e in entries if not e.get("test_run")]
+    total        = len(live_entries)
 
-    # ── Operational metrics from query_log ──────────────────
-    response_times = [e["response_time"] for e in entries if e.get("response_time")]
+    # ── Operational metrics — live queries only ───────────────
+    response_times = [e["response_time"] for e in live_entries if e.get("response_time")]
 
     mode_counter = Counter()
-    for e in entries:
+    for e in live_entries:
         mode_counter[_normalize_mode_str(e.get("mode", "Unknown"))] += 1
 
     source_counter = Counter()
-    for e in entries:
+    for e in live_entries:
         for src in e.get("sources", []):
             source_counter[src] += 1
 

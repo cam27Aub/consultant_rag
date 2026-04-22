@@ -135,7 +135,8 @@ class ChartGenerator:
 
     def chart_response_time_trend(self) -> str:
         all_valid = sorted(
-            [e for e in self.entries if e.get("timestamp") and e.get("response_time")],
+            [e for e in self.entries
+             if e.get("timestamp") and e.get("response_time") and not e.get("test_run")],
             key=lambda x: x["timestamp"]
         )
 
