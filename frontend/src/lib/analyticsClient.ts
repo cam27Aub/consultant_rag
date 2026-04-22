@@ -7,6 +7,15 @@ export interface ModeQuality {
   count: number;
 }
 
+export interface RecentQuery {
+  question: string;
+  mode: string;
+  timestamp: string;
+  response_time: number | null;
+  faithfulness: number | null;
+  answer_relevancy: number | null;
+}
+
 export interface AnalyticsSummary {
   total_queries: number;
   avg_response_time: number;
@@ -18,6 +27,8 @@ export interface AnalyticsSummary {
   context_precision: number | null;
   // Per-mode quality breakdown
   per_mode_quality: Record<string, ModeQuality>;
+  // Recent query feed
+  recent_queries: RecentQuery[];
 }
 
 export interface ChartData {

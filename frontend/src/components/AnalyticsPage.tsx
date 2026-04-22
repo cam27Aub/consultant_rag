@@ -372,58 +372,45 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
               </div>
             </div>
 
-            {/* Quality breakdown: per-mode table + quality chart */}
+            {/* Recent Queries feed + quality chart */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-              {/* Per-Mode Quality Comparison */}
-              <div className="bg-white rounded-xl border border-sparc-border p-5 shadow-sm">
-                <h3 className="text-sm font-semibold text-navy mb-1">Quality by RAG Mode</h3>
-                <p className="text-xs text-sparc-muted mb-4">Naive RAG vs Graph RAG — averaged across evaluated queries</p>
-                {s.per_mode_quality && Object.keys(s.per_mode_quality).length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs">
-                      <thead>
-                        <tr>
-                          <th className="text-left py-1.5 text-sparc-muted font-medium">Metric</th>
-                          {Object.keys(s.per_mode_quality).map(mode => (
-                            <th key={mode} className="text-center py-1.5 text-sparc-muted font-medium px-2">
-                              {mode}
-                              <span className="block text-[10px] text-sparc-muted font-normal">
-                                ({s.per_mode_quality[mode].count} queries)
-                              </span>
-                            </th>
-                          ))}
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {(
-                          [
-                            { key: 'faithfulness',      label: 'Faithfulness',      color: '#059669' },
-                            { key: 'answer_relevancy',  label: 'Answer Relevancy',  color: '#2E74B5' },
-                            { key: 'context_precision', label: 'Context Precision', color: '#C8A951' },
-                          ] as { key: 'faithfulness' | 'answer_relevancy' | 'context_precision'; label: string; color: string }[]
-                        ).map(({ key, label, color }) => (
-                          <tr key={key} className="border-t border-sparc-border">
-                            <td className="py-2 text-sparc-text font-medium">{label}</td>
-                            {Object.values(s.per_mode_quality).map((mq, i) => {
-                              const val = mq[key];
-                              return (
-                                <td key={i} className="py-2 text-center px-2">
-                                  {val !== null && val !== undefined ? (
-                                    <span className="font-semibold" style={{ color }}>{(val as number).toFixed(3)}</span>
-                                  ) : (
-                                    <span className="text-sparc-muted">—</span>
-                                  )}
-                                </td>
-                              );
-                            })}
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+              {/* Recent Queries panel */}
+              <div className="bg-white rounded-xl border border-sparc-border p-5 shadow-sm flex flex-col">
+                <h3 className="text-sm font-semibold text-navy mb-1">Recent Queries</h3>
+                <p className="text-xs text-sparc-muted mb-4">Last queries submitted to the RAG system</p>
+                {s.recent_queries && s.recent_queries.length > 0 ? (
+                  <div className="space-y-2 overflow-y-auto max-h-80">
+                    {s.recent_queries.map((q, i) => {
+                      const modeColor = q.mode.includes('Graph') ? '#2E74B5' : q.mode.includes('Naive') ? '#1F3564' : '#9CA3AF';
+                      const ts = q.timestamp ? q.timestamp.replace('T', ' ').slice(0, 16) : '';
+                      return (
+                        <div key={i} className="flex flex-col gap-1 px-3 py-2.5 rounded-lg bg-sparc-bg border border-sparc-border">
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="text-xs text-sparc-text font-medium leading-snug flex-1 min-w-0">
+                              {q.question.length > 90 ? q.question.slice(0, 90) + '…' : q.question}
+                            </p>
+                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded shrink-0"
+                              style={{ background: modeColor + '18', color: modeColor }}>
+                              {q.mode}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-3 text-[10px] text-sparc-muted">
+                            {ts && <span>{ts}</span>}
+                            {q.response_time != null && <span>{q.response_time.toFixed(1)}s</span>}
+                            {q.faithfulness != null && (
+                              <span className="text-green-600 font-medium">F {q.faithfulness.toFixed(2)}</span>
+                            )}
+                            {q.answer_relevancy != null && (
+                              <span className="text-blue-600 font-medium">AR {q.answer_relevancy.toFixed(2)}</span>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
                   <p className="text-xs text-sparc-muted italic mt-6 text-center">
-                    No evaluated queries yet — use the RAG chat to generate data.
+                    No queries logged yet — use the RAG chat to generate data.
                   </p>
                 )}
               </div>
@@ -464,10 +451,11 @@ export function AnalyticsPage({ onToggleSidebar }: AnalyticsPageProps) {
                       {s.top_sources.map((src, i) => {
                         const total = s.top_sources.reduce((a, b) => a + b.count, 0);
                         const pct = total > 0 ? ((src.count / total) * 100).toFixed(1) : '0';
+                        const displayName = src.source.replace(/-/g, ',');
                         return (
                           <tr key={src.source} className={i % 2 === 0 ? 'bg-white' : 'bg-sparc-bg'}>
                             <td className="px-5 py-2.5 text-sparc-muted text-xs">{i + 1}</td>
-                            <td className="px-5 py-2.5 font-medium text-sparc-text">{src.source}</td>
+                            <td className="px-5 py-2.5 font-medium text-sparc-text">{displayName}</td>
                             <td className="px-5 py-2.5 text-right font-semibold text-navy">{src.count}</td>
                             <td className="px-5 py-2.5 text-right text-sparc-muted">{pct}%</td>
                           </tr>

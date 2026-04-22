@@ -178,34 +178,56 @@ class ChartGenerator:
     # ── 3. Generation Quality Metrics ────────────────────────
 
     def chart_quality_metrics(self) -> str:
-        s = self.summary
-        metrics = {
-            "Faithfulness":      s.get("faithfulness"),
-            "Answer Relevancy":  s.get("answer_relevancy"),
-            "Context Precision": s.get("context_precision"),
-        }
-        available = {k: v for k, v in metrics.items() if v is not None}
+        per_mode = self.summary.get("per_mode_quality", {})
+        METRIC_KEYS   = ["faithfulness", "answer_relevancy", "context_precision"]
+        METRIC_LABELS = ["Faithfulness", "Answer Relevancy", "Context Precision"]
 
-        if not available:
-            return self._empty_chart("Run evaluation to see quality metrics\n(python evaluation/test_100.py)")
+        # Fall back to global single bars if no per-mode data
+        if not per_mode:
+            s = self.summary
+            vals = [s.get(k) for k in METRIC_KEYS]
+            available = [(lbl, v) for lbl, v in zip(METRIC_LABELS, vals) if v is not None]
+            if not available:
+                return self._empty_chart("Run evaluation to see quality metrics\n(python evaluation/test_100.py)")
+            labels = [a[0] for a in available]
+            values = [a[1] for a in available]
+            colors = [QUALITY_COLORS.get(l, NAVY) for l in labels]
+            fig, ax = plt.subplots(figsize=(8, 5), facecolor=LIGHT_BG)
+            bars = ax.bar(labels, values, color=colors, edgecolor="white", linewidth=0.8, width=0.5)
+            for bar, v in zip(bars, values):
+                ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.015,
+                        f"{v:.3f}", ha="center", fontsize=10, color=TEXT, fontweight="bold")
+            ax.set_ylim(0, 1.15)
+            ax.axhline(1.0, color=BORDER, linewidth=0.8, linestyle="--")
+            _style_ax(ax, "RAGAS Quality Metrics (avg across all queries)", ylabel="Score (0 – 1)")
+            return _fig_to_base64(fig)
 
-        labels = list(available.keys())
-        values = list(available.values())
-        colors = [QUALITY_COLORS.get(l, NAVY) for l in labels]
+        # Grouped bars: one group per metric, one bar per mode
+        modes      = list(per_mode.keys())
+        mode_colors = [NAVY, NAVY_LIGHT, GOLD]
+        x      = np.arange(len(METRIC_KEYS))
+        n      = len(modes)
+        width  = 0.30
+        offsets = np.linspace(-(n - 1) / 2, (n - 1) / 2, n) * (width + 0.04)
 
-        fig, ax = plt.subplots(figsize=(8, 5), facecolor=LIGHT_BG)
-        bars = ax.bar(labels, values, color=colors, edgecolor="white",
-                      linewidth=0.8, width=0.5)
+        fig, ax = plt.subplots(figsize=(9, 5), facecolor=LIGHT_BG)
 
-        for bar, v in zip(bars, values):
-            ax.text(bar.get_x() + bar.get_width() / 2,
-                    bar.get_height() + 0.015,
-                    f"{v:.3f}",
-                    ha="center", fontsize=10, color=TEXT, fontweight="bold")
+        for i, (mode, color) in enumerate(zip(modes, mode_colors)):
+            vals = [per_mode[mode].get(k) or 0.0 for k in METRIC_KEYS]
+            bars = ax.bar(x + offsets[i], vals, width, label=mode,
+                          color=color, edgecolor="white", linewidth=0.8, alpha=0.92)
+            for bar, v in zip(bars, vals):
+                if v > 0:
+                    ax.text(bar.get_x() + bar.get_width() / 2,
+                            bar.get_height() + 0.012,
+                            f"{v:.3f}", ha="center", fontsize=8, color=TEXT, fontweight="bold")
 
-        ax.set_ylim(0, 1.15)
+        ax.set_xticks(x)
+        ax.set_xticklabels(METRIC_LABELS, fontsize=9, color=TEXT)
+        ax.set_ylim(0, 1.18)
         ax.axhline(1.0, color=BORDER, linewidth=0.8, linestyle="--")
-        _style_ax(ax, "RAGAS Quality Metrics (avg across all queries)", ylabel="Score (0 – 1)")
+        ax.legend(fontsize=9, frameon=False, loc="upper right")
+        _style_ax(ax, "RAGAS Quality Metrics — Naive RAG vs Graph RAG", ylabel="Score (0 – 1)")
 
         return _fig_to_base64(fig)
 
@@ -215,7 +237,8 @@ class ChartGenerator:
         source_counter: Counter = Counter()
         for e in self.entries:
             for src in e.get("sources", []):
-                name = src if len(src) <= 35 else src[:32] + "..."
+                clean = src.replace("-", ",")
+                name = clean if len(clean) <= 35 else clean[:32] + "..."
                 source_counter[name] += 1
 
         top = source_counter.most_common(8)

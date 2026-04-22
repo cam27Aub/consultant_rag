@@ -166,6 +166,24 @@ def compute_summary() -> dict:
     def _avg(lst):
         return round(sum(lst) / len(lst), 4) if lst else 0.0
 
+    # ── Recent queries (last 15, newest first) ────────────────
+    recent_qs = sorted(
+        [e for e in entries if e.get("question") and not e.get("error")],
+        key=lambda x: x.get("timestamp", ""),
+        reverse=True,
+    )[:15]
+    recent_queries = [
+        {
+            "question":         e["question"][:120],
+            "mode":             e.get("mode", "Unknown"),
+            "timestamp":        e.get("timestamp", ""),
+            "response_time":    e.get("response_time"),
+            "faithfulness":     e.get("faithfulness"),
+            "answer_relevancy": e.get("answer_relevancy"),
+        }
+        for e in recent_qs
+    ]
+
     return {
         "total_queries":       total,
         "avg_response_time":   round(_avg(response_times), 2),
@@ -177,6 +195,8 @@ def compute_summary() -> dict:
         "context_precision":   context_precision,
         # Per-mode RAGAS breakdown
         "per_mode_quality":    per_mode_quality,
+        # Recent query feed
+        "recent_queries":      recent_queries,
     }
 
 
