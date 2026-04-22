@@ -259,5 +259,1626 @@
     "relevancy": 1.0,
     "completeness": 1.0,
     "hallucination": 0.0
+  },
+  {
+    "question": "What are the three layers of the agentic AI platform architecture described by Bain?",
+    "effective_q": "What are the three layers of the agentic AI platform architecture described by Bain?",
+    "timestamp": "2026-04-21T21:40:19",
+    "mode": "Naive RAG",
+    "response_time": 10.25,
+    "num_chunks": 5,
+    "answer_length": 912,
+    "sources": [
+      "bain_report_technology_report_2025.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.8,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.7
+  },
+  {
+    "question": "Why do legacy platforms fail to support agentic AI workloads according to Bain?",
+    "effective_q": "Why do legacy platforms fail to support agentic AI workloads according to Bain?",
+    "timestamp": "2026-04-21T21:40:35",
+    "mode": "Naive RAG",
+    "response_time": 9.99,
+    "num_chunks": 5,
+    "answer_length": 1391,
+    "sources": [
+      "bain_report_technology_report_2025.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "How do AI agents discover and connect to tools in a modern agentic AI architecture?",
+    "effective_q": "How do AI agents discover and connect to tools in a modern agentic AI architecture?",
+    "timestamp": "2026-04-21T21:40:50",
+    "mode": "Naive RAG",
+    "response_time": 10.01,
+    "num_chunks": 5,
+    "answer_length": 1813,
+    "sources": [
+      "bain_report_technology_report_2025.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.8,
+    "answer_relevancy": 0.9,
+    "context_precision": 0.7
+  },
+  {
+    "question": "What is Agent-to-Agent communication and why does it matter in agentic AI deployments?",
+    "effective_q": "What is Agent-to-Agent communication and why does it matter in agentic AI deployments?",
+    "timestamp": "2026-04-21T21:41:06",
+    "mode": "Naive RAG",
+    "response_time": 9.67,
+    "num_chunks": 5,
+    "answer_length": 2091,
+    "sources": [
+      "bain_report_technology_report_2025.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "How should memory be treated in enterprise agentic AI platforms?",
+    "effective_q": "How should memory be treated in enterprise agentic AI platforms?",
+    "timestamp": "2026-04-21T21:41:30",
+    "mode": "Naive RAG",
+    "response_time": 17.89,
+    "num_chunks": 5,
+    "answer_length": 1918,
+    "sources": [
+      "bain_report_technology_report_2025.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 0.7,
+    "context_precision": 0.8
+  },
+  {
+    "question": "What does Bain recommend regarding security and governance in agentic AI systems?",
+    "effective_q": "What does Bain recommend regarding security and governance in agentic AI systems?",
+    "timestamp": "2026-04-21T21:41:43",
+    "mode": "Naive RAG",
+    "response_time": 9.34,
+    "num_chunks": 5,
+    "answer_length": 1633,
+    "sources": [
+      "bain_report_technology_report_2025.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "How should agentic AI agents be deployed to ensure reliability and rollback capability?",
+    "effective_q": "How should agentic AI agents be deployed to ensure reliability and rollback capability?",
+    "timestamp": "2026-04-21T21:42:11",
+    "mode": "Naive RAG",
+    "response_time": 21.75,
+    "num_chunks": 5,
+    "answer_length": 1849,
+    "sources": [
+      "bain_report_technology_report_2025.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.7,
+    "context_precision": 0.8
+  },
+  {
+    "question": "What data processing requirements does agentic AI impose that differ from traditional analytics platforms?",
+    "effective_q": "What data processing requirements does agentic AI impose that differ from traditional analytics platforms?",
+    "timestamp": "2026-04-21T21:42:38",
+    "mode": "Naive RAG",
+    "response_time": 22.02,
+    "num_chunks": 5,
+    "answer_length": 2912,
+    "sources": [
+      "bain_report_technology_report_2025.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "What share of all businesses globally are micro small and medium enterprises?",
+    "effective_q": "What share of all businesses globally are micro small and medium enterprises?",
+    "timestamp": "2026-04-21T21:42:48",
+    "mode": "Naive RAG",
+    "response_time": 5.37,
+    "num_chunks": 5,
+    "answer_length": 243,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "How productive are MSMEs compared to large companies and what is the economic significance of closing this gap?",
+    "effective_q": "How productive are MSMEs compared to large companies and what is the economic significance of closing this gap?",
+    "timestamp": "2026-04-21T21:43:05",
+    "mode": "Naive RAG",
+    "response_time": 11.68,
+    "num_chunks": 5,
+    "answer_length": 1881,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "How does the MSME productivity gap vary across different countries?",
+    "effective_q": "How does the MSME productivity gap vary across different countries?",
+    "timestamp": "2026-04-21T21:43:25",
+    "mode": "Naive RAG",
+    "response_time": 12.01,
+    "num_chunks": 5,
+    "answer_length": 2128,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "Why do B2B MSMEs outperform B2C MSMEs in productivity?",
+    "effective_q": "Why do B2B MSMEs outperform B2C MSMEs in productivity?",
+    "timestamp": "2026-04-21T21:43:41",
+    "mode": "Naive RAG",
+    "response_time": 9.98,
+    "num_chunks": 5,
+    "answer_length": 1892,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.9
+  },
+  {
+    "question": "What proportion of large companies over ten billion market cap were MSMEs after the year 2000?",
+    "effective_q": "What proportion of large companies over ten billion market cap were MSMEs after the year 2000?",
+    "timestamp": "2026-04-21T21:43:52",
+    "mode": "Naive RAG",
+    "response_time": 5.06,
+    "num_chunks": 5,
+    "answer_length": 285,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "How do B2B MSMEs differ from B2C MSMEs in terms of export revenue and innovation?",
+    "effective_q": "How do B2B MSMEs differ from B2C MSMEs in terms of export revenue and innovation?",
+    "timestamp": "2026-04-21T21:44:04",
+    "mode": "Naive RAG",
+    "response_time": 6.8,
+    "num_chunks": 5,
+    "answer_length": 792,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.9
+  },
+  {
+    "question": "In which sectors do MSMEs approach or exceed large company productivity levels?",
+    "effective_q": "In which sectors do MSMEs approach or exceed large company productivity levels?",
+    "timestamp": "2026-04-21T21:54:34",
+    "mode": "Naive RAG",
+    "response_time": 619.68,
+    "num_chunks": 5,
+    "answer_length": 1345,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.7,
+    "answer_relevancy": 0.8,
+    "context_precision": 0.6
+  },
+  {
+    "question": "What is the role of microenterprises within the MSME category in emerging markets like India Kenya and Nigeria?",
+    "effective_q": "What is the role of microenterprises within the MSME category in emerging markets like India Kenya and Nigeria?",
+    "timestamp": "2026-04-21T21:54:48",
+    "mode": "Naive RAG",
+    "response_time": 10.05,
+    "num_chunks": 5,
+    "answer_length": 843,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "How has the structure of value in industrial automation shifted from a pyramid to an hourglass model?",
+    "effective_q": "How has the structure of value in industrial automation shifted from a pyramid to an hourglass model?",
+    "timestamp": "2026-04-21T21:55:05",
+    "mode": "Naive RAG",
+    "response_time": 10.01,
+    "num_chunks": 5,
+    "answer_length": 2002,
+    "sources": [
+      "bain_brief_industrial_automation_from_control_to__intelligence.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "What is the projected size of the industrial automation market by 2030 and what share will software capture?",
+    "effective_q": "What is the projected size of the industrial automation market by 2030 and what share will software capture?",
+    "timestamp": "2026-04-21T21:55:21",
+    "mode": "Naive RAG",
+    "response_time": 11.69,
+    "num_chunks": 5,
+    "answer_length": 704,
+    "sources": [
+      "bain_brief_industrial_automation_from_control_to__intelligence.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.8,
+    "answer_relevancy": 0.9,
+    "context_precision": 0.7
+  },
+  {
+    "question": "How much new AI market value is expected to be unlocked in industrial automation by 2030?",
+    "effective_q": "How much new AI market value is expected to be unlocked in industrial automation by 2030?",
+    "timestamp": "2026-04-21T21:55:30",
+    "mode": "Naive RAG",
+    "response_time": 4.08,
+    "num_chunks": 5,
+    "answer_length": 271,
+    "sources": [
+      "agents-robots-and-us-skill-partnerships-in-the-age-of-ai-vf-final1 (1).pdf",
+      "agents-robots-and-us-skill-partnerships-in-the-age-of-ai-vf-final1.pdf",
+      "bain_brief_industrial_automation_from_control_to__intelligence.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "What productivity and cost reduction gains can manufacturers expect from AI-enabled industrial automation?",
+    "effective_q": "What productivity and cost reduction gains can manufacturers expect from AI-enabled industrial automation?",
+    "timestamp": "2026-04-21T21:55:44",
+    "mode": "Naive RAG",
+    "response_time": 8.12,
+    "num_chunks": 5,
+    "answer_length": 1200,
+    "sources": [
+      "agents-robots-and-us-skill-partnerships-in-the-age-of-ai-vf-final1 (1).pdf",
+      "agents-robots-and-us-skill-partnerships-in-the-age-of-ai-vf-final1.pdf",
+      "bain_brief_industrial_automation_from_control_to__intelligence.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.9
+  },
+  {
+    "question": "What percentage of incremental growth in industrial automation is expected to come from vertical-specific versus horizontal offerings?",
+    "effective_q": "What percentage of incremental growth in industrial automation is expected to come from vertical-specific versus horizontal offerings?",
+    "timestamp": "2026-04-21T21:55:56",
+    "mode": "Naive RAG",
+    "response_time": 6.02,
+    "num_chunks": 5,
+    "answer_length": 318,
+    "sources": [
+      "bain_brief_industrial_automation_from_control_to__intelligence.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "What are the AI substitution rates for manufacturing operations management and maintenance roles?",
+    "effective_q": "What are the AI substitution rates for manufacturing operations management and maintenance roles?",
+    "timestamp": "2026-04-21T21:56:09",
+    "mode": "Naive RAG",
+    "response_time": 7.26,
+    "num_chunks": 5,
+    "answer_length": 339,
+    "sources": [
+      "agents-robots-and-us-skill-partnerships-in-the-age-of-ai-vf-final1 (1).pdf",
+      "agents-robots-and-us-skill-partnerships-in-the-age-of-ai-vf-final1.pdf",
+      "bain_brief_industrial_automation_from_control_to__intelligence.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "What three forces are eroding incumbent industrial automation vendors competitive positions?",
+    "effective_q": "What three forces are eroding incumbent industrial automation vendors competitive positions?",
+    "timestamp": "2026-04-21T21:56:27",
+    "mode": "Naive RAG",
+    "response_time": 11.38,
+    "num_chunks": 5,
+    "answer_length": 1984,
+    "sources": [
+      "strategic_frameworks_guide.docx",
+      "bain_brief_industrial_automation_from_control_to__intelligence.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "What are the three waves of AI use cases in industrial automation?",
+    "effective_q": "What are the three waves of AI use cases in industrial automation?",
+    "timestamp": "2026-04-21T21:56:47",
+    "mode": "Naive RAG",
+    "response_time": 14.29,
+    "num_chunks": 5,
+    "answer_length": 1893,
+    "sources": [
+      "mckinsey-tech-trends-outlook-2022-full-report.pdf",
+      "bain_report_technology_report_2025.pdf",
+      "bain_brief_industrial_automation_from_control_to__intelligence.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.7,
+    "context_precision": 0.8
+  },
+  {
+    "question": "How is IT-OT convergence affecting legacy industrial control systems like PLCs DCS and SCADA?",
+    "effective_q": "How is IT-OT convergence affecting legacy industrial control systems like PLCs DCS and SCADA?",
+    "timestamp": "2026-04-21T21:57:06",
+    "mode": "Naive RAG",
+    "response_time": 14.54,
+    "num_chunks": 5,
+    "answer_length": 2417,
+    "sources": [
+      "mckinsey-tech-trends-outlook-2022-full-report.pdf",
+      "bain_brief_industrial_automation_from_control_to__intelligence.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.9
+  },
+  {
+    "question": "What percentage of the time do large language models direct users to airline websites when asked about flight bookings?",
+    "effective_q": "What percentage of the time do large language models direct users to airline websites when asked about flight bookings?",
+    "timestamp": "2026-04-21T21:57:18",
+    "mode": "Naive RAG",
+    "response_time": 5.72,
+    "num_chunks": 5,
+    "answer_length": 282,
+    "sources": [
+      "the-economic-potential-of-generative-ai-the-next-productivity-frontier.pdf",
+      "bain_brief_is_the_airline_industry_ready_for_agent-led_bookings.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "What share of LLM-driven travel search traffic do the top six online travel agencies capture?",
+    "effective_q": "What share of LLM-driven travel search traffic do the top six online travel agencies capture?",
+    "timestamp": "2026-04-21T21:57:29",
+    "mode": "Naive RAG",
+    "response_time": 6.27,
+    "num_chunks": 5,
+    "answer_length": 56,
+    "sources": [
+      "the-economic-potential-of-generative-ai-the-next-productivity-frontier.pdf",
+      "bain_brief_is_the_airline_industry_ready_for_agent-led_bookings.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "What technical challenges do browser-based AI agents face when trying to complete airline bookings autonomously?",
+    "effective_q": "What technical challenges do browser-based AI agents face when trying to complete airline bookings autonomously?",
+    "timestamp": "2026-04-21T21:57:45",
+    "mode": "Naive RAG",
+    "response_time": 9.63,
+    "num_chunks": 5,
+    "answer_length": 1225,
+    "sources": [
+      "bain_brief_is_the_airline_industry_ready_for_agent-led_bookings.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "Why do online travel agencies produce better results than airline websites for AI agent-led bookings?",
+    "effective_q": "Why do online travel agencies produce better results than airline websites for AI agent-led bookings?",
+    "timestamp": "2026-04-21T21:58:08",
+    "mode": "Naive RAG",
+    "response_time": 15.84,
+    "num_chunks": 5,
+    "answer_length": 1921,
+    "sources": [
+      "bain_brief_is_the_airline_industry_ready_for_agent-led_bookings.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "What share of airline industry revenues is projected to flow through AI-based solutions by 2030?",
+    "effective_q": "What share of airline industry revenues is projected to flow through AI-based solutions by 2030?",
+    "timestamp": "2026-04-21T21:58:23",
+    "mode": "Naive RAG",
+    "response_time": 9.86,
+    "num_chunks": 5,
+    "answer_length": 56,
+    "sources": [
+      "bain_brief_industrial_automation_from_control_to__intelligence.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "What five strategic priorities does Bain recommend for airlines preparing for agent-led bookings?",
+    "effective_q": "What five strategic priorities does Bain recommend for airlines preparing for agent-led bookings?",
+    "timestamp": "2026-04-21T21:58:37",
+    "mode": "Naive RAG",
+    "response_time": 8.96,
+    "num_chunks": 5,
+    "answer_length": 1468,
+    "sources": [
+      "bain_brief_is_the_airline_industry_ready_for_agent-led_bookings.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
+  },
+  {
+    "question": "What are the key growth themes in B2B markets that Bain identifies for 2026?",
+    "effective_q": "What are the key growth themes in B2B markets that Bain identifies for 2026?",
+    "timestamp": "2026-04-21T21:59:07",
+    "mode": "Naive RAG",
+    "response_time": 23.42,
+    "num_chunks": 5,
+    "answer_length": 3058,
+    "sources": [
+      "bain_report_b2b_growth_agenda-2026.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.8,
+    "answer_relevancy": 0.9,
+    "context_precision": 0.7
+  },
+  {
+    "question": "How is AI changing B2B sales motions and customer engagement according to Bain 2026?",
+    "effective_q": "How is AI changing B2B sales motions and customer engagement according to Bain 2026?",
+    "timestamp": "2026-04-21T21:59:35",
+    "mode": "Naive RAG",
+    "response_time": 21.56,
+    "num_chunks": 5,
+    "answer_length": 3508,
+    "sources": [
+      "bain_report_b2b_growth_agenda-2026.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.7,
+    "answer_relevancy": 0.8,
+    "context_precision": 0.9
+  },
+  {
+    "question": "What does Bain say about customer retention versus acquisition strategies in B2B growth?",
+    "effective_q": "What does Bain say about customer retention versus acquisition strategies in B2B growth?",
+    "timestamp": "2026-04-21T21:59:54",
+    "mode": "Naive RAG",
+    "response_time": 13.53,
+    "num_chunks": 5,
+    "answer_length": 1589,
+    "sources": [
+      "bain_report_b2b_growth_agenda-2026.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.8,
+    "answer_relevancy": 0.7,
+    "context_precision": 0.6
+  },
+  {
+    "question": "What are the main trends shaping global M&A activity in 2026 according to Bain?",
+    "effective_q": "What are the main trends shaping global M&A activity in 2026 according to Bain?",
+    "timestamp": "2026-04-21T22:00:17",
+    "mode": "Naive RAG",
+    "response_time": 16.8,
+    "num_chunks": 5,
+    "answer_length": 3348,
+    "sources": [
+      "bain_report_global_m_and_a_report_2026.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "How has geopolitical uncertainty affected cross-border M&A deal flows?",
+    "effective_q": "How has geopolitical uncertainty affected cross-border M&A deal flows?",
+    "timestamp": "2026-04-21T22:00:34",
+    "mode": "Naive RAG",
+    "response_time": 11.24,
+    "num_chunks": 5,
+    "answer_length": 828,
+    "sources": [
+      "bain_report_global_m_and_a_report_2026.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "What does Bain recommend for improving M&A deal value realization post-acquisition?",
+    "effective_q": "What does Bain recommend for improving M&A deal value realization post-acquisition?",
+    "timestamp": "2026-04-21T22:00:56",
+    "mode": "Naive RAG",
+    "response_time": 14.69,
+    "num_chunks": 5,
+    "answer_length": 1746,
+    "sources": [
+      "bain_report_global_m_and_a_report_2026.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "What sectors are seeing the most M&A consolidation activity according to Bain 2026?",
+    "effective_q": "What sectors are seeing the most M&A consolidation activity according to Bain 2026?",
+    "timestamp": "2026-04-21T22:01:18",
+    "mode": "Naive RAG",
+    "response_time": 16.34,
+    "num_chunks": 5,
+    "answer_length": 2318,
+    "sources": [
+      "bain_report_global_m_and_a_report_2026.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.7,
+    "answer_relevancy": 0.8,
+    "context_precision": 0.6
+  },
+  {
+    "question": "What are the most significant technology trends that Bain identifies in its 2025 Technology Report?",
+    "effective_q": "What are the most significant technology trends that Bain identifies in its 2025 Technology Report?",
+    "timestamp": "2026-04-21T22:11:49",
+    "mode": "Naive RAG",
+    "response_time": 625.4,
+    "num_chunks": 5,
+    "answer_length": 3125,
+    "sources": [
+      "bain_report_technology_report_2025.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.7,
+    "answer_relevancy": 0.8,
+    "context_precision": 0.6
+  },
+  {
+    "question": "How is the competitive landscape for foundation models evolving according to Bain 2025?",
+    "effective_q": "How is the competitive landscape for foundation models evolving according to Bain 2025?",
+    "timestamp": "2026-04-21T22:12:13",
+    "mode": "Naive RAG",
+    "response_time": 17.05,
+    "num_chunks": 5,
+    "answer_length": 2430,
+    "sources": [
+      "bain_report_technology_report_2025.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.9
+  },
+  {
+    "question": "What is Bains assessment of enterprise AI adoption maturity in 2025?",
+    "effective_q": "What is Bains assessment of enterprise AI adoption maturity in 2025?",
+    "timestamp": "2026-04-21T22:12:35",
+    "mode": "Naive RAG",
+    "response_time": 14.83,
+    "num_chunks": 5,
+    "answer_length": 2199,
+    "sources": [
+      "bain_report_technology_report_2025.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.7,
+    "answer_relevancy": 0.8,
+    "context_precision": 0.6
+  },
+  {
+    "question": "How are hyperscalers positioning themselves in the AI infrastructure market according to Bain?",
+    "effective_q": "How are hyperscalers positioning themselves in the AI infrastructure market according to Bain?",
+    "timestamp": "2026-04-21T22:12:56",
+    "mode": "Naive RAG",
+    "response_time": 14.77,
+    "num_chunks": 5,
+    "answer_length": 2110,
+    "sources": [
+      "bain_report_technology_report_2025.pdf",
+      "bain_brief_industrial_automation_from_control_to__intelligence.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.9
+  },
+  {
+    "question": "How is the geometry of global trade shifting due to geopolitical realignment?",
+    "effective_q": "How is the geometry of global trade shifting due to geopolitical realignment?",
+    "timestamp": "2026-04-21T22:13:21",
+    "mode": "Naive RAG",
+    "response_time": 17.67,
+    "num_chunks": 5,
+    "answer_length": 3402,
+    "sources": [
+      "geopolitics-and-the-geometry-of-global-trade-vf.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.8,
+    "answer_relevancy": 0.9,
+    "context_precision": 0.7
+  },
+  {
+    "question": "What is friend-shoring and how is it reshaping supply chain strategies?",
+    "effective_q": "What is friend-shoring and how is it reshaping supply chain strategies?",
+    "timestamp": "2026-04-21T22:13:40",
+    "mode": "Naive RAG",
+    "response_time": 14.08,
+    "num_chunks": 5,
+    "answer_length": 2120,
+    "sources": [
+      "bain_report_technology_report_2025.pdf",
+      "bain_report_global_m_and_a_report_2026.pdf",
+      "geopolitics-and-the-geometry-of-global-trade-vf.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 0.8,
+    "context_precision": 0.7
+  },
+  {
+    "question": "What sectors are most exposed to geopolitical trade disruption?",
+    "effective_q": "What sectors are most exposed to geopolitical trade disruption?",
+    "timestamp": "2026-04-21T22:24:07",
+    "mode": "Naive RAG",
+    "response_time": 622.12,
+    "num_chunks": 5,
+    "answer_length": 1991,
+    "sources": [
+      "geopolitics-and-the-geometry-of-global-trade-vf.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "How is Chinas role in global trade value chains evolving?",
+    "effective_q": "How is Chinas role in global trade value chains evolving?",
+    "timestamp": "2026-04-21T22:24:32",
+    "mode": "Naive RAG",
+    "response_time": 19.08,
+    "num_chunks": 5,
+    "answer_length": 2703,
+    "sources": [
+      "geopolitics-and-the-geometry-of-global-trade-vf.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.7,
+    "answer_relevancy": 0.9,
+    "context_precision": 0.6
+  },
+  {
+    "question": "What are the main barriers to productivity growth in advanced economies?",
+    "effective_q": "What are the main barriers to productivity growth in advanced economies?",
+    "timestamp": "2026-04-21T22:24:47",
+    "mode": "Naive RAG",
+    "response_time": 9.09,
+    "num_chunks": 5,
+    "answer_length": 1741,
+    "sources": [
+      "investing-in-productivity-growth-vf.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "How can public investment catalyze private sector productivity growth?",
+    "effective_q": "How can public investment catalyze private sector productivity growth?",
+    "timestamp": "2026-04-21T22:25:06",
+    "mode": "Naive RAG",
+    "response_time": 13.56,
+    "num_chunks": 5,
+    "answer_length": 2358,
+    "sources": [
+      "investing-in-productivity-growth-vf.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "What is the relationship between technology adoption and productivity growth across different firm sizes?",
+    "effective_q": "What is the relationship between technology adoption and productivity growth across different firm sizes?",
+    "timestamp": "2026-04-21T22:25:21",
+    "mode": "Naive RAG",
+    "response_time": 9.67,
+    "num_chunks": 5,
+    "answer_length": 1780,
+    "sources": [
+      "investing-in-productivity-growth-vf.pdf",
+      "the-economic-potential-of-generative-ai-the-next-productivity-frontier.pdf",
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.9,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
+  },
+  {
+    "question": "Which industries does McKinsey identify as having the highest potential value from generative AI?",
+    "effective_q": "Which industries does McKinsey identify as having the highest potential value from generative AI?",
+    "timestamp": "2026-04-21T22:25:40",
+    "mode": "Naive RAG",
+    "response_time": 13.66,
+    "num_chunks": 5,
+    "answer_length": 1707,
+    "sources": [
+      "the-economic-potential-of-generative-ai-the-next-productivity-frontier.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.8,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.9
+  },
+  {
+    "question": "What is the relationship between the orchestration layer and the data layer in agentic AI?",
+    "effective_q": "What is the relationship between the orchestration layer and the data layer in agentic AI?",
+    "timestamp": "2026-04-21T22:26:14",
+    "mode": "Graph RAG",
+    "response_time": 28.32,
+    "num_chunks": 6,
+    "answer_length": 161,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does MCP protocol connect AI agents to enterprise tool catalogs?",
+    "effective_q": "How does MCP protocol connect AI agents to enterprise tool catalogs?",
+    "timestamp": "2026-04-21T22:28:08",
+    "mode": "Graph RAG",
+    "response_time": 108.48,
+    "num_chunks": 5,
+    "answer_length": 166,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What is the link between real-time streaming and agent decision quality in enterprise deployments?",
+    "effective_q": "What is the link between real-time streaming and agent decision quality in enterprise deployments?",
+    "timestamp": "2026-04-21T22:29:05",
+    "mode": "Graph RAG",
+    "response_time": 51.07,
+    "num_chunks": 5,
+    "answer_length": 180,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does the B2B versus B2C distinction connect to MSME growth potential?",
+    "effective_q": "How does the B2B versus B2C distinction connect to MSME growth potential?",
+    "timestamp": "2026-04-22T17:19:53",
+    "mode": "Graph RAG",
+    "response_time": 12.99,
+    "num_chunks": 5,
+    "answer_length": 604,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 0.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What is the relationship between formal employee training and productivity in small businesses?",
+    "effective_q": "What is the relationship between formal employee training and productivity in small businesses?",
+    "timestamp": "2026-04-22T17:20:36",
+    "mode": "Graph RAG",
+    "response_time": 28.52,
+    "num_chunks": 1,
+    "answer_length": 188,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does MSME export orientation connect to narrowing the productivity gap?",
+    "effective_q": "How does MSME export orientation connect to narrowing the productivity gap?",
+    "timestamp": "2026-04-22T17:20:47",
+    "mode": "Graph RAG",
+    "response_time": 5.98,
+    "num_chunks": 5,
+    "answer_length": 189,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.5
+  },
+  {
+    "question": "What connects the hourglass model to profit pool shifts in industrial automation?",
+    "effective_q": "What connects the hourglass model to profit pool shifts in industrial automation?",
+    "timestamp": "2026-04-22T17:20:59",
+    "mode": "Graph RAG",
+    "response_time": 8.16,
+    "num_chunks": 8,
+    "answer_length": 171,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does vertical specialization relate to competitive advantage in industrial automation?",
+    "effective_q": "How does vertical specialization relate to competitive advantage in industrial automation?",
+    "timestamp": "2026-04-22T17:21:15",
+    "mode": "Graph RAG",
+    "response_time": 11.93,
+    "num_chunks": 9,
+    "answer_length": 824,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.3
+  },
+  {
+    "question": "What is the connection between predictive maintenance and AI substitution rates in manufacturing?",
+    "effective_q": "What is the connection between predictive maintenance and AI substitution rates in manufacturing?",
+    "timestamp": "2026-04-22T17:21:25",
+    "mode": "Graph RAG",
+    "response_time": 6.2,
+    "num_chunks": 7,
+    "answer_length": 188,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does OTA dominance in LLM search traffic connect to airline revenue risk?",
+    "effective_q": "How does OTA dominance in LLM search traffic connect to airline revenue risk?",
+    "timestamp": "2026-04-22T17:21:37",
+    "mode": "Graph RAG",
+    "response_time": 7.82,
+    "num_chunks": 8,
+    "answer_length": 168,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What is the relationship between machine-readable data and airline competitiveness in an AI-agent world?",
+    "effective_q": "What is the relationship between machine-readable data and airline competitiveness in an AI-agent world?",
+    "timestamp": "2026-04-22T17:21:51",
+    "mode": "Graph RAG",
+    "response_time": 7.61,
+    "num_chunks": 8,
+    "answer_length": 176,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does CAPTCHA and session timeout friction connect to OTA advantage over airlines?",
+    "effective_q": "How does CAPTCHA and session timeout friction connect to OTA advantage over airlines?",
+    "timestamp": "2026-04-22T17:22:05",
+    "mode": "Graph RAG",
+    "response_time": 9.51,
+    "num_chunks": 8,
+    "answer_length": 186,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What connects customer lifetime value to retention strategy in B2B growth?",
+    "effective_q": "What connects customer lifetime value to retention strategy in B2B growth?",
+    "timestamp": "2026-04-22T17:22:17",
+    "mode": "Graph RAG",
+    "response_time": 7.48,
+    "num_chunks": 8,
+    "answer_length": 201,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.3
+  },
+  {
+    "question": "How does digital self-serve connect to cost-to-serve reduction in B2B?",
+    "effective_q": "How does digital self-serve connect to cost-to-serve reduction in B2B?",
+    "timestamp": "2026-04-22T17:22:29",
+    "mode": "Graph RAG",
+    "response_time": 7.21,
+    "num_chunks": 5,
+    "answer_length": 153,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What links synergy capture speed to post-merger value creation in M&A?",
+    "effective_q": "What links synergy capture speed to post-merger value creation in M&A?",
+    "timestamp": "2026-04-22T17:22:42",
+    "mode": "Graph RAG",
+    "response_time": 8.77,
+    "num_chunks": 10,
+    "answer_length": 185,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does talent retention connect to M&A integration success?",
+    "effective_q": "How does talent retention connect to M&A integration success?",
+    "timestamp": "2026-04-22T17:22:53",
+    "mode": "Graph RAG",
+    "response_time": 7.25,
+    "num_chunks": 9,
+    "answer_length": 166,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.2
+  },
+  {
+    "question": "What is the relationship between foundation model commoditization and application layer value capture?",
+    "effective_q": "What is the relationship between foundation model commoditization and application layer value capture?",
+    "timestamp": "2026-04-22T17:23:05",
+    "mode": "Graph RAG",
+    "response_time": 7.98,
+    "num_chunks": 8,
+    "answer_length": 172,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does open-source AI connect to hyperscaler competitive strategy?",
+    "effective_q": "How does open-source AI connect to hyperscaler competitive strategy?",
+    "timestamp": "2026-04-22T17:23:18",
+    "mode": "Graph RAG",
+    "response_time": 8.47,
+    "num_chunks": 8,
+    "answer_length": 166,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What connects friend-shoring to semiconductor supply chain resilience?",
+    "effective_q": "What connects friend-shoring to semiconductor supply chain resilience?",
+    "timestamp": "2026-04-22T17:23:30",
+    "mode": "Graph RAG",
+    "response_time": 8.55,
+    "num_chunks": 10,
+    "answer_length": 164,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does US-China decoupling relate to emerging market manufacturing growth?",
+    "effective_q": "How does US-China decoupling relate to emerging market manufacturing growth?",
+    "timestamp": "2026-04-22T17:23:43",
+    "mode": "Graph RAG",
+    "response_time": 8.35,
+    "num_chunks": 7,
+    "answer_length": 485,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.3
+  },
+  {
+    "question": "What links competition policy to productivity frontier advancement in advanced economies?",
+    "effective_q": "What links competition policy to productivity frontier advancement in advanced economies?",
+    "timestamp": "2026-04-22T17:23:53",
+    "mode": "Graph RAG",
+    "response_time": 6.17,
+    "num_chunks": 7,
+    "answer_length": 218,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.3
+  },
+  {
+    "question": "How does technology diffusion connect to the productivity gap between frontier and laggard firms?",
+    "effective_q": "How does technology diffusion connect to the productivity gap between frontier and laggard firms?",
+    "timestamp": "2026-04-22T17:24:02",
+    "mode": "Graph RAG",
+    "response_time": 5.83,
+    "num_chunks": 6,
+    "answer_length": 202,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What is the total annual economic value generative AI could add to the global economy?",
+    "effective_q": "What is the total annual economic value generative AI could add to the global economy?",
+    "timestamp": "2026-04-22T17:24:12",
+    "mode": "Graph RAG",
+    "response_time": 6.02,
+    "num_chunks": 6,
+    "answer_length": 140,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does generative AI differ from previous automation waves in its impact on workers?",
+    "effective_q": "How does generative AI differ from previous automation waves in its impact on workers?",
+    "timestamp": "2026-04-22T17:24:25",
+    "mode": "Graph RAG",
+    "response_time": 8.5,
+    "num_chunks": 5,
+    "answer_length": 174,
+    "sources": [
+      "advancing-adaptation-how-evolving-hazards-could-shape-the-agenda_final.pdf",
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What connects knowledge work automation to the pace of generative AI adoption across industries?",
+    "effective_q": "What connects knowledge work automation to the pace of generative AI adoption across industries?",
+    "timestamp": "2026-04-22T17:24:37",
+    "mode": "Graph RAG",
+    "response_time": 8.21,
+    "num_chunks": 8,
+    "answer_length": 178,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What are the top technology trends McKinsey identified in its 2022 technology outlook?",
+    "effective_q": "What are the top technology trends McKinsey identified in its 2022 technology outlook?",
+    "timestamp": "2026-04-22T17:24:49",
+    "mode": "Graph RAG",
+    "response_time": 7.36,
+    "num_chunks": 6,
+    "answer_length": 313,
+    "sources": [
+      "advancing-adaptation-how-evolving-hazards-could-shape-the-agenda_final.pdf",
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.5
+  },
+  {
+    "question": "How does 5G advanced connectivity enable industrial IoT and new service delivery models?",
+    "effective_q": "How does 5G advanced connectivity enable industrial IoT and new service delivery models?",
+    "timestamp": "2026-04-22T17:25:01",
+    "mode": "Graph RAG",
+    "response_time": 8.08,
+    "num_chunks": 10,
+    "answer_length": 164,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What does McKinsey say about zero-trust security models and privacy-enhancing technologies?",
+    "effective_q": "What does McKinsey say about zero-trust security models and privacy-enhancing technologies?",
+    "timestamp": "2026-04-22T17:25:12",
+    "mode": "Graph RAG",
+    "response_time": 6.79,
+    "num_chunks": 6,
+    "answer_length": 161,
+    "sources": [
+      "advancing-adaptation-how-evolving-hazards-could-shape-the-agenda_final.pdf",
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What are the key dimensions of a successful digital transformation?",
+    "effective_q": "What are the key dimensions of a successful digital transformation?",
+    "timestamp": "2026-04-22T17:25:26",
+    "mode": "Graph RAG",
+    "response_time": 8.68,
+    "num_chunks": 7,
+    "answer_length": 725,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.7,
+    "context_precision": 0.6
+  },
+  {
+    "question": "How should organizations prioritize digital transformation initiatives to maximize ROI?",
+    "effective_q": "How should organizations prioritize digital transformation initiatives to maximize ROI?",
+    "timestamp": "2026-04-22T17:25:43",
+    "mode": "Graph RAG",
+    "response_time": 13.87,
+    "num_chunks": 7,
+    "answer_length": 899,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.7
+  },
+  {
+    "question": "How are physical climate hazards expected to evolve in severity and frequency?",
+    "effective_q": "How are physical climate hazards expected to evolve in severity and frequency?",
+    "timestamp": "2026-04-22T17:25:59",
+    "mode": "Graph RAG",
+    "response_time": 10.19,
+    "num_chunks": 8,
+    "answer_length": 922,
+    "sources": [
+      "advancing-adaptation-how-evolving-hazards-could-shape-the-agenda_final.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.9
+  },
+  {
+    "question": "What sectors are most vulnerable to physical climate risk?",
+    "effective_q": "What sectors are most vulnerable to physical climate risk?",
+    "timestamp": "2026-04-22T17:26:09",
+    "mode": "Graph RAG",
+    "response_time": 5.83,
+    "num_chunks": 7,
+    "answer_length": 167,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How is AI reshaping skill requirements and labor market partnerships?",
+    "effective_q": "How is AI reshaping skill requirements and labor market partnerships?",
+    "timestamp": "2026-04-22T17:26:21",
+    "mode": "Graph RAG",
+    "response_time": 7.71,
+    "num_chunks": 6,
+    "answer_length": 166,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What types of human skills become more valuable as AI agents take on routine tasks?",
+    "effective_q": "What types of human skills become more valuable as AI agents take on routine tasks?",
+    "timestamp": "2026-04-22T17:26:34",
+    "mode": "Graph RAG",
+    "response_time": 9.32,
+    "num_chunks": 11,
+    "answer_length": 449,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.3
+  },
+  {
+    "question": "What are the main steps in a data processing pipeline?",
+    "effective_q": "What are the main steps in a data processing pipeline?",
+    "timestamp": "2026-04-22T17:26:43",
+    "mode": "Graph RAG",
+    "response_time": 4.39,
+    "num_chunks": 7,
+    "answer_length": 81,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How should missing data be handled in a preprocessing workflow?",
+    "effective_q": "How should missing data be handled in a preprocessing workflow?",
+    "timestamp": "2026-04-22T17:26:55",
+    "mode": "Graph RAG",
+    "response_time": 8.36,
+    "num_chunks": 7,
+    "answer_length": 589,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.5
+  },
+  {
+    "question": "Compare Naive RAG and Graph RAG approaches for answering strategic consulting questions about agentic AI",
+    "effective_q": "Compare Naive RAG and Graph RAG approaches for answering strategic consulting questions about agentic AI",
+    "timestamp": "2026-04-22T17:27:06",
+    "mode": "Graph RAG",
+    "response_time": 6.86,
+    "num_chunks": 7,
+    "answer_length": 208,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How do the three agentic AI platform layers collectively enable enterprise-grade AI deployments?",
+    "effective_q": "How do the three agentic AI platform layers collectively enable enterprise-grade AI deployments?",
+    "timestamp": "2026-04-22T17:27:17",
+    "mode": "Graph RAG",
+    "response_time": 6.77,
+    "num_chunks": 8,
+    "answer_length": 175,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What is the combined impact of MSME productivity improvement on global GDP across both advanced and emerging economies?",
+    "effective_q": "What is the combined impact of MSME productivity improvement on global GDP across both advanced and emerging economies?",
+    "timestamp": "2026-04-22T17:27:29",
+    "mode": "Graph RAG",
+    "response_time": 7.9,
+    "num_chunks": 6,
+    "answer_length": 362,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.7
+  },
+  {
+    "question": "How do the industrial automation hourglass shift and IT-OT convergence together affect incumbent vendors?",
+    "effective_q": "How do the industrial automation hourglass shift and IT-OT convergence together affect incumbent vendors?",
+    "timestamp": "2026-04-22T17:27:40",
+    "mode": "Graph RAG",
+    "response_time": 6.69,
+    "num_chunks": 8,
+    "answer_length": 213,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How should airlines respond to both OTA dominance in LLM search and browser agent friction simultaneously?",
+    "effective_q": "How should airlines respond to both OTA dominance in LLM search and browser agent friction simultaneously?",
+    "timestamp": "2026-04-22T17:27:52",
+    "mode": "Graph RAG",
+    "response_time": 8.67,
+    "num_chunks": 9,
+    "answer_length": 167,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How do geopolitical trade realignment and productivity growth barriers interact to shape emerging market strategy?",
+    "effective_q": "How do geopolitical trade realignment and productivity growth barriers interact to shape emerging market strategy?",
+    "timestamp": "2026-04-22T17:28:06",
+    "mode": "Graph RAG",
+    "response_time": 9.24,
+    "num_chunks": 9,
+    "answer_length": 932,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.7,
+    "context_precision": 0.8
+  },
+  {
+    "question": "What is the relationship between generative AI economic potential and workforce reskilling requirements?",
+    "effective_q": "What is the relationship between generative AI economic potential and workforce reskilling requirements?",
+    "timestamp": "2026-04-22T17:28:18",
+    "mode": "Graph RAG",
+    "response_time": 7.83,
+    "num_chunks": 9,
+    "answer_length": 189,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does Bains B2B growth agenda connect to the broader technology trends identified in their 2025 report?",
+    "effective_q": "How does Bains B2B growth agenda connect to the broader technology trends identified in their 2025 report?",
+    "timestamp": "2026-04-22T17:28:29",
+    "mode": "Graph RAG",
+    "response_time": 7.45,
+    "num_chunks": 6,
+    "answer_length": 274,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What does McKinsey say about the timeline and pace of generative AI adoption across industries?",
+    "effective_q": "What does McKinsey say about the timeline and pace of generative AI adoption across industries?",
+    "timestamp": "2026-04-22T17:28:40",
+    "mode": "Graph RAG",
+    "response_time": 6.72,
+    "num_chunks": 7,
+    "answer_length": 184,
+    "sources": [
+      "advancing-adaptation-how-evolving-hazards-could-shape-the-agenda_final.pdf",
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does Bains industrial automation report define the profit pool shift between hardware and software?",
+    "effective_q": "How does Bains industrial automation report define the profit pool shift between hardware and software?",
+    "timestamp": "2026-04-22T17:28:52",
+    "mode": "Graph RAG",
+    "response_time": 7.97,
+    "num_chunks": 10,
+    "answer_length": 188,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "What training and development differences exist between B2B and B2C MSMEs?",
+    "effective_q": "What training and development differences exist between B2B and B2C MSMEs?",
+    "timestamp": "2026-04-22T17:29:03",
+    "mode": "Graph RAG",
+    "response_time": 7.12,
+    "num_chunks": 5,
+    "answer_length": 426,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.7,
+    "context_precision": 0.8
+  },
+  {
+    "question": "What does Bains 2025 technology report say about the build versus buy decision for AI capabilities?",
+    "effective_q": "What does Bains 2025 technology report say about the build versus buy decision for AI capabilities?",
+    "timestamp": "2026-04-22T17:29:17",
+    "mode": "Graph RAG",
+    "response_time": 10.03,
+    "num_chunks": 12,
+    "answer_length": 181,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
+  },
+  {
+    "question": "How does the geopolitics report characterize the role of emerging markets in new trade geometries?",
+    "effective_q": "How does the geopolitics report characterize the role of emerging markets in new trade geometries?",
+    "timestamp": "2026-04-22T17:29:29",
+    "mode": "Graph RAG",
+    "response_time": 7.24,
+    "num_chunks": 7,
+    "answer_length": 361,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.5
+  },
+  {
+    "question": "How does Bain recommend airlines differentiate their offerings specifically for AI agent interactions?",
+    "effective_q": "How does Bain recommend airlines differentiate their offerings specifically for AI agent interactions?",
+    "timestamp": "2026-04-22T17:29:40",
+    "mode": "Graph RAG",
+    "response_time": 6.45,
+    "num_chunks": 7,
+    "answer_length": 176,
+    "sources": [
+      "a-microscope-on-small-businesses-spotting-opportunities-to-boost-productivity.pdf"
+    ],
+    "test_run": true,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.0
   }
 ]
