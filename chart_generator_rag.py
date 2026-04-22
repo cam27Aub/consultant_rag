@@ -78,11 +78,12 @@ def _style_ax(ax, title="", xlabel="", ylabel=""):
 
 
 def _normalize_mode(mode: str) -> str:
-    if "Hybrid" in mode:
+    m = mode.lower()
+    if "hybrid" in m:
         return "Hybrid RAG"
-    if "Graph" in mode:
+    if "graph" in m:
         return "Graph RAG"
-    if "Naive" in mode:
+    if "naive" in m:
         return "Naive RAG"
     return "Unknown"
 

@@ -98,11 +98,12 @@ def _load_comparison_files() -> list:
 
 
 def _normalize_mode_str(mode: str) -> str:
-    if "Hybrid" in mode:
+    m = mode.lower()
+    if "hybrid" in m:
         return "Hybrid RAG"
-    if "Graph" in mode or "graph" in mode:
+    if "graph" in m:
         return "Graph RAG"
-    if "Naive" in mode or "naive" in mode:
+    if "naive" in m:
         return "Naive RAG"
     return "Unknown"
 
@@ -120,15 +121,7 @@ def compute_summary() -> dict:
 
     mode_counter = Counter()
     for e in entries:
-        mode = e.get("mode", "Unknown")
-        if "Hybrid" in mode:
-            mode_counter["Hybrid RAG"] += 1
-        elif "Graph" in mode:
-            mode_counter["Graph RAG"] += 1
-        elif "Naive" in mode:
-            mode_counter["Naive RAG"] += 1
-        else:
-            mode_counter[mode] += 1
+        mode_counter[_normalize_mode_str(e.get("mode", "Unknown"))] += 1
 
     source_counter = Counter()
     for e in entries:
