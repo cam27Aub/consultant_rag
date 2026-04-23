@@ -145,6 +145,15 @@ class AzureSearchStore:
         }
 
     def create_index(self):
+        # Skip if the index already exists — avoids triggering a vector
+        # index rebuild that can temporarily hide existing documents.
+        try:
+            self.index_client.get_index(config.AZURE_SEARCH_INDEX)
+            print(f"  Azure AI Search index '{config.AZURE_SEARCH_INDEX}' already exists — skipping creation")
+            return
+        except Exception:
+            pass  # Index does not exist yet; proceed to create it
+
         m = self._index_models
         fields = [
             m["SimpleField"](name="id",           type=m["SearchFieldDataType"].String, key=True),
@@ -211,7 +220,9 @@ class AzureSearchStore:
         total = 0
         for i in range(0, len(docs), BATCH):
             batch = docs[i:i+BATCH]
-            result = self.search_client.upload_documents(documents=batch)
+            # merge_or_upload: inserts new chunks, updates existing ones,
+            # never deletes documents that aren't in the current batch.
+            result = self.search_client.merge_or_upload_documents(documents=batch)
             succeeded = sum(1 for r in result if r.succeeded)
             total += succeeded
             print(f"  Uploaded {total}/{len(docs)} chunks")
