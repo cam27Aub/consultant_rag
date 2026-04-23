@@ -1940,5 +1940,25 @@
     "faithfulness": 1.0,
     "answer_relevancy": 1.0,
     "context_precision": 0.5
+  },
+  {
+    "question": "You are a management consultant in a prestigious consulting firm. You are assigned to build the data and AI strategy of the ministry of education in Saudi Arabia. We need to start first with checking what we know about the ministry of education in Saudi Arabia. Take things step and step, and tell me first if you have any data related to the ministry of education in our own database?\n\n\n",
+    "effective_q": "You are a management consultant in a prestigious consulting firm. You are assigned to build the data and AI strategy of the ministry of education in Saudi Arabia. We need to start first with checking what we know about the ministry of education in Saudi Arabia. Take things step and step, and tell me first if you have any data related to the ministry of education in our own database?\n\n\n",
+    "timestamp": "2026-04-23T06:58:21",
+    "mode": "naive",
+    "response_time": 2.45,
+    "num_chunks": 5,
+    "answer_length": 56,
+    "sources": [
+      "bain_report_technology_report_2025. / Page 15",
+      "digital_transformation_playbook.pdf / Page 3",
+      "client_engagement_best_practices.do / Page 4",
+      "bain_report_technology_report_2025. / Page 32",
+      "client_engagement_best_practices.do / Page 11"
+    ],
+    "test_run": false,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.5
   }
 ]
