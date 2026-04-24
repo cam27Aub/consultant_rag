@@ -92,6 +92,7 @@ def _extract_n8n_output(run_data: dict) -> str | None:
 async def _poll_n8n_execution(session_id: str) -> str | None:
     """Check n8n's execution API for a finished execution matching session_id."""
     if not (N8N_API_URL and N8N_API_KEY):
+        print(f"[async] n8n API not configured (N8N_API_URL={bool(N8N_API_URL)}, N8N_API_KEY={bool(N8N_API_KEY)})")
         return None
     try:
         import httpx
@@ -104,22 +105,29 @@ async def _poll_n8n_execution(session_id: str) -> str | None:
                 f"{N8N_API_URL}/api/v1/executions",
                 headers=headers, params=params, timeout=10
             )
-        executions = r.json().get("data", [])
+        print(f"[async] n8n API status: {r.status_code}")
+        body = r.json()
+        executions = body.get("data", [])
+        print(f"[async] executions returned: {len(executions)}")
         for execution in executions:
             run_data = (execution.get("data") or {}).get("resultData", {}).get("runData", {})
-            # Match session ID from the incoming webhook node
+            print(f"[async] execution {execution.get('id')} nodes: {list(run_data.keys())}")
             for wh_node in ["React Webhook", "Webhook"]:
                 node_runs = run_data.get(wh_node, [])
                 if not node_runs:
                     continue
                 try:
                     sid = node_runs[0]["data"]["main"][0][0]["json"].get("sessionId")
+                    print(f"[async] found sessionId={sid} (looking for {session_id})")
                     if sid == session_id:
-                        return _extract_n8n_output(run_data)
-                except (KeyError, IndexError, TypeError):
+                        result = _extract_n8n_output(run_data)
+                        print(f"[async] matched! extracted {len(result or '')} chars")
+                        return result
+                except (KeyError, IndexError, TypeError) as e:
+                    print(f"[async] parse error on {wh_node}: {e}")
                     continue
-    except Exception:
-        pass
+    except Exception as e:
+        print(f"[async] n8n API error: {e}")
     return None
 
 
