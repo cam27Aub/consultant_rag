@@ -2,8 +2,8 @@ import type { N8nPayload } from './types';
 
 const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || '';
 
-// 4 minutes — comfortably above the 2m30s max execution time
-const TIMEOUT_MS = 240_000;
+// 8 minutes — covers long research tasks (~6min observed max)
+const TIMEOUT_MS = 480_000;
 
 export async function sendToN8n(payload: N8nPayload): Promise<Response> {
   console.log('[ConsultantIQ] Webhook URL:', N8N_WEBHOOK_URL);
