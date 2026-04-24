@@ -2,8 +2,8 @@ import type { N8nPayload } from './types';
 
 const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || '';
 
-// 10 minutes — long enough for Presenton deck generation (3-5 min) and deep research
-const TIMEOUT_MS = 600_000;
+// 3 minutes — comfortably above the 2m30s max execution time
+const TIMEOUT_MS = 180_000;
 
 export async function sendToN8n(payload: N8nPayload): Promise<Response> {
   console.log('[ConsultantIQ] Webhook URL:', N8N_WEBHOOK_URL);
@@ -30,13 +30,12 @@ export async function sendToN8n(payload: N8nPayload): Promise<Response> {
     return response;
   } catch (err: unknown) {
     clearTimeout(timeoutId);
-    // n8n webhook timed out — workflow is still running and will push result async
-    if (err instanceof Error && err.name === 'AbortError') {
-      return new Response(JSON.stringify({ __async_pending: true }), {
-        status: 202,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
-    throw err;
+    // n8n closes the connection after ~2min regardless of our timeout.
+    // Treat ANY network error as async_pending — the workflow is still
+    // running and will push the result via HTTP Request → /async-result.
+    return new Response(JSON.stringify({ __async_pending: true }), {
+      status: 202,
+      headers: { 'Content-Type': 'application/json' },
+    });
   }
 }
