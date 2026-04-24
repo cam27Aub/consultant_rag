@@ -97,7 +97,10 @@ async def _poll_n8n_execution(session_id: str) -> str | None:
     try:
         import httpx
         headers = {"X-N8N-API-KEY": N8N_API_KEY}
-        params  = {"status": "success", "limit": 20, "includeData": "true"}
+        # No status filter — when Cloudflare 524 kills the connection, n8n marks
+        # the execution as "error" (Respond to Webhook node throws). We need to
+        # inspect all recent executions regardless of their final status.
+        params  = {"limit": 20, "includeData": "true"}
         if N8N_WORKFLOW_ID:
             params["workflowId"] = N8N_WORKFLOW_ID
         async with httpx.AsyncClient() as client:
