@@ -1,0 +1,70 @@
+name: Ingest Document
+
+on:
+  workflow_dispatch:
+    inputs:
+      filename:
+        description: "File to ingest from sample_docs/ (e.g. report.pdf)"
+        required: true
+        type: string
+      mode:
+        description: "Ingestion mode"
+        required: true
+        default: "both"
+        type: choice
+        options:
+          - both
+          - naive
+          - graph
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verify file exists
+        run: |
+          if [ ! -f "sample_docs/${{ github.event.inputs.filename }}" ]; then
+            echo "ERROR: sample_docs/${{ github.event.inputs.filename }} not found"
+            exit 1
+          fi
+          echo "File found: sample_docs/${{ github.event.inputs.filename }}"
+
+      - name: Prepare single-file temp directory
+        run: |
+          mkdir -p tmp_ingest
+          cp "sample_docs/${{ github.event.inputs.filename }}" tmp_ingest/
+
+      - name: Run Naive RAG ingestion
+        if: ${{ github.event.inputs.mode == 'naive' || github.event.inputs.mode == 'both' }}
+        env:
+          AZURE_OPENAI_ENDPOINT:    ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_KEY:         ${{ secrets.AZURE_OPENAI_KEY }}
+          AZURE_SEARCH_ENDPOINT:    ${{ secrets.AZURE_SEARCH_ENDPOINT }}
+          AZURE_SEARCH_KEY:         ${{ secrets.AZURE_SEARCH_KEY }}
+        run: python naive_rag/ingest.py --docs tmp_ingest/
+
+      - name: Run Graph RAG ingestion
+        if: ${{ github.event.inputs.mode == 'graph' || github.event.inputs.mode == 'both' }}
+        env:
+          AZURE_OPENAI_ENDPOINT:    ${{ secrets.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_KEY:         ${{ secrets.AZURE_OPENAI_KEY }}
+          GREMLIN_ENDPOINT:         ${{ secrets.GREMLIN_ENDPOINT }}
+          GREMLIN_KEY:              ${{ secrets.GREMLIN_KEY }}
+          GREMLIN_DATABASE:         ${{ secrets.GREMLIN_DATABASE }}
+          GREMLIN_GRAPH:            ${{ secrets.GREMLIN_GRAPH }}
+        run: python graph_rag/ingest_graph.py --file "sample_docs/${{ github.event.inputs.filename }}"
+
+      - name: Cleanup
+        run: rm -rf tmp_ingest
