@@ -2,8 +2,8 @@ import type { N8nPayload } from './types';
 
 const N8N_WEBHOOK_URL = import.meta.env.VITE_N8N_WEBHOOK_URL || '';
 
-// Slightly longer than n8n's ~2min webhook timeout so we catch the abort cleanly
-const TIMEOUT_MS = 130_000;
+// 10 minutes — long enough for Presenton deck generation (3-5 min) and deep research
+const TIMEOUT_MS = 600_000;
 
 export async function sendToN8n(payload: N8nPayload): Promise<Response> {
   console.log('[ConsultantIQ] Webhook URL:', N8N_WEBHOOK_URL);
