@@ -16,6 +16,11 @@ export async function sendToN8n(payload: N8nPayload): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
+  const asyncPending = new Response(JSON.stringify({ __async_pending: true }), {
+    status: 202,
+    headers: { 'Content-Type': 'application/json' },
+  });
+
   try {
     const response = await fetch(N8N_WEBHOOK_URL, {
       method: 'POST',
@@ -27,15 +32,18 @@ export async function sendToN8n(payload: N8nPayload): Promise<Response> {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
+
+    // 524 = Cloudflare timeout, 504 = gateway timeout, 502 = bad gateway
+    // The n8n workflow is still running — switch to async polling mode.
+    if (response.status === 524 || response.status === 504 ||
+        response.status === 502 || response.status === 408) {
+      return asyncPending;
+    }
+
     return response;
   } catch (err: unknown) {
     clearTimeout(timeoutId);
-    // n8n closes the connection after ~2min regardless of our timeout.
-    // Treat ANY network error as async_pending — the workflow is still
-    // running and will push the result via HTTP Request → /async-result.
-    return new Response(JSON.stringify({ __async_pending: true }), {
-      status: 202,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    // Any network error — workflow still running, switch to async polling.
+    return asyncPending;
   }
 }
