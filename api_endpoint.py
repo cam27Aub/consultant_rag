@@ -60,6 +60,68 @@ class PreferencesIn(BaseModel):
 _async_results: dict = {}
 _async_lock = threading.Lock()
 
+# ── n8n Execution API (fallback polling) ─────────────────────
+N8N_API_URL      = os.getenv("N8N_API_URL", "")       # e.g. https://xxx.app.n8n.cloud
+N8N_API_KEY      = os.getenv("N8N_API_KEY", "")       # n8n API key
+N8N_WORKFLOW_ID  = os.getenv("N8N_WORKFLOW_ID", "")   # optional — speeds up search
+
+def _extract_n8n_output(run_data: dict) -> str | None:
+    """Extract the response content from n8n execution run data."""
+    candidates = [
+        "Code in JavaScript1", "Code in JavaScript",
+        "Research Agent", "Respond to Webhook1",
+        "Respond to Webhook2", "Respond to Webhook",
+    ]
+    for node in candidates:
+        node_runs = run_data.get(node, [])
+        if not node_runs:
+            continue
+        try:
+            items = node_runs[0]["data"]["main"][0]
+            if not items:
+                continue
+            j = items[0].get("json", {})
+            content = (j.get("output") or j.get("text") or j.get("message")
+                       or j.get("answer") or j.get("response") or j.get("body"))
+            if content and isinstance(content, str) and len(content) > 20:
+                return content
+        except (KeyError, IndexError, TypeError):
+            continue
+    return None
+
+async def _poll_n8n_execution(session_id: str) -> str | None:
+    """Check n8n's execution API for a finished execution matching session_id."""
+    if not (N8N_API_URL and N8N_API_KEY):
+        return None
+    try:
+        import httpx
+        headers = {"X-N8N-API-KEY": N8N_API_KEY}
+        params  = {"status": "success", "limit": 20, "includeData": "true"}
+        if N8N_WORKFLOW_ID:
+            params["workflowId"] = N8N_WORKFLOW_ID
+        async with httpx.AsyncClient() as client:
+            r = await client.get(
+                f"{N8N_API_URL}/api/v1/executions",
+                headers=headers, params=params, timeout=10
+            )
+        executions = r.json().get("data", [])
+        for execution in executions:
+            run_data = (execution.get("data") or {}).get("resultData", {}).get("runData", {})
+            # Match session ID from the incoming webhook node
+            for wh_node in ["React Webhook", "Webhook"]:
+                node_runs = run_data.get(wh_node, [])
+                if not node_runs:
+                    continue
+                try:
+                    sid = node_runs[0]["data"]["main"][0][0]["json"].get("sessionId")
+                    if sid == session_id:
+                        return _extract_n8n_output(run_data)
+                except (KeyError, IndexError, TypeError):
+                    continue
+    except Exception:
+        pass
+    return None
+
 
 # ── App ─────────────────────────────────────────────────────
 
@@ -717,12 +779,18 @@ async def receive_async_result(payload: AsyncResultIn):
 
 @app.get("/async-result/{session_id}")
 async def poll_async_result(session_id: str):
-    """Frontend polls this every 4s waiting for the async result."""
+    """Frontend polls this every 4s waiting for the async result.
+    First checks the in-memory push cache (HTTP Request node deliveries),
+    then falls back to querying n8n's execution API directly."""
     with _async_lock:
         data = _async_results.get(session_id)
         if data:
             del _async_results[session_id]  # consume once
             return {"status": "ready", "content": data["content"]}
+    # Fallback: ask n8n's execution API
+    content = await _poll_n8n_execution(session_id)
+    if content:
+        return {"status": "ready", "content": content}
     return {"status": "pending"}
 
 
