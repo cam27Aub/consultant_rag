@@ -1639,5 +1639,25 @@
     "faithfulness": 1.0,
     "answer_relevancy": 0.5,
     "context_precision": 0.3
+  },
+  {
+    "question": "what are the challenges of data curration?\n\n\n",
+    "effective_q": "what are the challenges of data curration?\n\n\n",
+    "timestamp": "2026-04-26T19:36:16",
+    "mode": "naive",
+    "response_time": 3.58,
+    "num_chunks": 5,
+    "answer_length": 1227,
+    "sources": [
+      "Lecture 2.pdf / Page 11",
+      "Lecture 2.pdf / Page 8",
+      "Lecture 2.pdf / Page 17",
+      "Lecture 2.pdf / Page 7",
+      "Lecture 2.pdf / Page 9"
+    ],
+    "test_run": false,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
   }
 ]
