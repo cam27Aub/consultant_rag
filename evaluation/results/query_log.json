@@ -1619,5 +1619,25 @@
     "faithfulness": 1.0,
     "answer_relevancy": 1.0,
     "context_precision": 0.0
+  },
+  {
+    "question": "what can you tell me about the \"it\" in ai models?\n\n\n",
+    "effective_q": "what can you tell me about the \"it\" in ai models?\n\n\n",
+    "timestamp": "2026-04-26T19:35:09",
+    "mode": "naive",
+    "response_time": 6.58,
+    "num_chunks": 5,
+    "answer_length": 1446,
+    "sources": [
+      "bain_report_technology_report_2025. / Page 72",
+      "bain_report_technology_report_2025. / Page 71",
+      "the-economic-potential-of-generativ / Page 8",
+      "bain_report_technology_report_2025. / Page 31",
+      "agents-robots-and-us-skill-partners / Page 10"
+    ],
+    "test_run": false,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.3
   }
 ]
