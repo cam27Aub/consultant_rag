@@ -780,6 +780,73 @@ class AsyncResultIn(BaseModel):
     result: Optional[str] = None
     text: Optional[str] = None
 
+class TriggerIn(BaseModel):
+    chatInput: str
+    sessionId: str
+
+N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", "")
+
+def _store_result(session_id: str, content: str) -> None:
+    with _async_lock:
+        _async_results[session_id] = {"content": content, "timestamp": time.time()}
+    print(f"[trigger] stored result for {session_id} ({len(content)} chars)")
+
+async def _poll_until_ready(session_id: str, max_wait: int = 600, interval: int = 5) -> None:
+    """Poll n8n's execution API in the background until the result is found."""
+    import asyncio
+    deadline = time.time() + max_wait
+    while time.time() < deadline:
+        await asyncio.sleep(interval)
+        # Skip if result was already delivered via n8n's HTTP Request callback
+        with _async_lock:
+            if session_id in _async_results:
+                return
+        result = await _poll_n8n_execution(session_id)
+        if result:
+            _store_result(session_id, result)
+            return
+    print(f"[trigger] gave up polling for {session_id} after {max_wait}s")
+
+async def _fire_n8n(chat_input: str, session_id: str) -> None:
+    """POST to n8n webhook, capture sync response if available, then poll execution
+    API as a fallback. The frontend polls /async-result/{session_id} to pick up
+    the result whenever it arrives."""
+    import httpx
+    if not N8N_WEBHOOK_URL:
+        print("[trigger] N8N_WEBHOOK_URL not set — skipping n8n call")
+        return
+    try:
+        async with httpx.AsyncClient(timeout=120) as client:
+            r = await client.post(
+                N8N_WEBHOOK_URL,
+                json={"chatInput": chat_input, "sessionId": session_id},
+            )
+        # n8n responded synchronously (fast task, finished before Cloudflare killed it)
+        if r.status_code == 200:
+            try:
+                body = r.json()
+                if isinstance(body, list):
+                    body = body[0] or {}
+                content = (body.get("output") or body.get("answer") or body.get("text")
+                           or body.get("response") or body.get("message") or "")
+                if content:
+                    _store_result(session_id, content)
+                    return
+            except Exception:
+                pass
+    except Exception as e:
+        print(f"[trigger] n8n webhook call ended for {session_id}: {e}")
+
+    # Webhook timed out or returned no content — poll n8n's execution API until done
+    await _poll_until_ready(session_id)
+
+@app.post("/trigger")
+async def trigger_n8n(payload: TriggerIn, background_tasks: BackgroundTasks):
+    """Accepts a chat request, immediately returns 202, fires n8n in the background.
+    Avoids Cloudflare's 100-second timeout by never holding a long-lived connection."""
+    background_tasks.add_task(_fire_n8n, payload.chatInput, payload.sessionId)
+    return {"__async_pending": True}
+
 @app.post("/async-result")
 async def receive_async_result(payload: AsyncResultIn):
     """n8n HTTP Request node POSTs the completed report/deck here."""
