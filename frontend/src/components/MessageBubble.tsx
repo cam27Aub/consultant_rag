@@ -73,13 +73,13 @@ export function MessageBubble({ message, onCTAClick }: MessageBubbleProps) {
             <Loader2 className="w-5 h-5 text-navy animate-spin" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-navy mb-0.5">Research in progress...</p>
+            <p className="text-sm font-semibold text-navy mb-0.5">Working on it...</p>
             <p className="text-xs text-sparc-muted">
-              This task is taking longer than usual. Your result will appear here automatically when ready.
+              This is taking a bit longer than usual. Your result will appear here automatically when ready.
             </p>
             <div className="flex items-center gap-1.5 mt-2 text-[10px] text-sparc-muted">
               <Clock className="w-3 h-3" />
-              Typically 2 – 4 minutes for deep research tasks
+              Typically a few minutes for complex tasks
             </div>
           </div>
         </div>
