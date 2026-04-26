@@ -414,6 +414,11 @@ def query_rag(request: QueryRequest, background_tasks: BackgroundTasks):
         if not clean:
             clean = answer.strip()
 
+        # Append extracted sources to answer so they render in the UI
+        if sources:
+            source_lines = "\n".join(f"- {s}" for s in sources)
+            clean = f"{clean}\n\n**Sources:**\n{source_lines}"
+
         # Auto-evaluate in background — doesn't slow down the response
         background_tasks.add_task(
             _auto_evaluate,
