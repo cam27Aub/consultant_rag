@@ -238,14 +238,18 @@ def extract_sources(captured_output: str, answer: str) -> list[str]:
 
 
 def detect_mode_used(captured_output: str) -> str:
-    """Parse captured stdout to determine which mode the hybrid engine chose."""
-    if "Mode: HYBRID" in captured_output:
-        return "hybrid (graph + naive)"
+    """Parse captured stdout to determine which mode the router chose."""
+    # Check final mode first (handles fallback cases)
+    if "Final mode: GRAPH" in captured_output:
+        return "graph"
+    elif "Final mode: NAIVE" in captured_output:
+        return "naive"
+    # Fallback to initial mode line
     elif "Mode: GRAPH" in captured_output:
         return "graph"
     elif "Mode: NAIVE" in captured_output:
         return "naive"
-    return "hybrid"
+    return "naive"
 
 
 # ── Auto-evaluation for real queries ────────────────────────

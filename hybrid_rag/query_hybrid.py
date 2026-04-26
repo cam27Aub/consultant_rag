@@ -1,10 +1,13 @@
 """
-query_hybrid.py — Hybrid RAG query engine.
+query_hybrid.py — Smart RAG router.
 
 Strategy:
-  1. Try Graph RAG first (entity + relationship traversal)
-  2. If graph returns < MIN_NODES nodes OR confidence is low → fall back to Naive RAG
-  3. If both return results → combine and let GPT-4o synthesise a unified answer
+  1. GPT-4o classifies the query as GRAPH or NAIVE
+  2. Only the selected retriever runs — no parallel execution
+  3. Returns a single grounded answer
+
+  GRAPH  → entity/relationship questions (how X connects to Y, what firms use Z)
+  NAIVE  → factual/passage questions (what is X, list the steps of Y)
 
 Usage:
   python query_hybrid.py              # interactive mode
@@ -17,7 +20,6 @@ if sys.platform == "win32":
 import sys
 import io
 import contextlib
-from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -26,38 +28,24 @@ from graph_rag.retriever_graph import GraphRetriever
 from graph_rag import config_graph as config
 from openai import AzureOpenAI
 
-# how many graph nodes are needed before we trust the graph result alone
-MIN_GRAPH_NODES = 3
+# ── Classifier prompt ────────────────────────────────────────────────────────
+_CLASSIFIER_PROMPT = """You are a query router for a RAG system that has two retrieval engines:
 
-HYBRID_PROMPT = """You are ConsultantIQ, an expert knowledge assistant for a management consulting firm.
-You have been given two sources of information to answer the user's question:
+GRAPH  — best for questions about relationships, connections, and how concepts/entities relate to each other.
+         Examples: "How does Porter's Five Forces connect to market entry?", "What firms use agile transformation?"
 
-1. GRAPH CONTEXT — entities and relationships extracted from documents
-2. DOCUMENT CONTEXT — raw passages retrieved directly from documents
+NAIVE  — best for factual, definition, or passage-level questions about specific topics.
+         Examples: "What is the Big Data Value Chain?", "List the steps of the ingestion pipeline."
 
-Rules:
-1. Answer using ONLY the information contained in the GRAPH CONTEXT and DOCUMENT CONTEXT above. Do NOT use your general knowledge or training data. NEVER fabricate information or speculate.
-2. If the sources discuss the topic but do not fully answer the question, describe ONLY what the sources say. Then state which aspects of the question are not covered. When listing missing aspects, use only the user's own words from the question — do NOT provide examples, elaborations, or hints drawn from your training data.
-3. Only say "I could not find this information in the knowledge base." if NEITHER source contains ANY relevant information at all.
-4. Cite source documents where relevant using: [Source: <filename>, <section>, Page <N>]
-5. If the sources contradict each other, note it.
-6. Be concise and professional. Use bullet points for lists of facts.
+Given the query below, respond with exactly one word: GRAPH or NAIVE.
 
-GRAPH CONTEXT:
-{graph_context}
-
-DOCUMENT CONTEXT:
-{doc_context}
-
-QUESTION: {question}
-"""
+Query: {question}"""
 
 
 class HybridRetriever:
     def __init__(self):
         self.graph = GraphRetriever()
 
-        # load naive RAG retriever from parent folder
         try:
             from naive_rag.retriever import RAGRetriever
             self.naive = RAGRetriever()
@@ -72,107 +60,79 @@ class HybridRetriever:
             api_version=config.AZURE_OPENAI_API_VERSION,
         )
 
-    def _get_naive_context(self, question: str) -> str:
-        """Get raw passage context from naive RAG retriever."""
-        if not self.naive:
-            return ""
+    def _classify(self, question: str) -> str:
+        """Ask GPT-4o to classify the query as GRAPH or NAIVE."""
         try:
-            chunks = self.naive.retrieve(question, top_k=5)
-            if not chunks:
-                return ""
-            lines = []
-            for i, c in enumerate(chunks, 1):
-                if isinstance(c, dict):
-                    text   = c.get("cleaned_text") or c.get("chunk_text") or ""
-                    source = c.get("source", "")
-                    page   = c.get("page", "")
-                    section = c.get("section", "")
-                else:
-                    text   = getattr(c, "cleaned_text", "") or getattr(c, "chunk_text", "")
-                    source = getattr(c, "source", "")
-                    page   = getattr(c, "page", "")
-                    section = getattr(c, "section", "")
-                lines.append("[%d] %s | %s | p%s\n%s" % (i, source, section, page, text[:400]))
-            return "\n\n".join(lines)
+            response = self.llm.chat.completions.create(
+                model=config.AZURE_CHAT_DEPLOYMENT,
+                messages=[{
+                    "role": "user",
+                    "content": _CLASSIFIER_PROMPT.format(question=question)
+                }],
+                temperature=0,
+                max_tokens=5,
+            )
+            decision = response.choices[0].message.content.strip().upper()
+            return "graph" if "GRAPH" in decision else "naive"
         except Exception as e:
-            print("  Naive RAG retrieval failed: %s" % e)
-            return ""
+            print("  Classifier error: %s — defaulting to naive" % e)
+            return "naive"
+
+    def _run_graph(self, question: str) -> str:
+        """Run Graph RAG and return the answer."""
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            self.graph.ask(question)
+        raw = buf.getvalue().strip()
+        lines = [l for l in raw.split("\n")
+                 if not l.startswith("=") and not l.startswith("──")]
+        return "\n".join(lines).strip()
+
+    def _run_naive(self, question: str) -> str:
+        """Run Naive RAG and return the answer."""
+        if not self.naive:
+            return "Naive RAG not available."
+        try:
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                self.naive.ask(question)
+            raw = buf.getvalue().strip()
+            lines = [l for l in raw.split("\n")
+                     if not l.startswith("=") and not l.startswith("──")
+                     and not l.startswith("[")]
+            return "\n".join(lines).strip()
+        except Exception as e:
+            return "Naive RAG error: %s" % e
 
     def ask(self, question: str) -> str:
         print("\n" + "=" * 60)
         print("%s" % question)
 
-        # Step 1 & 2 — Graph + Naive retrieval in PARALLEL
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            graph_future = pool.submit(self.graph.retrieve, question, 5)
-            naive_future = pool.submit(self._get_naive_context, question)
-            subgraph = graph_future.result()
-            doc_context = naive_future.result()
+        # Step 1 — Classify query
+        mode = self._classify(question)
+        print("── Mode: %s" % mode.upper())
 
-        node_count = len(subgraph.get("nodes", []))
-        graph_context = self.graph._build_context(subgraph)
-
-        print("── Graph: %d nodes, %d edges" % (node_count, len(subgraph.get("edges", []))))
-        has_doc = bool(doc_context.strip())
-        print("── Naive RAG: %s" % ("passages retrieved" if has_doc else "no results"))
-
-        # Step 3 — Decide strategy
-        if node_count >= MIN_GRAPH_NODES and has_doc:
-            # Both sources available — synthesise
-            mode = "HYBRID"
-        elif node_count >= MIN_GRAPH_NODES:
-            # Graph only
-            mode = "GRAPH"
-        elif has_doc:
-            # Fall back to naive RAG
-            mode = "NAIVE"
+        # Step 2 — Run only the selected retriever
+        if mode == "graph":
+            answer = self._run_graph(question)
+            # fallback to naive if graph returns nothing useful
+            if not answer or len(answer) < 30:
+                print("── Graph returned no results — falling back to naive")
+                mode = "naive"
+                answer = self._run_naive(question)
         else:
-            print("── No results from either source")
-            print("The knowledge base does not contain sufficient information to answer this question.")
-            print("=" * 60)
-            return "The knowledge base does not contain sufficient information to answer this question."
+            answer = self._run_naive(question)
+            # fallback to graph if naive returns nothing useful
+            if not answer or len(answer) < 30:
+                print("── Naive returned no results — falling back to graph")
+                mode = "graph"
+                answer = self._run_graph(question)
 
-        print("── Mode: %s" % mode)
-
-        # Step 4 — Generate answer
-        if mode == "HYBRID":
-            prompt = HYBRID_PROMPT.format(
-                graph_context=graph_context,
-                doc_context=doc_context,
-                question=question,
-            )
-            response = self.llm.chat.completions.create(
-                model=config.AZURE_CHAT_DEPLOYMENT,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.1,
-                max_tokens=900,
-            )
-            answer = response.choices[0].message.content.strip()
-
-        elif mode == "GRAPH":
-            # use graph retriever's built-in generation
-            buf = io.StringIO()
-            with contextlib.redirect_stdout(buf):
-                self.graph.ask(question)
-            answer = buf.getvalue().strip()
-            # clean up the terminal formatting lines
-            lines = [l for l in answer.split("\n") if not l.startswith("=") and not l.startswith("──")]
-            answer = "\n".join(lines).strip()
-
-        else:  # NAIVE
-            # call naive RAG ask() and capture output
-            try:
-                buf = io.StringIO()
-                with contextlib.redirect_stdout(buf):
-                    self.naive.ask(question)
-                raw = buf.getvalue().strip()
-                # strip the terminal formatting from query.py
-                lines = [l for l in raw.split("\n") if not l.startswith("=") and not l.startswith("──") and not l.startswith("[")]
-                answer = "\n".join(lines).strip()
-            except Exception as e:
-                answer = "Naive RAG error: %s" % e
+        if not answer or len(answer) < 30:
+            answer = "The knowledge base does not contain sufficient information to answer this question."
 
         print(answer)
+        print("── Final mode: %s" % mode.upper())
         print("=" * 60)
         return answer
 
@@ -198,16 +158,16 @@ def main():
     retriever = HybridRetriever()
 
     if args.demo:
-        print("\nRunning Hybrid RAG demo...\n")
+        print("\nRunning Smart RAG Router demo...\n")
         for q in DEMO_QUESTIONS:
             retriever.ask(q)
             print()
     else:
         from naive_rag.retriever import rewrite_followup
 
-        print("\nHybrid RAG — Interactive Mode")
-        print("Graph RAG + Naive RAG fallback")
-        print("Memory: last 15 turns  |  Type 'quit' to exit.\n")
+        print("\nSmart RAG Router — Interactive Mode")
+        print("GPT classifies each query → runs Graph RAG or Naive RAG")
+        print("Type 'quit' to exit.\n")
 
         conversation = []
 
