@@ -120,7 +120,9 @@ async def _poll_n8n_execution(session_id: str) -> str | None:
                 if not node_runs:
                     continue
                 try:
-                    sid = node_runs[0]["data"]["main"][0][0]["json"].get("sessionId")
+                    j = node_runs[0]["data"]["main"][0][0]["json"]
+                    # sessionId may be top-level OR nested under body (depends on webhook mode)
+                    sid = j.get("sessionId") or j.get("body", {}).get("sessionId")
                     print(f"[async] found sessionId={sid} (looking for {session_id})")
                     if sid == session_id:
                         result = _extract_n8n_output(run_data)
@@ -779,7 +781,7 @@ def ingest_status():
 # ── Async result endpoints (n8n push + frontend poll) ────────
 
 class AsyncResultIn(BaseModel):
-    sessionId: str
+    sessionId: Optional[str] = None
     output: Optional[str] = None
     answer: Optional[str] = None
     result: Optional[str] = None
