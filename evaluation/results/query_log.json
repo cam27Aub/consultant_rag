@@ -1750,5 +1750,24 @@
     "faithfulness": 1.0,
     "answer_relevancy": 1.0,
     "context_precision": 0.9
+  },
+  {
+    "question": "What productivity gains can knowledge workers expect from generative AI from our internal knowledge?\n\n\n",
+    "effective_q": "What productivity gains can knowledge workers expect from generative AI from our internal knowledge?\n\n\n",
+    "timestamp": "2026-04-29T20:53:42",
+    "mode": "naive",
+    "response_time": 7.33,
+    "num_chunks": 4,
+    "answer_length": 2284,
+    "sources": [
+      "the-economic-potential-of-generativ / Page 15",
+      "the-economic-potential-of-generativ / Page 12",
+      "the-economic-potential-of-generativ / Page 42",
+      "the-economic-potential-of-generativ / Page 35"
+    ],
+    "test_run": false,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.9
   }
 ]
