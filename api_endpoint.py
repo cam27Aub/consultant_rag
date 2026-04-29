@@ -427,6 +427,16 @@ def query_rag(request: QueryRequest, background_tasks: BackgroundTasks):
             "knowledge base does not",
             "insufficient information",
             "not contain sufficient",
+            # Conversational / greeting responses — no sources needed
+            "how can i assist",
+            "how can i help",
+            "hello!",
+            "hi there",
+            "i'm here to help",
+            "i am here to help",
+            "what can i help",
+            "what can i assist",
+            "feel free to ask",
         )
         answer_is_substantive = not any(p in clean.lower() for p in _no_answer_phrases)
         if sources and answer_is_substantive:
