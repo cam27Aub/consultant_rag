@@ -128,7 +128,9 @@ def compute_summary() -> dict:
     source_counter = Counter()
     for e in live_entries:
         for src in e.get("sources", []):
-            source_counter[src] += 1
+            # Aggregate by document name only (strip " / Page N" suffix)
+            doc_name = src.split(" / Page ")[0].split(" / Slide ")[0].strip()
+            source_counter[doc_name] += 1
 
     # ── RAGAS metrics from query_log (LLM-as-judge entries) ──
     def _avg_metric(field, subset=None):

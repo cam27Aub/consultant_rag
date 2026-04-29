@@ -239,9 +239,10 @@ class ChartGenerator:
         source_counter: Counter = Counter()
         for e in self.entries:
             for src in e.get("sources", []):
-                clean = src.replace("-", ",")
-                name = clean if len(clean) <= 35 else clean[:32] + "..."
-                source_counter[name] += 1
+                # Aggregate by document name only (strip " / Page N" suffix)
+                doc_name = src.split(" / Page ")[0].split(" / Slide ")[0].strip()
+                label = doc_name if len(doc_name) <= 35 else doc_name[:32] + "..."
+                source_counter[label] += 1
 
         top = source_counter.most_common(8)
         if not top:
