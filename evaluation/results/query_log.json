@@ -1691,5 +1691,25 @@
     "faithfulness": 1.0,
     "answer_relevancy": 0.5,
     "context_precision": 0.0
+  },
+  {
+    "question": "What productivity gains can manufacturers expect from AI-enabled industrial automation?\n\n\n",
+    "effective_q": "What productivity gains can manufacturers expect from AI-enabled industrial automation?\n\n\n",
+    "timestamp": "2026-04-29T20:41:56",
+    "mode": "naive",
+    "response_time": 6.98,
+    "num_chunks": 5,
+    "answer_length": 1112,
+    "sources": [
+      "agents-robots-and-us-skill-partners / Page 37",
+      "bain_brief_industrial_automation_fr / Page 10",
+      "bain_brief_industrial_automation_fr / Page 6",
+      "bain_brief_industrial_automation_fr / Page 3",
+      "bain_brief_industrial_automation_fr / Page 8"
+    ],
+    "test_run": false,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
   }
 ]
