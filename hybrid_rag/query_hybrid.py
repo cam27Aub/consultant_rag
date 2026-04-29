@@ -32,10 +32,21 @@ from openai import AzureOpenAI
 _CLASSIFIER_PROMPT = """You are a query router for a RAG system that has two retrieval engines:
 
 GRAPH  — best for questions about relationships, connections, and how concepts/entities relate to each other.
-         Examples: "How does Porter's Five Forces connect to market entry?", "What firms use agile transformation?"
+         Use GRAPH when the question asks how X connects to Y, what links two concepts, or how entities interact.
+         Examples: "How does IT-OT convergence relate to industrial automation?",
+                   "What is the relationship between orchestration layer and data layer?",
+                   "How does MCP protocol connect AI agents to enterprise tools?"
 
-NAIVE  — best for factual, definition, or passage-level questions about specific topics.
-         Examples: "What is the Big Data Value Chain?", "List the steps of the ingestion pipeline."
+NAIVE  — best for factual, statistical, definition, or passage-level questions.
+         Use NAIVE when the question asks for specific numbers, percentages, market sizes, definitions,
+         lists of steps, or any answer that would come from a specific passage in a document.
+         Examples: "What productivity gains can manufacturers expect from AI-enabled automation?",
+                   "What share of airline revenues will flow through AI by 2030?",
+                   "What are the three layers of Bain's agentic AI platform?",
+                   "How productive are MSMEs compared to large companies?",
+                   "What are the main barriers to productivity growth?"
+
+When in doubt, choose NAIVE.
 
 Given the query below, respond with exactly one word: GRAPH or NAIVE.
 
@@ -113,10 +124,14 @@ class HybridRetriever:
         print("── Mode: %s" % mode.upper())
 
         # Step 2 — Run only the selected retriever
+        _graph_failures = (
+            "no relevant entities", "cannot answer", "subgraph contains no",
+            "not contain", "no information", "insufficient",
+        )
         if mode == "graph":
             answer = self._run_graph(question)
-            # fallback to naive if graph returns nothing useful
-            if not answer or len(answer) < 30:
+            # fallback to naive if graph returns nothing useful or an explicit failure
+            if not answer or len(answer) < 30 or any(f in answer.lower() for f in _graph_failures):
                 print("── Graph returned no results — falling back to naive")
                 mode = "naive"
                 answer = self._run_naive(question)
