@@ -1711,5 +1711,25 @@
     "faithfulness": 1.0,
     "answer_relevancy": 1.0,
     "context_precision": 1.0
+  },
+  {
+    "question": "retrieve from the internal knowledge\n\n\n",
+    "effective_q": "retrieve from the internal knowledge\n\n\n",
+    "timestamp": "2026-04-29T20:46:12",
+    "mode": "naive",
+    "response_time": 3.34,
+    "num_chunks": 5,
+    "answer_length": 384,
+    "sources": [
+      "the-economic-potential-of-generativ / Page 15",
+      "the-economic-potential-of-generativ / Page 30",
+      "strategic_frameworks_guide.docx / Page 6",
+      "agents-robots-and-us-skill-partners / Page 42",
+      "the-economic-potential-of-generativ / Page 56"
+    ],
+    "test_run": false,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.0,
+    "context_precision": 0.0
   }
 ]
