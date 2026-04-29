@@ -1677,5 +1677,19 @@
     "faithfulness": 1.0,
     "answer_relevancy": 1.0,
     "context_precision": 0.0
+  },
+  {
+    "question": "What productivity gains can manufacturers expect from AI-enabled industrial automation?\n\n\n",
+    "effective_q": "What productivity gains can manufacturers expect from AI-enabled industrial automation?\n\n\n",
+    "timestamp": "2026-04-29T20:20:26",
+    "mode": "graph",
+    "response_time": 4.01,
+    "num_chunks": 0,
+    "answer_length": 98,
+    "sources": [],
+    "test_run": false,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.0
   }
 ]
