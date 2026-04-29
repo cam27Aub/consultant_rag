@@ -161,9 +161,9 @@ def compute_summary() -> dict:
     def _avg(lst):
         return round(sum(lst) / len(lst), 4) if lst else 0.0
 
-    # ── Recent queries (last 15, newest first) ────────────────
+    # ── Recent queries (last 15, newest first — live UI queries only) ─
     recent_qs = sorted(
-        [e for e in entries if e.get("question") and not e.get("error")],
+        [e for e in entries if e.get("question") and not e.get("error") and not e.get("test_run")],
         key=lambda x: x.get("timestamp", ""),
         reverse=True,
     )[:15]
