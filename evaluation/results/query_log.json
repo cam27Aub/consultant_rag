@@ -1659,5 +1659,25 @@
     "faithfulness": 1.0,
     "answer_relevancy": 1.0,
     "context_precision": 0.8
+  },
+  {
+    "question": "what do you know about renewable energy?\n\n\n",
+    "effective_q": "what do you know about renewable energy?\n\n\n",
+    "timestamp": "2026-04-29T18:40:43",
+    "mode": "naive",
+    "response_time": 14.95,
+    "num_chunks": 5,
+    "answer_length": 2637,
+    "sources": [
+      "mckinsey-tech-trends-outlook-2022-f / Page 136",
+      "mckinsey-tech-trends-outlook-2022-f / Page 139",
+      "mckinsey-tech-trends-outlook-2022-f / Page 147",
+      "mckinsey-tech-trends-outlook-2022-f / Page 140",
+      "mckinsey-tech-trends-outlook-2022-f / Page 142"
+    ],
+    "test_run": false,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.9
   }
 ]
