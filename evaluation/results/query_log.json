@@ -1789,5 +1789,25 @@
     "faithfulness": 1.0,
     "answer_relevancy": 1.0,
     "context_precision": 1.0
+  },
+  {
+    "question": "What are the three layers of an agentic AI platform?\n\n\n",
+    "effective_q": "What are the three layers of an agentic AI platform?\n\n\n",
+    "timestamp": "2026-04-29T20:54:20",
+    "mode": "naive",
+    "response_time": 5.34,
+    "num_chunks": 5,
+    "answer_length": 1057,
+    "sources": [
+      "bain_report_technology_report_2025. / Page 72",
+      "bain_report_technology_report_2025. / Page 29",
+      "bain_report_technology_report_2025. / Page 9",
+      "bain_report_technology_report_2025. / Page 52",
+      "bain_report_technology_report_2025. / Page 75"
+    ],
+    "test_run": false,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 1.0
   }
 ]
