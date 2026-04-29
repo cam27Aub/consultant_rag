@@ -99,7 +99,7 @@ class ChartGenerator:
     # ── 1. Mode Distribution Donut ────────────────────────────
 
     def chart_mode_distribution(self) -> str:
-        mode_counter = Counter(_normalize_mode(e.get("mode", "Unknown")) for e in self.entries)
+        mode_counter = Counter(_normalize_mode(e.get("mode", "Unknown")) for e in self.entries if not e.get("test_run"))
         if not mode_counter:
             return self._empty_chart("No query data yet")
 
@@ -238,6 +238,8 @@ class ChartGenerator:
     def chart_top_sources(self) -> str:
         source_counter: Counter = Counter()
         for e in self.entries:
+            if e.get("test_run"):  # exclude benchmark test entries
+                continue
             for src in e.get("sources", []):
                 # Aggregate by document name only (strip " / Page N" suffix)
                 doc_name = src.split(" / Page ")[0].split(" / Slide ")[0].strip()
