@@ -416,8 +416,20 @@ def query_rag(request: QueryRequest, background_tasks: BackgroundTasks):
         if not clean:
             clean = answer.strip()
 
-        # Append extracted sources to answer so they render in the UI
-        if sources:
+        # Append extracted sources only when the answer is substantive
+        _no_answer_phrases = (
+            "your question is unclear",
+            "i could not find",
+            "does not contain",
+            "no information",
+            "cannot answer",
+            "not able to answer",
+            "knowledge base does not",
+            "insufficient information",
+            "not contain sufficient",
+        )
+        answer_is_substantive = not any(p in clean.lower() for p in _no_answer_phrases)
+        if sources and answer_is_substantive:
             source_lines = "\n".join(f"- {s}" for s in sources)
             clean = f"{clean}\n\n**Sources:**\n{source_lines}"
 
