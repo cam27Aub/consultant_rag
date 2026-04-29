@@ -1809,5 +1809,25 @@
     "faithfulness": 1.0,
     "answer_relevancy": 1.0,
     "context_precision": 1.0
+  },
+  {
+    "question": "What is the definition of total addressable market?\n\n\n",
+    "effective_q": "What is the definition of total addressable market?\n\n\n",
+    "timestamp": "2026-04-29T20:54:37",
+    "mode": "naive",
+    "response_time": 9.71,
+    "num_chunks": 5,
+    "answer_length": 689,
+    "sources": [
+      "bain_report_b2b_growth_agenda-2026. / Page 23",
+      "mckinsey-tech-trends-outlook-2022-f / Page 176",
+      "bain_report_b2b_growth_agenda-2026. / Page 24",
+      "bain_report_b2b_growth_agenda-2026. / Page 25",
+      "bain_report_global_m_and_a_report_2 / Page 87"
+    ],
+    "test_run": false,
+    "faithfulness": 1.0,
+    "answer_relevancy": 0.5,
+    "context_precision": 0.3
   }
 ]
