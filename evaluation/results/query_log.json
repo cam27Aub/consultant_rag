@@ -1869,5 +1869,24 @@
     "faithfulness": 1.0,
     "answer_relevancy": 1.0,
     "context_precision": 1.0
+  },
+  {
+    "question": "tell me about data cleaning\n\n\n",
+    "effective_q": "tell me about data cleaning\n\n\n",
+    "timestamp": "2026-04-29T21:19:41",
+    "mode": "naive",
+    "response_time": 7.98,
+    "num_chunks": 4,
+    "answer_length": 1128,
+    "sources": [
+      "Lecture 2.pdf / Page 10",
+      "Lecture 2.pdf / Page 9",
+      "bain_report_b2b_growth_agenda-2026. / Page 34",
+      "Lecture 1.pdf / Page 24"
+    ],
+    "test_run": false,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.8
   }
 ]
