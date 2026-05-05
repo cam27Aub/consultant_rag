@@ -452,7 +452,7 @@ def query_rag(request: QueryRequest, background_tasks: BackgroundTasks):
         return QueryResponse(
             answer=clean,
             mode_used=mode_used,
-            sources=sources,
+            sources=sources if answer_is_substantive else [],
         )
 
     except Exception as e:
