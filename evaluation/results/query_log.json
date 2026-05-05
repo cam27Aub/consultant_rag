@@ -1948,5 +1948,25 @@
     "faithfulness": 0.5,
     "answer_relevancy": 0.5,
     "context_precision": 0.2
+  },
+  {
+    "question": "hello\n\n\n",
+    "effective_q": "hello\n\n\n",
+    "timestamp": "2026-05-05T20:12:12",
+    "mode": "naive",
+    "response_time": 8.52,
+    "num_chunks": 5,
+    "answer_length": 34,
+    "sources": [
+      "Lecture 1.pdf / Page 22",
+      "Lecture 1.pdf / Page 3",
+      "bain_report_technology_report_2025. / Page 39",
+      "Lecture 1.pdf / Page 1",
+      "bain_report_technology_report_2025. / Page 65"
+    ],
+    "test_run": false,
+    "faithfulness": 1.0,
+    "answer_relevancy": 1.0,
+    "context_precision": 0.2
   }
 ]
